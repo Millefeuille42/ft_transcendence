@@ -1,5 +1,5 @@
 <template>
-	<v-tab @click="updateTab(Id)">{{ Title }}</v-tab>
+	<v-tab>{{ Title }}</v-tab>
 </template>
 
 <script lang="ts">
@@ -11,11 +11,6 @@ import {EventBus} from "@/main";
 		Title: String,
 		Id: String,
 	},
-	methods: {
-		updateTab(tab) {
-			EventBus.$emit("tabChanged", tab)
-		}
-	}
 })
 export default class TopBarTab extends Vue {}
 </script>

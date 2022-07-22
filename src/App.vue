@@ -1,11 +1,23 @@
 <template>
 	<div id="app">
 		<v-app id="inspire">
-			<TopBar Title="PDF: Pong De Fou" :Tabs="tabs"></TopBar>
-			<v-main>
-			<Component :is=currentComponent></Component>
+			<AppBar :Links=links />
+			<v-main class="grey lighten-3">
+				<v-container>
+					<v-row>
+						<DisplayContainer cols="12" sm="2" min_height="268">
+							<ProfileContent :small=true></ProfileContent>
+						</DisplayContainer>
+
+						<DisplayContainer cols="12" sm="8" min_height="70vh">
+							<ProfileContent :small=false></ProfileContent>
+						</DisplayContainer>
+
+						<DisplayContainer cols="12" sm="2" min_height="286">
+						</DisplayContainer>
+					</v-row>
+				</v-container>
 			</v-main>
-			<Drawer></Drawer>
 		</v-app>
 	</div>
 </template>
@@ -25,47 +37,22 @@ html::-webkit-scrollbar {
 </style>
 
 <script lang="ts">
-import TopBar from "@/components/TopBar.vue";
-import Drawer from "@/components/Drawer.vue";
-import ContentSheet from "@/components/ContentSheet.vue"
-import PlaceHolder from "@/components/PlaceHolder.vue";
 import {EventBus} from "@/main";
 import {Component, Vue} from "vue-property-decorator";
+import AppBar from "@/components/AppBar.vue";
+import DisplayContainer from "@/components/DisplayContainer.vue";
+import ProfileContent from "@/components/ProfileContent.vue";
 
 @Component( {
-	components : {
-		Drawer,
-		TopBar,
-		ContentSheet,
-		PlaceHolder
-	},
+	components: {DisplayContainer, AppBar, ProfileContent},
 	data: () => ({
-		collapseOnScroll: true,
-		tabs: [
-			{
-				id: "about",
-				title: "About",
-				content: "ContentSheet"
-			},
-			{
-				id: "news",
-				title: "News",
-				content: "PlaceHolder"
-			},
-			{
-				id: "leaderboard",
-				title: "Leaderboard",
-				content: "smth"
-			},
+		links: [
+			'Home',
+			'Play',
+			'Chat',
+			'Profile',
 		],
-		currentComponent: "contentSheet"
 	}),
-	created() {
-		EventBus.$on("tabChanged", (tabId: string) => {
-			const tab = this.$data.tabs.find((tab: {id: String, title: String, content: String}) => tab.id == tabId)
-			this.$data.currentComponent = tab.content
-		})
-	}
 })
 export default class App extends Vue {}
 </script>

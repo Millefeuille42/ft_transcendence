@@ -26,8 +26,8 @@
 				<v-icon>mdi-account</v-icon>
 			</v-btn>
 			<template v-slot:extension>
-				<v-tabs align-with-title>
-					<TopBarTab v-for="tab in Tabs" :Id=tab.id :Title=tab.title> </TopBarTab>
+				<v-tabs align-with-title v-model="selectedTab">
+					<TopBarTab v-for="tab in Tabs" :Id=tab.id :Title=tab.title :key=tab.id> </TopBarTab>
 				</v-tabs>
 			</template>
 		</v-app-bar>
@@ -53,13 +53,19 @@ import {EventBus} from "@/main";
 	components: {Drawer, NavDrawerButton, TopBarTab},
 	data: () => ({
 		drawer: false,
-		group: null
+		group: null,
+		selectedTab: 0
 	}),
 
 	watch: {
 		group () {
 			this.$data.drawer = false
 		},
+		selectedTab () {
+			if (this.$props.Tabs != undefined && this.$data.selectedTab >= this.$props.Tabs?.length)
+				return
+			EventBus.$emit("tabChanged", this.$props.Tabs[this.$data.selectedTab].id)
+		}
 	}
 })
 export default class TopBar extends Vue {}
