@@ -1,6 +1,6 @@
 <template>
-	<v-col :cols=cols :sm=sm>
-		<v-sheet rounded="lg" :height=min_height elevation="4">
+	<v-col :cols=cols :xl=sm>
+		<v-sheet rounded="xl" :height=height :min-height=min_height elevation="4">
 			<slot></slot>
 		</v-sheet>
 	</v-col>
@@ -14,6 +14,7 @@ import {Component, Vue} from "vue-property-decorator";
 		cols: String,
 		sm: String,
 		min_height: String,
+		height: String
 	}
 })
 export default class DisplayContainer extends Vue {

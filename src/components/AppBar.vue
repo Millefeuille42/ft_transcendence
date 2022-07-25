@@ -1,20 +1,10 @@
 <template>
-	<v-app-bar
-		app
-		flat
-	>
-		<v-avatar
-			size="32"
-			:color="$vuetify.breakpoint.smAndDown ? 'grey darken-1' : 'transparent'"
-		/>
-
-		<NavTabs :Links=Links></NavTabs>
-
-		<v-avatar
-			class="hidden-sm-and-down"
-			color="grey darken-1 shrink"
-			size="32"
-		/>
+	<v-app-bar app flat>
+		<NavTabs class="" :Links=Links></NavTabs>
+		<v-spacer></v-spacer>
+		<v-avatar color="grey darken-1 shrink" size="32">
+			<v-img :src=user.profilePic></v-img>
+		</v-avatar>
 	</v-app-bar>
 </template>
 
@@ -27,6 +17,7 @@ import NavTabs from "@/components/NavTabs.vue";
 		NavTabs
 	},
 	props: {
+		user: Object,
 		Links: Array
 	}
 })
