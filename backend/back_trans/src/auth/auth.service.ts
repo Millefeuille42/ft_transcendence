@@ -8,11 +8,13 @@ import {User} from "./auth.interface";
 export class AuthService {
 	constructor(private configService: ConfigService) { }
 
-	async getAccessToken(): Promise<string> {
+	async getAccessToken(code: string): Promise<string> {
 		const payload = {
 			grant_type: "client_credentials",
 			client_id: this.configService.get<string>('API_UID'),
 			client_secret: this.configService.get<string>('API_SECRET'),
+			redirect_uri: this.configService.get<string>('API_REDIR'),
+			code,
 		};
 
 		let ret: string;
@@ -33,14 +35,14 @@ export class AuthService {
 		return ret;
 	}
 
-	async findSomeone(login: string) {
+	async findSomeone(code: string) {
 		let access_token: string;
 		let userData: User;
 		try {
-			access_token = await this.getAccessToken();
+			access_token = await this.getAccessToken(code);
 			await axios ({
 				method: "GET",
-				url: this.configService.get<string>('API') + "/v2/users/" + login,
+				url: this.configService.get<string>('API') + "/v2/me",
 				headers: {
 					Authorization: "Bearer " + access_token,
 					"content-type": "application/json",
@@ -64,3 +66,5 @@ export class AuthService {
 		return userData;
 	}
 }
+
+

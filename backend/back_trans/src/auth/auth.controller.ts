@@ -5,6 +5,8 @@ import {AuthService} from "./auth.service";
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
+
+
 	@Get(':login')
 	findSomeone(@Param('login') login: string) {
 		return this.authService.findSomeone(login);
