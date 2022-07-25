@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, Injectable, NotFoundException} from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
@@ -6,18 +6,19 @@ import {User} from "./auth.interface";
 
 @Injectable()
 export class AuthService {
-	constructor(private readonly _jwtService: JwtService, private readonly _configService: ConfigService) { }
+	constructor(private configService: ConfigService) { }
+
 	async getAccessToken(): Promise<string> {
 		const payload = {
-			grand_type: "client_credentials",
-			client_id: "",
-			client_secret: "",
+			grant_type: "client_credentials",
+			client_id: this.configService.get<string>('API_UID'),
+			client_secret: this.configService.get<string>('API_SECRET'),
 		};
 
 		let ret: string;
 		await axios({
-			method: "POST",
-			url: "https://api.intra.42.fr/oauth/token",
+			method: "post",
+			url: this.configService.get<string>('API') + "/oauth/token",
 			data: JSON.stringify(payload),
 			headers: {
 				"content-type": "application/json",
@@ -26,7 +27,9 @@ export class AuthService {
 			.then(function (res) { // Une fois que la requete est faite et a reussi, il faut donner une fonction a call
 			ret = res.data.access_token; // Et en gros tu la definis la, la dite fonction
 		})
-			.catch((err) => {}); // Si la requete echoue
+			.catch((err) => {
+				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
+			}); // Si la requete echoue
 		return ret;
 	}
 
@@ -37,22 +40,27 @@ export class AuthService {
 			access_token = await this.getAccessToken();
 			await axios ({
 				method: "GET",
-				url: "http://api.intra.42.fr/v2/users/" + login,
+				url: this.configService.get<string>('API') + "/v2/users/" + login,
 				headers: {
-					authorization: `Bearer ${access_token}`,
+					Authorization: "Bearer " + access_token,
 					"content-type": "application/json",
 				},
 			})
 				.then(function (res) {
-					userData.login = res.data.login;
-					userData.email = res.data.email;
-					userData.first_name = res.data.first_name;
-					userData.last_name = res.data.last_name;
+					userData = {
+						login: res.data.login,
+						email: res.data.email,
+						name: res.data.usual_full_name,
+						avatar: res.data.image_url
+					}
 				})
-				.catch((err) => {});
+				.catch((err) => {
+					throw new HttpException(err.response.statusText, err.response.status);
+				});
 		}
-		catch (err: any) {}
-		console.log(userData.login);
+		catch (err: any) {
+			throw new HttpException(err.response, err.status);
+		}
 		return userData;
 	}
 }
