@@ -7,7 +7,9 @@ import {User} from "./auth.interface";
 
 @Injectable()
 export class AuthService {
-	constructor(private configService: ConfigService, private userService: UserService) { }
+	constructor(private configService: ConfigService,
+				private userService: UserService,
+				private jwtService: JwtService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -69,6 +71,13 @@ export class AuthService {
 		}
 		this.userService.users = [...this.userService.users, userData];
 		return userData;
+	}
+
+	async login(user: User) {
+		const payload = {username: user.login, img: user.avatar};
+		return {
+			access_token: this.jwtService.sign(payload),
+		}
 	}
 
 	getRedipage() {
