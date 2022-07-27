@@ -4,6 +4,7 @@ import {User} from "../auth/auth.interface";
 @Injectable()
 export class UserService {
 	users: User[] = [];
+	connectSession = new Map<string, string>([]);
 
 	getUser(login: string) {
 		return this.users.find(users => users.login === login);
@@ -31,5 +32,9 @@ export class UserService {
 		return {
 			code: this.users.find(users => users.login === login).code,
 		}
+	}
+
+	getToken(login: string) {
+		return this.connectSession.get(login);
 	}
 }

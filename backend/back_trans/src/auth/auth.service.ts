@@ -8,8 +8,7 @@ import {User} from "./auth.interface";
 @Injectable()
 export class AuthService {
 	constructor(private configService: ConfigService,
-				private userService: UserService,
-				private jwtService: JwtService) { }
+				private userService: UserService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -38,14 +37,14 @@ export class AuthService {
 		return ret;
 	}
 
-	async findSomeone(code: string) {
+	async addSomeone(code: string) {
 		console.log(code);
 		let access_token: string;
 		let userData: User;
 		try {
 			access_token = await this.getAccessToken(code);
 			console.log(access_token)
-			await axios ({
+			await axios({
 				method: "GET",
 				url: this.configService.get<string>('API') + "/v2/me",
 				headers: {
@@ -65,20 +64,15 @@ export class AuthService {
 				.catch((err) => {
 					throw new HttpException(err.response.statusText, err.response.status);
 				});
-		}
-		catch (err: any) {
+		} catch (err: any) {
 			throw new HttpException(err.response, err.status);
 		}
+
+		this.userService.connectSession.set(userData.login, access_token);
 		this.userService.users = [...this.userService.users, userData];
-		return userData;
+		return userData.login;
 	}
 
-	async login(user: User) {
-		const payload = {username: user.login, img: user.avatar};
-		return {
-			access_token: this.jwtService.sign(payload),
-		}
-	}
 
 	getRedipage() {
 		return {

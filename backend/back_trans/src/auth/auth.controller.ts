@@ -1,12 +1,14 @@
-import {Controller, Get, Param, Post, Query, Request} from '@nestjs/common';
+import {Controller, Get, Param, Post, Query, Res} from '@nestjs/common';
+import {Response} from 'express'
 import {AuthService} from "./auth.service";
 
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(private readonly authService: AuthService) {
+	}
 
 	@Get()
-	getAuth(@Query() query: { code: string}) {
+	getAuth(@Query() query: { code: string }) {
 		if (!query.code)
 			return this.authService.getRedipage();
 		else
@@ -14,12 +16,11 @@ export class AuthController {
 	}
 
 	@Get(':code')
-	findSomeone(@Param('code') code: string) {
-		return this.authService.findSomeone(code);
-	}
-
-	@Post('login')
-	async login(@Request() req) {
-		return this.authService.login(req.user);
+	addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
+		this.authService.addSomeone(code).then(res => {
+			login = res;
+		})
+		response.cookie('Session', login);
+		console.log(login);
 	}
 }
