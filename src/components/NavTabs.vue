@@ -1,7 +1,7 @@
 <template>
-	<v-tabs centered class="ml-n9" color="grey darken-1" v-model="selectedTab">
+	<v-tabs centered class="ml-n9" color="grey lighten-3" v-model="selectedTab" fixed-tabs>
 		<v-tab v-for="link in Links" :key=link.text>
-				<v-container class="hidden-xs-only">
+				<v-container class="hidden-xs-only text--white">
 					{{ link.text }}
 				</v-container>
 				<v-icon class="hidden-sm-and-up">
@@ -17,17 +17,16 @@ import {EventBus} from "@/main";
 
 @Component({
 	props: {
-		Links: Array
+		Links: Array,
+		curTab: Number,
 	},
 	data: () => ({
-		selectedTab: 0
+		selectedTab: null
 	}),
 	watch: {
 		selectedTab () {
 			console.log("Selected: ", this.$data.selectedTab)
-			if (this.$props.Links != undefined && this.$data.selectedTab >= this.$props.Tabs?.length)
-				return
-			EventBus.$emit("tabChanged", this.$props.Links[this.$data.selectedTab].text)
+			EventBus.$emit("tabChanged", this.$data.selectedTab)
 		}
 	},
 	created() {

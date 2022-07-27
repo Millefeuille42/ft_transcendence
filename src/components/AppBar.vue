@@ -1,10 +1,6 @@
 <template>
-	<v-app-bar app flat>
-		<NavTabs class="" :Links=Links></NavTabs>
-		<v-spacer></v-spacer>
-		<v-avatar color="grey darken-1 shrink" size="32">
-			<v-img :src=user.profilePic></v-img>
-		</v-avatar>
+	<v-app-bar app flat dark class="grey darken-2">
+		<NavTabs :Links=Links class="justify-center"></NavTabs>
 	</v-app-bar>
 </template>
 
