@@ -1,4 +1,4 @@
-import {Controller, Get, Param, Post, Query, Res} from '@nestjs/common';
+import {Controller, Get, Param, Query, Res} from '@nestjs/common';
 import {Response} from 'express'
 import {AuthService} from "./auth.service";
 
@@ -16,10 +16,8 @@ export class AuthController {
 	}
 
 	@Get(':code')
-	addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
-		this.authService.addSomeone(code).then(res => {
-			login = res;
-		})
+	async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
+		login = await this.authService.addSomeone(code);
 		response.cookie('Session', login);
 		console.log(login);
 	}
