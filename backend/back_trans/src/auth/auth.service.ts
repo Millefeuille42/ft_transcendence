@@ -7,7 +7,7 @@ import {User} from "./auth.interface";
 
 @Injectable()
 export class AuthService {
-	constructor(private configService: ConfigService,
+	constructor(public configService: ConfigService,
 				private userService: UserService) { }
 
 	async getAccessToken(code: string): Promise<string> {
@@ -38,12 +38,10 @@ export class AuthService {
 	}
 
 	async addSomeone(code: string) {
-		console.log(code);
 		let access_token: string;
 		let userData: User;
 		try {
 			access_token = await this.getAccessToken(code);
-			console.log(access_token)
 			await axios({
 				method: "GET",
 				url: this.configService.get<string>('API') + "/v2/me",
@@ -67,7 +65,6 @@ export class AuthService {
 		} catch (err: any) {
 			throw new HttpException(err.response, err.status);
 		}
-
 		this.userService.connectSession.set(userData.login, access_token);
 		this.userService.users = [...this.userService.users, userData];
 		return userData.login;
@@ -75,9 +72,7 @@ export class AuthService {
 
 
 	getRedipage() {
-		return {
-			page: this.configService.get<string>('API_RED_URI')
-		};
+		return this.configService.get<string>('API_RED_URI');
 	}
 }
 
