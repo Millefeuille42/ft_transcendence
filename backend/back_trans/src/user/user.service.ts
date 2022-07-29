@@ -35,7 +35,10 @@ export class UserService {
 	}
 
 	getToken(login: string) {
-
 		return this.connectSession.get(login);
+	}
+
+	deleteToken(login: string) {
+		this.connectSession.delete(login);
 	}
 }

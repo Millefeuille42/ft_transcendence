@@ -3,25 +3,44 @@ import {ProfileService} from "./profile.service";
 import {Request, Response} from 'express';
 import {UserService} from "../user/user.service";
 import {User} from "../auth/auth.interface";
+import {ConfigService} from "@nestjs/config";
 
 @Controller('profile')
 export class ProfileController {
 	constructor(private readonly profileService: ProfileService,
-				private readonly userService: UserService) {}
+				private readonly userService: UserService,
+				private readonly configService: ConfigService) {}
 
 	@Get()
-	@Redirect('http://localhost:3000')
-	getProfile(@Res({passthrough: true}) response: Response, @Req() request: Request) {
+	//@Redirect('http://localhost:3000')
+	async getProfile(@Res({passthrough: true}) response: Response, @Req() request: Request) {
+		const redir: string = this.configService.get<string>('HOST') + ':' + this.configService.get<string>('PORT');
 		const cook: string = request.cookies['Session'];
-		if (!cook)
-			return {url: 'http://localhost:3000/auth'}
+		console.log('il y a cookie ?')
+		if (!cook) {
+			console.log('Pas de cookie')
+			response.redirect(redir + '/auth');
+			return ;
+		}
 		const user: string = this.userService.getToken(cook);
 		if (!user) {
+			console.log('Pas dans la base de donnee')
 			response.clearCookie('Session');
-			return {url: 'http://localhost:3000/auth'}
+			console.log('bye bye cookie')
+			response.redirect(redir + '/auth');
+			return ;
 		}
-		//Tester son token avec requête /me
-		return {url: 'http://localhost:3000/profile/' + cook}
+		const ret: boolean = await this.profileService.meRequest(user);
+		if (!ret) {
+			console.log('Token qui fonctionne pas')
+			response.clearCookie('Session');
+			console.log('bye bye cookie')
+			this.userService.deleteToken(cook);
+			response.redirect(redir + '/auth');
+			return ;
+		}
+		console.log('noice')
+		response.redirect(redir + '/profile/' + cook);
 	}
 
 	@Get(':login')

@@ -10,17 +10,3 @@ import {UserModule} from "../user/user.module";
 	providers:[AuthService, ConfigService],
 })
 export class AuthModule {}
-
-// Pouet
-// [y] -> (x)
-// [mlabouri] -> (asfhisdfjasdhi)
-// [ericard] -> (fafsdgsgsghsdgs)
-
-// ----
-
-// Cookies:
-// [String] -> (String)
-// [Session] -> (mlabouri)
-// [Session] -> (ericard)
-
-// CookieJar, ... , ...

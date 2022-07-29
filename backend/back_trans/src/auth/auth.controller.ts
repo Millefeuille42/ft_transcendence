@@ -1,26 +1,27 @@
 import {Controller, Get, Param, Post, Query, Redirect, Res} from '@nestjs/common';
 import {Response} from 'express'
 import {AuthService} from "./auth.service";
+import {ConfigService} from "@nestjs/config";
 
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(private readonly authService: AuthService,
+				private configService: ConfigService) {}
 
 	@Get()
-	@Redirect('http://localhost:3000')
-	getAuth(@Query() query: { code: string }) {
+	getAuth(@Query() query: { code: string }, @Res() res: Response) {
 		if (!query.code) {
-			return {url: this.authService.getRedipage()};
+			res.redirect(this.authService.getRedipage());
 		}
 		else
-			return {url: 'http://localhost:3000/auth/' + query.code};
+			res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/auth/' + query.code);
 	}
 
 	@Get(':code') //-> Changer en Post
-	@Redirect('http://localhost:3000')
 	async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
 		login = await this.authService.addSomeone(code);
 		response.cookie('Session', login);
-		return {url: 'http://localhost:3000/profile'}
+		console.log('nouvo cookie')
+		response.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile');
 	}
 }
