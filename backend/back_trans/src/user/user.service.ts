@@ -35,6 +35,7 @@ export class UserService {
 	}
 
 	getToken(login: string) {
+
 		return this.connectSession.get(login);
 	}
 }

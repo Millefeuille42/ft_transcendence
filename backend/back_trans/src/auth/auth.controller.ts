@@ -17,8 +17,10 @@ export class AuthController {
 	}
 
 	@Get(':code') //-> Changer en Post
+	@Redirect('http://localhost:3000')
 	async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
 		login = await this.authService.addSomeone(code);
 		response.cookie('Session', login);
+		return {url: 'http://localhost:3000/profile'}
 	}
 }

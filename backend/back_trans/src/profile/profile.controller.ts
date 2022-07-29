@@ -1,6 +1,6 @@
-import {Controller, Get, Redirect, Req} from '@nestjs/common';
+import {Controller, Get, Param, Redirect, Req, Res} from '@nestjs/common';
 import {ProfileService} from "./profile.service";
-import {Request} from 'express';
+import {Request, Response} from 'express';
 import {UserService} from "../user/user.service";
 import {User} from "../auth/auth.interface";
 
@@ -11,15 +11,21 @@ export class ProfileController {
 
 	@Get()
 	@Redirect('http://localhost:3000')
-	getProfile(@Req() request: Request) {
+	getProfile(@Res({passthrough: true}) response: Response, @Req() request: Request) {
 		const cook: string = request.cookies['Session'];
 		if (!cook)
 			return {url: 'http://localhost:3000/auth'}
-		const user = this.userService.connectSession[cook];
+		const user: string = this.userService.getToken(cook);
 		if (!user) {
+			response.clearCookie('Session');
 			return {url: 'http://localhost:3000/auth'}
 		}
 		//Tester son token avec requête /me
-		return this.profileService.getProfile(cook);
+		return {url: 'http://localhost:3000/profile/' + cook}
+	}
+
+	@Get(':login')
+	getProfileUser(@Param('login') login: string) {
+		return this.profileService.getProfile(login);
 	}
 }
