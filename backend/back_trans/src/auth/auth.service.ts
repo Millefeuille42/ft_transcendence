@@ -37,34 +37,35 @@ export class AuthService {
 		return ret;
 	}
 
-	async addSomeone(code: string) {
-		let access_token: string;
+	async addSomeone(access_token: string) {
 		let userData: User;
-		try {
-			access_token = await this.getAccessToken(code);
-			await axios({
-				method: "GET",
-				url: this.configService.get<string>('API') + "/v2/me",
-				headers: {
-					Authorization: "Bearer " + access_token,
-					"content-type": "application/json",
-				},
+		const login: string = await axios({
+			method: "GET",
+			url: this.configService.get<string>('API') + "/v2/me",
+			headers: {
+				Authorization: "Bearer " + access_token,
+				"content-type": "application/json",
+			},
+		})
+			.then(function (res) {
+				userData = {
+					login: res.data.login,
+					email: res.data.email,
+					name: res.data.usual_full_name,
+					avatar: res.data.image_url
+				}
+				return ('');
 			})
-				.then(function (res) {
-					userData = {
-						login: res.data.login,
-						email: res.data.email,
-						name: res.data.usual_full_name,
-						avatar: res.data.image_url,
-						code: code,
-					}
-				})
-				.catch((err) => {
-					throw new HttpException(err.response.statusText, err.response.status);
-				});
-		} catch (err: any) {
-			throw new HttpException(err.response, err.status);
-		}
+			.catch(async (err) => {
+				if (err.response.status == 429) {
+					console.log(err.response.headers['retry-after'])
+					await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
+					return this.addSomeone(access_token);
+				}
+				throw new HttpException(err.response.statusText, err.response.status);
+			});
+		if (login !== '')
+			return login;
 		this.userService.connectSession.set(userData.login, access_token);
 		this.userService.users = [...this.userService.users, userData];
 		return userData.login;

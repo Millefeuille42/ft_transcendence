@@ -28,12 +28,6 @@ export class UserService {
 		}
 	}
 
-	getCode(login: string) {
-		return {
-			code: this.users.find(users => users.login === login).code,
-		}
-	}
-
 	getToken(login: string) {
 		return this.connectSession.get(login);
 	}

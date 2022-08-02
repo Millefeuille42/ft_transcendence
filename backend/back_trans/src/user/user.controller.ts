@@ -15,7 +15,5 @@ export class UserController {
 			return (this.userService.getMail(login));
 		if (ressource === 'avatar')
 			return (this.userService.getAvatar(login));
-		if (ressource === 'code')
-			return (this.userService.getCode(login));
 	}
 }

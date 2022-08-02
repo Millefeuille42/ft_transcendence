@@ -9,19 +9,23 @@ export class AuthController {
 				private configService: ConfigService) {}
 
 	@Get()
-	getAuth(@Query() query: { code: string }, @Res() res: Response) {
+	async getAuth(@Query() query: { code: string }, @Res() res: Response, login: string) {
 		if (!query.code) {
 			res.redirect(this.authService.getRedipage());
 		}
-		else
-			res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/auth/' + query.code);
+		else {
+			const code: string = query.code;
+			let access_token: string = await this.authService.getAccessToken(code);
+			login = await this.authService.addSomeone(access_token);
+			res.cookie('Session', login)
+			res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile')
+		}
 	}
 
-	@Get(':code') //-> Changer en Post
-	async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
-		login = await this.authService.addSomeone(code);
-		response.cookie('Session', login);
-		console.log('nouvo cookie')
-		response.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile');
-	}
+	//@Get(':code') //-> Changer en Post
+	//async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
+	//	login = await this.authService.addSomeone(code);
+	//	response.cookie('Session', login);
+	//	response.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile');
+	//}
 }
