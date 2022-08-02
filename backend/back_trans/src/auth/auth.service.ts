@@ -58,7 +58,6 @@ export class AuthService {
 			})
 			.catch(async (err) => {
 				if (err.response.status == 429) {
-					console.log(err.response.headers['retry-after'])
 					await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
 					return this.addSomeone(access_token);
 				}
