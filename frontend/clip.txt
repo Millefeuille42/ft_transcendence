@@ -1,0 +1,24 @@
+			<AppBar :Links=links :user=user :curTab=curTab />
+			<v-main class="grey darken-3">
+				<v-container class="justify-center">
+					<v-row class="justify-center">
+							<v-tabs-items v-model="curTab" style="background-color: transparent" dark>
+								<v-tab-item>
+									<DisplayContainer cols="12" sm="8" height="70vh" min_height="800">
+										<HomeContent/>
+									</DisplayContainer>
+								</v-tab-item>
+								<v-tab-item>
+									<DisplayContainer cols="12" sm="8" height="70vh" min_height="800">
+										<ChatContent :user=user :loaded="loaded"/>
+									</DisplayContainer>
+								</v-tab-item>
+								<v-tab-item>
+									<DisplayContainer cols="12" sm="8" height="70vh" min_height="800">
+										<ProfileContent :small=false :user=user />
+									</DisplayContainer>
+								</v-tab-item>
+							</v-tabs-items>
+					</v-row>
+				</v-container>
+			</v-main>
