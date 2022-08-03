@@ -1,5 +1,5 @@
-import {Controller, Get, Param, Post, Query, Redirect, Res} from '@nestjs/common';
-import {Response} from 'express'
+import {Controller, Get, Param, Post, Query, Redirect, Req, Res} from '@nestjs/common';
+import {Request, Response} from 'express'
 import {AuthService} from "./auth.service";
 import {ConfigService} from "@nestjs/config";
 
@@ -9,9 +9,11 @@ export class AuthController {
 				private configService: ConfigService) {}
 
 	@Get()
-	async getAuth(@Query() query: { code: string }, @Res() res: Response, login: string) {
+	async getAuth(@Query() query: { code: string }, @Req() request: Request, @Res() res: Response, login: string) {
 		if (!query.code) {
 			console.log(this.authService.getRedipage())
+			res.set('Access-Control-Allow-Origin', request.headers["origin"])
+			res.set('Access-Control-Allow-Credentials', "true")
 			res.send({ page: this.authService.getRedipage() });
 			return ;
 		}
@@ -19,6 +21,8 @@ export class AuthController {
 			const code: string = query.code;
 			let access_token: string = await this.authService.getAccessToken(code);
 			login = await this.authService.addSomeone(access_token);
+			res.set('Access-Control-Allow-Origin', request.headers["origin"])
+			res.set('Access-Control-Allow-Credentials', "true")
 			res.send({session:login})
 			//res.cookie('Session', login)
 			//res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile/' + login)
