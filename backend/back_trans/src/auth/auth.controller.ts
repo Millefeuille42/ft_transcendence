@@ -11,14 +11,17 @@ export class AuthController {
 	@Get()
 	async getAuth(@Query() query: { code: string }, @Res() res: Response, login: string) {
 		if (!query.code) {
-			return { page: this.authService.getRedipage() };
+			console.log(this.authService.getRedipage())
+			res.send({ page: this.authService.getRedipage() });
+			return ;
 		}
 		else {
 			const code: string = query.code;
 			let access_token: string = await this.authService.getAccessToken(code);
 			login = await this.authService.addSomeone(access_token);
-			res.cookie('Session', login)
-			res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile/' + login)
+			res.send({session:login})
+			//res.cookie('Session', login)
+			//res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile/' + login)
 		}
 	}
 
