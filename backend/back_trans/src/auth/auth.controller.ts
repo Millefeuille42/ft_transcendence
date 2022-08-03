@@ -29,6 +29,13 @@ export class AuthController {
 		}
 	}
 
+	@Post(':code')
+	addSomeone(@Param(code) code: string) {
+		let access_token: string = await this.authService.getAccessToken(code);
+		const login: string = await this.authService.addSomeone(access_token);
+		return (login)
+	}
+
 	//@Get(':code') //-> Changer en Post
 	//async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
 	//	login = await this.authService.addSomeone(code);
