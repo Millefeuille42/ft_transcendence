@@ -24,14 +24,20 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
+import {EventBus} from "@/main";
 
 @Component({
 	data: () => ({
 		bottomTab: Number
 	}),
+	watch: {
+		bottomTab () {
+			console.log("Selected: ", this.$data.bottomTab)
+			EventBus.$emit("bottomTabChanged", this.$data.bottomTab)
+		}
+	}
 })
-export default class ProfileBottomDrawer extends Vue {
-}
+export default class ProfileBottomDrawer extends Vue {}
 </script>
 
 <style scoped>
