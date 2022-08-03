@@ -52,7 +52,8 @@ export class AuthService {
 					login: res.data.login,
 					email: res.data.email,
 					name: res.data.usual_full_name,
-					avatar: res.data.image_url
+					avatar: res.data.image_url,
+					banner: ""
 				}
 				return ('');
 			})

@@ -15,18 +15,10 @@ export class AuthController {
 			res.send({ page: this.authService.getRedipage() });
 			return ;
 		}
-		else {
-			const code: string = query.code;
-			let access_token: string = await this.authService.getAccessToken(code);
-			login = await this.authService.addSomeone(access_token);
-			res.send({session:login})
-			//res.cookie('Session', login)
-			//res.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile/' + login)
-		}
 	}
 
 	@Post(':code')
-	addSomeone(@Param(code) code: string) {
+	async addSomeone(@Param('code') code: string) {
 		let access_token: string = await this.authService.getAccessToken(code);
 		const login: string = await this.authService.addSomeone(access_token);
 		return (login)
