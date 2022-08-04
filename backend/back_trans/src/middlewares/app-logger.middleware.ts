@@ -7,13 +7,10 @@ export class AppLoggerMiddleware implements NestMiddleware {
   private logger = new Logger('HTTP');
 
   use(req: Request, res: Response, next: () => void) {
-    const ip: string = req.ip
-    const method: string = req.method
-    const url: path = req.url
-
+    const {ip, method, path: url} = req;
 
     res.on('close', () => {
-      const statusCode = res.statusCode;
+      const {statusCode} = res;
       const contentLength = res.get('content-length')
 
       this.logger.log(`${method} ${url} ${statusCode} ${contentLength} - ${ip}`)
