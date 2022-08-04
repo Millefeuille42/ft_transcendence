@@ -1,5 +1,6 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response } from "express";
+import path from "path";
 
 @Injectable()
 export class AppLoggerMiddleware implements NestMiddleware {
@@ -8,7 +9,7 @@ export class AppLoggerMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: () => void) {
     const ip: string = req.ip
     const method: string = req.method
-    const url: string = req.url
+    const url: path = req.url
 
 
     res.on('close', () => {
