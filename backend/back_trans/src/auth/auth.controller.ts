@@ -1,5 +1,5 @@
-import {Controller, Get, Param, Post, Query, Redirect, Res} from '@nestjs/common';
-import {Response} from 'express'
+import {Body, Controller, Get, Param, Post, Query, Redirect, Req, Res} from '@nestjs/common';
+import {Request, Response} from 'express'
 import {AuthService} from "./auth.service";
 import {ConfigService} from "@nestjs/config";
 
@@ -9,19 +9,25 @@ export class AuthController {
 				private configService: ConfigService) {}
 
 	@Get()
-	async getAuth(@Query() query: { code: string }, @Res() res: Response, login: string) {
-		if (!query.code) {
-			console.log(this.authService.getRedipage())
-			res.send({ page: this.authService.getRedipage() });
-			return ;
-		}
+
+
+	async getAuth(@Query() query: { code: string }, @Req() req: Request, @Res() res: Response) {
+		console.log(this.authService.getRedipage())
+		res.set('Access-Control-Allow-Origin', req.headers["origin"])
+		res.set('Access-Control-Allow-Credentials', "true")
+		res.send({ page: this.authService.getRedipage() });
+		return ;
 	}
 
 	@Post(':code')
-	async addSomeone(@Param('code') code: string) {
+	async addSomeone(@Param('code') code: string, @Req() req: Request, @Res() res: Response) {
+
 		let access_token: string = await this.authService.getAccessToken(code);
 		const login: string = await this.authService.addSomeone(access_token);
-		return (login)
+		res.set('Access-Control-Allow-Origin', req.headers["origin"])
+		res.set('Access-Control-Allow-Credentials', "true")
+		res.send({ session: login})
+		return ;
 	}
 
 	//@Get(':code') //-> Changer en Post
