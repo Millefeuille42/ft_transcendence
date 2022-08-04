@@ -28,11 +28,25 @@ export class UserService {
 		}
 	}
 
+	getBanner(login: string) {
+		return {
+			banner: this.users.find(users => users.login === login).banner,
+		}
+	}
+
 	getToken(login: string) {
 		return this.connectSession.get(login);
 	}
 
 	deleteToken(login: string) {
 		this.connectSession.delete(login);
+	}
+
+	changeAvatar(login: string, avatar: string) {
+		this.users.find(users => users.login === login).avatar = avatar;
+	}
+
+	changeBanner(login: string, banner: string) {
+		this.users.find(users => users.login === login).banner = banner;
 	}
 }
