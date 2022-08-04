@@ -12,9 +12,6 @@ export class AuthController {
 
 
 	async getAuth(@Query() query: { code: string }, @Req() req: Request, @Res() res: Response) {
-		console.log(this.authService.getRedipage())
-		res.set('Access-Control-Allow-Origin', req.headers["origin"])
-		res.set('Access-Control-Allow-Credentials', "true")
 		res.send({ page: this.authService.getRedipage() });
 		return ;
 	}
@@ -24,8 +21,6 @@ export class AuthController {
 
 		let access_token: string = await this.authService.getAccessToken(code);
 		const login: string = await this.authService.addSomeone(access_token);
-		res.set('Access-Control-Allow-Origin', req.headers["origin"])
-		res.set('Access-Control-Allow-Credentials', "true")
 		res.send({ session: login})
 		return ;
 	}

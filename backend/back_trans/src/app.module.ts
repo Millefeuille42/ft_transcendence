@@ -6,6 +6,7 @@ import {ConfigModule} from "@nestjs/config";
 import { UserModule } from './user/user.module';
 import { ProfileModule } from './profile/profile.module';
 import {IsAuthMiddleware} from "./middlewares/isAuth.middleware";
+import {SetCorsHeaderMiddleware} from "./middlewares/set-cors-header.middleware";
 
 @Module({
   imports: [AuthModule,
@@ -19,6 +20,7 @@ import {IsAuthMiddleware} from "./middlewares/isAuth.middleware";
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(SetCorsHeaderMiddleware).forRoutes('*')
     consumer.apply(IsAuthMiddleware).forRoutes('profile')
   }
 }
