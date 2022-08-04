@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import {UserService} from "../user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
-import {User} from "./auth.interface";
+import {User} from "../user/user.interface";
 
 @Injectable()
 export class AuthService {
@@ -50,6 +50,7 @@ export class AuthService {
 			.then(function (res) {
 				userData = {
 					login: res.data.login,
+					username: res.data.login,
 					email: res.data.email,
 					name: res.data.usual_full_name,
 					avatar: res.data.image_url,

@@ -1,5 +1,7 @@
 import {Body, Controller, Get, Param, Patch} from '@nestjs/common';
 import {UserService} from "./user.service";
+import {User} from "./user.interface";
+import {CreateUserDto} from "./create-user.dto";
 
 @Controller('user')
 export class UserController {
@@ -17,13 +19,23 @@ export class UserController {
 			return (this.userService.getAvatar(login));
 		if (ressource === 'banner')
 			return (this.userService.getBanner(login));
+		if (ressource === 'username')
+			return (this.userService.getUsername(login));
 	}
 
 	@Patch(':login/:ressource')
-	changePicture(@Param('login') login: string, @Param('ressource') ressource: string, @Body() image: string) {
-		if (ressource === 'avatar')
-			return (this.userService.changeAvatar(login, image));
-		if (ressource === 'banner')
-			return (this.userService.changeAvatar(login, image));
+	changeUser(@Param('login') login: string, @Param('ressource') ressource: string, @Body() change: CreateUserDto) {
+		if (ressource === 'avatar') {
+			this.userService.changeAvatar(login, change)
+			return (this.userService.getAvatar(login));
+		}
+		if (ressource === 'banner') {
+			this.userService.changeBanner(login, change)
+			return (this.userService.getBanner(login));
+		}
+		if (ressource === 'username') {
+			this.userService.changeUsername(login, change)
+			return (this.userService.getUsername(login));
+		}
 	}
 }

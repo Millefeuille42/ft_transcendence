@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {User} from "../auth/auth.interface";
+import {User} from "./user.interface";
 
 @Injectable()
 export class UserService {
@@ -34,6 +34,12 @@ export class UserService {
 		}
 	}
 
+	getUsername(login: string) {
+		return {
+			username: this.users.find(users => users.login === login).username,
+		}
+	}
+
 	getToken(login: string) {
 		return this.connectSession.get(login);
 	}
@@ -42,11 +48,25 @@ export class UserService {
 		this.connectSession.delete(login);
 	}
 
-	changeAvatar(login: string, avatar: string) {
-		this.users.find(users => users.login === login).avatar = avatar;
+	changeAvatar(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login);
+		userToChange.avatar = change.avatar;
+	//	console.log(change.avatar)
+		console.log(change)
 	}
 
-	changeBanner(login: string, banner: string) {
-		this.users.find(users => users.login === login).banner = banner;
+	changeBanner(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login);
+		userToChange.banner = change.banner;
+	//	console.log(change.banner)
+		console.log(change)
+	}
+
+
+	changeUsername(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login);
+		userToChange.username = change.username;
+	//	console.log(change.username)
+		console.log(change)
 	}
 }
