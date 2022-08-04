@@ -36,7 +36,13 @@ export class IsAuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: () => void) {
     const redir: string = this.configService.get<string>('HOST') + ':' + this.configService.get<string>('PORT');
     const login: string = req.cookies['Session'];
+    console.log(req.originalUrl)
+    console.log(req.cookies)
+    console.log("Origin:", req.headers["origin"])
+    res.set('Access-Control-Allow-Origin', req.headers["origin"])
+    res.set('Access-Control-Allow-Credentials', "true")
     if (!login) {
+      console.log("No login")
       res.redirect(redir + '/auth');
       return ;
     }
