@@ -64,6 +64,10 @@ export class UserService {
 
 
 	changeUsername(login: string, change: User) {
+		if (change.username.length > 12) {
+			console.log(change.username, 'is more than 12 characters')
+			return ;
+		}
 		const userToChange = this.users.find(users => users.login === login);
 		userToChange.username = change.username;
 	//	console.log(change.username)
