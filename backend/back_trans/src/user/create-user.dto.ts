@@ -5,4 +5,6 @@ export class CreateUserDto {
 	readonly name: string;
 	readonly avatar: string;
 	readonly banner: string;
+	readonly online: boolean;
+	readonly friends: Set<string>;
 }

@@ -3,7 +3,17 @@ import {User} from "./user.interface";
 
 @Injectable()
 export class UserService {
-	users: User[] = [];
+	users: User[] = [
+		{
+			login: 'tester',
+			email: 'tester@letest.com',
+			username: 'prout',
+			name: 'Le Test',
+			avatar: 'un lien osef',
+			banner: 'un autre lien tkt',
+			online: true,
+			friends: new Set(),
+		}];
 	connectSession = new Map<string, string>([]);
 
 	getUser(login: string) {
@@ -40,6 +50,11 @@ export class UserService {
 		}
 	}
 
+	isOnline(login: string) {
+		return (this.users.find(users => users.login === login).online)
+	}
+
+
 	getToken(login: string) {
 		return this.connectSession.get(login);
 	}
@@ -72,5 +87,11 @@ export class UserService {
 		userToChange.username = change.username;
 	//	console.log(change.username)
 		console.log(change)
+	}
+
+	changeOnline(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login)
+		userToChange.online = change.online;
+		console.log(change);
 	}
 }

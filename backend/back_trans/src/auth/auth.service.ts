@@ -54,7 +54,9 @@ export class AuthService {
 					email: res.data.email,
 					name: res.data.usual_full_name,
 					avatar: res.data.image_url,
-					banner: ""
+					banner: "",
+					online: true,
+					friends: new Set(),
 				}
 				return ('');
 			})

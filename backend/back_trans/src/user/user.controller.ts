@@ -20,6 +20,8 @@ export class UserController {
 			return (this.userService.getBanner(login));
 		if (ressource === 'username')
 			return (this.userService.getUsername(login));
+		if (ressource === 'online')
+			return (this.userService.isOnline(login));
 	}
 
 	@Patch(':login/:ressource')
@@ -35,6 +37,10 @@ export class UserController {
 		if (ressource === 'username') {
 			this.userService.changeUsername(login, change)
 			return (this.userService.getUsername(login));
+		}
+		if (ressource === 'online') {
+			this.userService.changeOnline(login, change)
+			return (this.userService.isOnline(login))
 		}
 	}
 }

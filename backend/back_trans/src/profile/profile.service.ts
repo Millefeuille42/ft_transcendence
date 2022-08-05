@@ -5,8 +5,7 @@ import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class ProfileService {
-	constructor(private readonly userService: UserService,
-				private readonly configService: ConfigService) {}
+	constructor(private readonly userService: UserService) {}
 
 
 	getProfile(login: string) {
