@@ -12,7 +12,8 @@ export class ProfileController {
 
 	@Get()
 	//@Redirect('http://localhost:3000')
-	async getProfile(@Res({passthrough: true}) response: Response, @Req() request: Request) {
+	async getProfile(@Res({passthrough: true}) response: Response,
+					 @Req() request: Request) {
 		const redir: string = this.configService.get<string>('HOST') + ':' + this.configService.get<string>('PORT');
 		const cook: string = request.cookies['Session'];
 		response.redirect(redir + '/profile/' + cook);

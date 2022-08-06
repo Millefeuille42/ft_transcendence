@@ -9,6 +9,7 @@ import {IsAuthMiddleware} from "./middlewares/isAuth.middleware";
 import {SetCorsHeaderMiddleware} from "./middlewares/set-cors-header.middleware";
 import {AppLoggerMiddleware} from "./middlewares/app-logger.middleware";
 import { FriendsModule } from './friends/friends.module';
+import { ItemsModule } from './items/items.module';
 
 @Module({
   imports: [AuthModule,
@@ -17,7 +18,8 @@ import { FriendsModule } from './friends/friends.module';
     }),
     UserModule,
     ProfileModule,
-    FriendsModule],
+    FriendsModule,
+    ItemsModule],
   controllers: [AppController],
   providers: [AppService],
 })

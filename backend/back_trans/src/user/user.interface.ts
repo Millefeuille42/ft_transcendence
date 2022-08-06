@@ -1,3 +1,5 @@
+import {equipped, inventory} from "../items/inventory.interface";
+
 export interface User {
 	email: string;
 	login: string;
@@ -7,4 +9,6 @@ export interface User {
 	banner: string;
 	online: boolean;
 	friends: Set<string>;
+	inventory: inventory;
+	equipped: equipped;
 }

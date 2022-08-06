@@ -7,7 +7,8 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Get('/:login/:ressource')
-	getUser(@Param('login') login: string, @Param('ressource') ressource: string) {
+	getUser(@Param('login') login: string,
+			@Param('ressource') ressource: string) {
 		if (ressource === 'profile')
 			return (this.userService.getUser(login));
 		if (ressource === 'name')
@@ -25,7 +26,9 @@ export class UserController {
 	}
 
 	@Patch(':login/:ressource')
-	changeUser(@Param('login') login: string, @Param('ressource') ressource: string, @Body() change: CreateUserDto) {
+	changeUser(@Param('login') login: string,
+			   @Param('ressource') ressource: string,
+			   @Body() change: CreateUserDto) {
 		if (ressource === 'avatar') {
 			this.userService.changeAvatar(login, change)
 			return (this.userService.getAvatar(login));

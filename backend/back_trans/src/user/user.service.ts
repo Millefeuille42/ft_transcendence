@@ -13,6 +13,16 @@ export class UserService {
 			banner: 'un autre lien tkt',
 			online: true,
 			friends: new Set(),
+			inventory: {
+				rod: new Set(),
+				ball: new Set(),
+				sound: new Set(),
+			},
+			equipped: {
+				rod: 'default',
+				ball: 'default',
+				sound: 'default',
+			}
 		}];
 	connectSession = new Map<string, string>([]);
 
@@ -94,4 +104,5 @@ export class UserService {
 		userToChange.online = change.online;
 		console.log(change);
 	}
+
 }
