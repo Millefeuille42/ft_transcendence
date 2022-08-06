@@ -14,4 +14,4 @@ export class Objects {
 		this.y = y;
 		this.color = color;
 	}
-}
+} 
