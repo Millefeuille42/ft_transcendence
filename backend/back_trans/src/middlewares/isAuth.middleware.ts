@@ -1,15 +1,13 @@
-import { Injectable, NestMiddleware, Req, Res} from '@nestjs/common';
+import { Injectable, NestMiddleware} from '@nestjs/common';
 import {Request, Response} from 'express';
 import {UserService} from "../user/user.service";
 import {ConfigService} from "@nestjs/config";
-import {ProfileService} from "../profile/profile.service";
 import axios from "axios";
 
 @Injectable()
 export class IsAuthMiddleware implements NestMiddleware {
   constructor(private readonly userService: UserService,
-              private readonly configService: ConfigService,
-              private readonly profileService: ProfileService) {}
+              private readonly configService: ConfigService) {}
 
   async meRequest(token: string) {
     const ret: boolean = await axios({
@@ -36,11 +34,6 @@ export class IsAuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: () => void) {
     const redir: string = this.configService.get<string>('HOST') + ':' + this.configService.get<string>('PORT');
     const login: string = req.cookies['Session'];
-    console.log(req.originalUrl)
-    console.log(req.cookies)
-    console.log("Origin:", req.headers["origin"])
-    res.set('Access-Control-Allow-Origin', req.headers["origin"])
-    res.set('Access-Control-Allow-Credentials', "true")
     if (!login) {
       console.log("No login")
       res.redirect(redir + '/auth');

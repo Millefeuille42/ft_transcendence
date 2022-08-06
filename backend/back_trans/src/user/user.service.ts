@@ -1,9 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import {User} from "../auth/auth.interface";
+import {User} from "./user.interface";
 
 @Injectable()
 export class UserService {
-	users: User[] = [];
+	users: User[] = [
+		{
+			login: 'tester',
+			email: 'tester@letest.com',
+			username: 'prout',
+			name: 'Le Test',
+			avatar: 'un lien osef',
+			banner: 'un autre lien tkt',
+			online: true,
+			friends: new Set(),
+			inventory: {
+				rod: new Set(),
+				ball: new Set(),
+				sound: new Set(),
+			},
+			equipped: {
+				rod: 'default',
+				ball: 'default',
+				sound: 'default',
+			}
+		}];
 	connectSession = new Map<string, string>([]);
 
 	getUser(login: string) {
@@ -34,6 +54,17 @@ export class UserService {
 		}
 	}
 
+	getUsername(login: string) {
+		return {
+			username: this.users.find(users => users.login === login).username,
+		}
+	}
+
+	isOnline(login: string) {
+		return (this.users.find(users => users.login === login).online)
+	}
+
+
 	getToken(login: string) {
 		return this.connectSession.get(login);
 	}
@@ -42,11 +73,36 @@ export class UserService {
 		this.connectSession.delete(login);
 	}
 
-	changeAvatar(login: string, avatar: string) {
-		this.users.find(users => users.login === login).avatar = avatar;
+	changeAvatar(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login);
+		userToChange.avatar = change.avatar;
+	//	console.log(change.avatar)
+		console.log(change)
 	}
 
-	changeBanner(login: string, banner: string) {
-		this.users.find(users => users.login === login).banner = banner;
+	changeBanner(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login);
+		userToChange.banner = change.banner;
+	//	console.log(change.banner)
+		console.log(change)
 	}
+
+
+	changeUsername(login: string, change: User) {
+		if (change.username.length > 12) {
+			console.log(change.username, 'is more than 12 characters')
+			return ;
+		}
+		const userToChange = this.users.find(users => users.login === login);
+		userToChange.username = change.username;
+	//	console.log(change.username)
+		console.log(change)
+	}
+
+	changeOnline(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login)
+		userToChange.online = change.online;
+		console.log(change);
+	}
+
 }
