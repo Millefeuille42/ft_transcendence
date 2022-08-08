@@ -56,4 +56,8 @@ export class ItemsController {
 			return (this.itemsService.unequipItem(login, category, item))
 	}
 
+	@Get('drop/:login')
+	dropItem(@Param('login') login: string) {
+		return (this.itemsService.dropItem(login));
+	}
 }

@@ -1,8 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import {User} from "./user.interface";
+import {equipped, inventory} from "../items/inventory.interface";
+import {ItemsInterface} from "../items/items.interface";
 
 @Injectable()
 export class UserService {
+	defaultRod: ItemsInterface = {
+		id: 0,
+		rarity: 0,
+		category: 'rod',
+		name: 'default',
+		description: 'La barre par défaut'
+	}
+	defaultBall: ItemsInterface = {
+		id: 1,
+		rarity: 0,
+		category: 'ball',
+		name: 'default',
+		description: 'La balle par défaut'
+	}
+	defaultSound: ItemsInterface = {
+		id: 2,
+		rarity: 0,
+		category: 'sound',
+		name: 'default',
+		description: 'Le son par défaut'
+	}
+	//TODO -> Supprimer les défauts + User de test
+
 	users: User[] = [
 		{
 			login: 'tester',
@@ -14,16 +39,18 @@ export class UserService {
 			online: true,
 			friends: new Set(),
 			inventory: {
-				rod: new Set(),
-				ball: new Set(),
-				sound: new Set(),
+				rod: [this.defaultRod],
+				ball: [this.defaultBall],
+				sound: [this.defaultSound],
 			},
 			equipped: {
-				rod: 'default',
-				ball: 'default',
-				sound: 'default',
+				rod: this.defaultRod,
+				ball: this.defaultBall,
+				sound: this.defaultSound,
 			}
 		}];
+
+
 	connectSession = new Map<string, string>([]);
 
 	getUser(login: string) {

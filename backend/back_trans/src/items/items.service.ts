@@ -1,29 +1,120 @@
 import { Injectable } from '@nestjs/common';
 import {equipped, inventory} from "./inventory.interface";
 import {UserService} from "../user/user.service";
+import {ItemsInterface} from "./items.interface";
 
 @Injectable()
 export class ItemsService {
 	constructor(private userService: UserService) {}
 
+	listItems: ItemsInterface[] = [
+		{
+			id: 3,
+			rarity: 2,
+			category: 'rod',
+			name: 'patate',
+			description: 'une jolie patate',
+		},
+		{
+			id: 4,
+			rarity: 1,
+			category: 'rod',
+			name: 'pomme',
+			description: 'une jolie pomme',
+		},
+		{
+			id: 5,
+			rarity: 3,
+			category: 'ball',
+			name: 'cookie',
+			description: 'un jolie cookie',
+		},
+		{
+			id: 6,
+			rarity: 2,
+			category: 'sound',
+			name: 'poire',
+			description: 'une jolie poire',
+		},
+		{
+			id: 7,
+			rarity: 4,
+			category: 'rod',
+			name: 'LA LÉGENDE',
+			description: 'une jolie LÉGENDE',
+		},
+		{
+			id: 42,
+			rarity: 0,
+			category: 'rod',
+			name: 'karant 2',
+			description: 'le lien vers la rod lol'
+		}
+	]
+	defaultRod: ItemsInterface = {
+		id: 0,
+		rarity: 0,
+		category: 'rod',
+		name: 'default',
+		description: 'La barre par défaut'
+	}
+	defaultBall: ItemsInterface = {
+		id: 1,
+		rarity: 0,
+		category: 'ball',
+		name: 'default',
+		description: 'La balle par défaut'
+	}
+	defaultSound: ItemsInterface = {
+		id: 2,
+		rarity: 0,
+		category: 'sound',
+		name: 'default',
+		description: 'Le son par défaut'
+	}
+
+	dropItem(login: string) {
+		const rarity = Math.floor(Math.random() * 100) + 1
+		console.log('rarity : ' + rarity)
+		let itemsRarity: ItemsInterface[]
+		let itemToAdd: ItemsInterface
+		if (rarity === 42) {
+			itemToAdd = this.listItems.find(items => items.id === 42)
+			console.log (itemToAdd)
+			this.addItem(login, itemToAdd.category, itemToAdd.name)
+			return (itemToAdd)
+		}
+		else if (rarity <= 50)
+			itemsRarity = this.listItems.filter(items => items.rarity === 1)
+		else if (rarity <= 90)
+			itemsRarity = this.listItems.filter(items => items.rarity === 2)
+		else if (rarity <= 98)
+			itemsRarity = this.listItems.filter(items => items.rarity === 3)
+		else if (rarity <= 100)
+			itemsRarity = this.listItems.filter(items => items.rarity === 4)
+		const item = Math.floor(Math.random() * itemsRarity.length)
+		console.log('index item : ' + item)
+		itemToAdd = itemsRarity[item]
+		console.log(itemToAdd)
+		this.addItem(login, itemToAdd.category, itemToAdd.name);
+		return (itemToAdd)
+	}
+
 	initEquipement(): inventory {
 		let inventory: inventory = {
-			rod: new Set(),
-			ball: new Set(),
-			sound: new Set(),
+			rod: [this.defaultRod],
+			ball: [this.defaultBall],
+			sound: [this.defaultSound],
 		}
-		inventory.rod.add('default')
-		inventory.sound.add('default')
-		inventory.ball.add('default')
 		return (inventory);
 	}
 
 
 	initEquipped(): equipped {
 		return {
-			rod: 'default',
-			ball: 'default',
-			sound: 'default',
+			rod: this.defaultRod,
+			ball: this.defaultBall,
+			sound: this.defaultSound,
 		}
 	}
 
@@ -31,9 +122,9 @@ export class ItemsService {
 	getInventory(login: string) {
 		const inventory = this.userService.users.find(users => users.login === login).inventory
 		return {
-			rod: Array.from(inventory.rod),
-			ball: Array.from(inventory.ball),
-			sound: Array.from(inventory.sound)
+			rod: inventory.rod,
+			ball: inventory.ball,
+			sound: inventory.sound,
 		};
 	}
 
@@ -41,34 +132,47 @@ export class ItemsService {
  	getICategory(login: string, category: string) {
 		const inventory = this.userService.users.find(users => users.login === login).inventory
 		if (category === 'rod')
-			return {rod: Array.from(inventory.rod)}
+			return inventory.rod
 		if (category === 'ball')
-			return {ball: Array.from(inventory.ball)}
+			return inventory.ball
 		if (category === 'sound')
-			return {sound: Array.from(inventory.sound)}
+			return inventory.sound
  	}
 
 // 	//isItem -> login + category + item
  	isItem(login: string, category: string, item: string) {
 		const inventory = this.userService.users.find(users => users.login === login).inventory
-		if (category === 'rod')
-			return inventory.rod.has(item);
-		if (category === 'ball')
-			return inventory.ball.has(item);
-		if (category === 'sound')
-			return inventory.sound.has(item);
+		if (category === 'rod') {
+				const hasItem = inventory.rod.find(items => items.name === item);
+				if (!hasItem)
+					return false;
+				return true;
+			}
+		if (category === 'ball'){
+			const hasItem = inventory.ball.find(items => items.name === item);
+			if (!hasItem)
+				return false;
+			return true;
+		}
+		if (category === 'sound'){
+			const hasItem = inventory.sound.find(items => items.name === item);
+			if (!hasItem)
+				return false;
+			return true;
+		}
 
  	}
 
 // 	//addItem -> login + category + item
  	addItem(login: string, category: string, item: string) {
 		const inventory = this.userService.users.find(users => users.login === login).inventory
+		const itemToAdd = this.listItems.find(items => items.name === item)
 		if (category === 'rod')
-			return inventory.rod.add(item);
+			inventory.rod = [...inventory.rod, itemToAdd]
 		if (category === 'ball')
-			return inventory.ball.add(item);
+			inventory.ball = [...inventory.ball, itemToAdd]
 		if (category === 'sound')
-			return inventory.sound.add(item);
+			inventory.sound = [...inventory.sound, itemToAdd]
  	}
 
 // 	//deleteItem -> login + category + item
@@ -77,17 +181,17 @@ export class ItemsService {
 		if (category === 'rod') {
 			if (this.isEquipped(login, category, item))
 				this.unequipItem(login, category, item)
-			return inventory.rod.delete(item);
+			inventory.rod = [...inventory.rod.filter(i => i.name !== item)]
 		}
 		if (category === 'ball') {
 			if (this.isEquipped(login, category, item))
 				this.unequipItem(login, category, item)
-			return inventory.ball.delete(item);
+			inventory.ball = [...inventory.ball.filter(i => i.name !== item)]
 		}
 		if (category === 'sound') {
 			if (this.isEquipped(login, category, item))
 				this.unequipItem(login, category, item)
-			return inventory.sound.delete(item);
+			inventory.sound = [...inventory.sound.filter(i => i.name !== item)]
 		}
  	}
 
@@ -101,38 +205,39 @@ export class ItemsService {
 	getECategory(login: string, category: string) {
 		const equipment = this.userService.users.find(users => users.login === login).equipped
 		if (category === 'rod')
-			return { rod: equipment.rod }
+			return equipment.rod
 		if (category === 'ball')
-			return { ball: equipment.ball }
+			return equipment.ball
 		if (category === 'sound')
-			return { sound: equipment.sound }
+			return equipment.sound
 	}
 //
 //	//isEquipped -> login + category + item
 	isEquipped(login: string, category: string, item: string) {
 		const equipment = this.userService.users.find(users => users.login === login).equipped
 		if (category === 'rod')
-			return (equipment.rod === item)
+			return (equipment.rod.name === item)
 		if (category === 'ball')
-			return (equipment.ball === item)
+			return (equipment.ball.name === item)
 		if (category === 'sound')
-			return (equipment.sound === item)
+			return (equipment.sound.name === item)
 	}
 
 //	//equipItem -> login + category + item
 	equipItem(login: string, category: string, item: string) {
 		const equipment = this.userService.users.find(users => users.login === login).equipped
+		const itemToEquip = this.listItems.find(items => items.name === item)
 		if (category === 'rod') {
 			if (this.isItem(login, category, item))
-				return (equipment.rod = item)
+				return (equipment.rod = itemToEquip)
 		}
 		if (category === 'ball') {
 			if (this.isItem(login, category, item))
-				return (equipment.ball = item)
+				return (equipment.ball = itemToEquip)
 		}
 		if (category === 'sound') {
 			if (this.isItem(login, category, item))
-				return (equipment.sound = item)
+				return (equipment.sound = itemToEquip)
 		}
 	}
 
@@ -141,15 +246,15 @@ export class ItemsService {
 		const equipment = this.userService.users.find(users => users.login === login).equipped
 		if (category === 'rod') {
 			if (this.isEquipped(login, category, item))
-				return (equipment.rod = 'default')
+				return (equipment.rod = this.defaultRod)
 		}
 		if (category === 'ball') {
 			if (this.isEquipped(login, category, item))
-				return (equipment.ball = 'default')
+				return (equipment.ball = this.defaultBall)
 		}
 		if (category === 'sound') {
 			if (this.isEquipped(login, category, item))
-				return (equipment.sound = 'default')
+				return (equipment.sound = this.defaultSound)
 		}
 	}
 

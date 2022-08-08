@@ -1,11 +1,13 @@
+import {ItemsInterface} from "./items.interface";
+
 export interface inventory {
-	rod: Set<string>;
-	ball: Set<string>;
-	sound: Set<string>;
+	rod: ItemsInterface[];
+	ball: ItemsInterface[];
+	sound: ItemsInterface[];
 }
 
 export interface equipped {
-	rod: string;
-	ball: string;
-	sound: string;
+	rod: ItemsInterface;
+	ball: ItemsInterface;
+	sound: ItemsInterface;
 }

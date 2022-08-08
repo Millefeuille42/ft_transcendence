@@ -23,12 +23,6 @@ export class AuthController {
 		return ;
 	}
 
-	//@Get(':code') //-> Changer en Post
-	//async addSomeone(@Res({passthrough: true}) response: Response, @Param('code') code: string, login: string) {
-	//	login = await this.authService.addSomeone(code);
-	//	response.cookie('Session', login);
-	//	response.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile');
-	//}
 }
 
 /**
