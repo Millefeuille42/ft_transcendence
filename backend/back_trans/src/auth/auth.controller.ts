@@ -9,8 +9,6 @@ export class AuthController {
 				private configService: ConfigService) {}
 
 	@Get()
-
-
 	async getAuth(@Query() query: { code: string }, @Req() req: Request, @Res() res: Response) {
 		res.send({ page: this.authService.getRedipage() });
 		return ;
@@ -32,3 +30,9 @@ export class AuthController {
 	//	response.redirect(this.configService.get('HOST') + ':' + this.configService.get<string>('PORT') + '/profile');
 	//}
 }
+
+/**
+ * @api {get} /auth Request Auth Link
+ * @apiName getAuth
+ * @apiGroup auth
+ */
