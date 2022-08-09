@@ -1,14 +1,15 @@
 import {HttpException, Injectable, NotFoundException} from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import {UserService} from "../user/user.service";
-import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
 import {User} from "../user/user.interface";
+import {ItemsService} from "../items/items.service";
 
 @Injectable()
 export class AuthService {
 	constructor(public configService: ConfigService,
-				private userService: UserService) { }
+				private userService: UserService,
+				private itemsService: ItemsService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -39,6 +40,7 @@ export class AuthService {
 
 	async addSomeone(access_token: string) {
 		let userData: User;
+		let that = this;
 		const login: string = await axios({
 			method: "GET",
 			url: this.configService.get<string>('API') + "/v2/me",
@@ -54,7 +56,11 @@ export class AuthService {
 					email: res.data.email,
 					name: res.data.usual_full_name,
 					avatar: res.data.image_url,
-					banner: ""
+					banner: "",
+					online: true,
+					friends: new Set(),
+					inventory: that.itemsService.initEquipement(),
+					equipped: that.itemsService.initEquipped(),
 				}
 				return ('');
 			})

@@ -7,7 +7,8 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Get('/:login/:ressource')
-	getUser(@Param('login') login: string, @Param('ressource') ressource: string) {
+	getUser(@Param('login') login: string,
+			@Param('ressource') ressource: string) {
 		if (ressource === 'profile')
 			return (this.userService.getUser(login));
 		if (ressource === 'name')
@@ -20,10 +21,14 @@ export class UserController {
 			return (this.userService.getBanner(login));
 		if (ressource === 'username')
 			return (this.userService.getUsername(login));
+		if (ressource === 'online')
+			return (this.userService.isOnline(login));
 	}
 
 	@Patch(':login/:ressource')
-	changeUser(@Param('login') login: string, @Param('ressource') ressource: string, @Body() change: CreateUserDto) {
+	changeUser(@Param('login') login: string,
+			   @Param('ressource') ressource: string,
+			   @Body() change: CreateUserDto) {
 		if (ressource === 'avatar') {
 			this.userService.changeAvatar(login, change)
 			return (this.userService.getAvatar(login));
@@ -35,6 +40,10 @@ export class UserController {
 		if (ressource === 'username') {
 			this.userService.changeUsername(login, change)
 			return (this.userService.getUsername(login));
+		}
+		if (ressource === 'online') {
+			this.userService.changeOnline(login, change)
+			return (this.userService.isOnline(login))
 		}
 	}
 }

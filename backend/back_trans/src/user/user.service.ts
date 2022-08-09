@@ -1,9 +1,56 @@
 import { Injectable } from '@nestjs/common';
 import {User} from "./user.interface";
+import {equipped, inventory} from "../items/inventory.interface";
+import {ItemsInterface} from "../items/items.interface";
 
 @Injectable()
 export class UserService {
-	users: User[] = [];
+	defaultRod: ItemsInterface = {
+		id: 0,
+		rarity: 0,
+		category: 'rod',
+		name: 'default',
+		description: 'La barre par défaut'
+	}
+	defaultBall: ItemsInterface = {
+		id: 1,
+		rarity: 0,
+		category: 'ball',
+		name: 'default',
+		description: 'La balle par défaut'
+	}
+	defaultSound: ItemsInterface = {
+		id: 2,
+		rarity: 0,
+		category: 'sound',
+		name: 'default',
+		description: 'Le son par défaut'
+	}
+	//TODO -> Supprimer les défauts + User de test
+
+	users: User[] = [
+		{
+			login: 'tester',
+			email: 'tester@letest.com',
+			username: 'prout',
+			name: 'Le Test',
+			avatar: 'un lien osef',
+			banner: 'un autre lien tkt',
+			online: true,
+			friends: new Set(),
+			inventory: {
+				rod: [this.defaultRod],
+				ball: [this.defaultBall],
+				sound: [this.defaultSound],
+			},
+			equipped: {
+				rod: this.defaultRod,
+				ball: this.defaultBall,
+				sound: this.defaultSound,
+			}
+		}];
+
+
 	connectSession = new Map<string, string>([]);
 
 	getUser(login: string) {
@@ -40,6 +87,11 @@ export class UserService {
 		}
 	}
 
+	isOnline(login: string) {
+		return (this.users.find(users => users.login === login).online)
+	}
+
+
 	getToken(login: string) {
 		return this.connectSession.get(login);
 	}
@@ -73,4 +125,11 @@ export class UserService {
 	//	console.log(change.username)
 		console.log(change)
 	}
+
+	changeOnline(login: string, change: User) {
+		const userToChange = this.users.find(users => users.login === login)
+		userToChange.online = change.online;
+		console.log(change);
+	}
+
 }
