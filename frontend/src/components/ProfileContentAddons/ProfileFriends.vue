@@ -27,6 +27,9 @@ import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 	components: {ProfileCard},
 	props: {
 		user: Object
+	},
+	async mounted() {
+
 	}
 })
 export default class ProfileFriends extends Vue {}
