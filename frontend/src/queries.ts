@@ -1,5 +1,5 @@
 import axios from "axios";
-import { userDataIn } from "@/queriesData"
+import { userDataIn, friendListIn } from "@/queriesData"
 
 export async function RedirectToFTAuth() {
     try {
@@ -22,7 +22,7 @@ export async function getAuthResponse(): Promise<string> {
 
 export async function getUserData(login: string): Promise<userDataIn> {
     try {
-    const response = await axios.get(process.env.VUE_APP_BACK_URL + "/profile/" + login, {
+        const response = await axios.get(process.env.VUE_APP_BACK_URL + "/profile/" + login, {
             withCredentials: true,
         })
         return response.data
@@ -44,6 +44,21 @@ export async function postFormUsername(username: string, login: string): Promise
             withCredentials: true,
         })
         return response.data.username + ""
+    } catch (e) {
+        throw e
+    }
+}
+
+export async function getFriendsList(login: string): Promise<friendListIn> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
+    target += login
+    try {
+        let response = await axios( {
+            method: 'get',
+            url: target,
+            withCredentials: true,
+        })
+        return response.data
     } catch (e) {
         throw e
     }
