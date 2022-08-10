@@ -1,11 +1,13 @@
 import {Controller, Delete, Get, Param, Post} from '@nestjs/common';
 import {UserService} from "../user/user.service";
 import {FriendsService} from "./friends.service";
+import {TmpDbService} from "../tmp_db/tmp_db.service";
 
 @Controller('friends')
 export class FriendsController {
 	constructor(private readonly friendsService: FriendsService,
-				private readonly userService: UserService) {}
+				private readonly userService: UserService,
+				private tmp_db: TmpDbService) {}
 
 	/**
 	 * @api {get} /friends/:login Request the friend list
@@ -33,7 +35,7 @@ export class FriendsController {
 	 */
 	@Get(':login/:friend')
 	isFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.userService.users.find(user => user.login === friend)))
+		if (!(this.tmp_db.users.find(user => user.login === friend)))
 			return ("Login doesn't exist")
 		return (this.friendsService.isFriend(login, friend));
 	}
@@ -48,7 +50,7 @@ export class FriendsController {
 	 */
 	@Post(':login/:friend')
 	addFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.userService.users.find(user => user.login === friend)))
+		if (!(this.tmp_db.users.find(user => user.login === friend)))
 			return ("Login doesn't exist")
 		this.friendsService.addFriend(login, friend);
 	}
@@ -63,7 +65,7 @@ export class FriendsController {
 	 */
 	@Delete(':login/:friend')
 	deleteFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.userService.users.find(user => user.login === friend)))
+		if (!(this.tmp_db.users.find(user => user.login === friend)))
 			return ("Login doesn't exist")
 		this.friendsService.deleteFriend(login, friend);
 	}
@@ -80,7 +82,7 @@ export class FriendsController {
 	 */
 	@Get(':login/:friend/online')
 	isFriendOnline(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.userService.users.find(user => user.login === friend)))
+		if (!(this.tmp_db.users.find(user => user.login === friend)))
 			return ("Login doesn't exist")
 		if (this.friendsService.isFriend(login, friend) == false)
 			return ('Not a friend')

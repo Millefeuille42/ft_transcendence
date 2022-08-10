@@ -1,12 +1,10 @@
-import {Body, Controller, Get, Param, Post, Query, Redirect, Req, Res} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
 import {Request, Response} from 'express'
 import {AuthService} from "./auth.service";
-import {ConfigService} from "@nestjs/config";
 
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService,
-				private configService: ConfigService) {}
+	constructor(private readonly authService: AuthService) {}
 
 	/**
 	 * @api {get} /auth Request Auth Link
