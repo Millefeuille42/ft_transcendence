@@ -1,8 +1,10 @@
 <template>
 	<v-container fill-height class="d-flex flex-column align-center justify-center">
-		<ProfileCard :user=user height="30%"></ProfileCard>
+		<ProfileCard :user=user v-if="loaded" height="30%"></ProfileCard>
+		<SkeletonProfileCard :user=user v-if="!loaded" height="30%"></SkeletonProfileCard>
 		<ProfileDataContainer class="mb-auto mt-8">
-			<component :is="tabs[bottomTab]" :user=user height="100%"></component>
+			<component v-if="loaded" :is="tabs[bottomTab]" :user=user height="100%"></component>
+			<SkeletonProfileComponent v-if="!loaded" height="100%"/>
 		</ProfileDataContainer>
 		<ProfileBottomDrawer/>
 	</v-container>
@@ -17,9 +19,13 @@ import ProfileCustomize from "@/components/ProfileContentAddons/ProfileCustomize
 import ProfileDataContainer from "@/components/ProfileContentAddons/ProfileDataContainer.vue";
 import ProfileBottomDrawer from "@/components/ProfileContentAddons/ProfileBottomDrawer.vue";
 import {EventBus} from "@/main";
+import SkeletonProfileCard from "@/components/SkeletonComponents/SkeletonProfileCard.vue";
+import SkeletonProfileComponent from "@/components/SkeletonComponents/SkeletonProfileComponent.vue";
 
 @Component({
-	components: {ProfileBottomDrawer, ProfileDataContainer, ProfileCustomize, ProfileForm, ProfileFriends, ProfileCard},
+	components: {
+		SkeletonProfileComponent,
+		ProfileBottomDrawer, ProfileDataContainer, ProfileCustomize, ProfileForm, ProfileFriends, ProfileCard, SkeletonProfileCard},
 	data: () => ({
 		bottomTab: 0,
 		tabs: [
@@ -30,7 +36,8 @@ import {EventBus} from "@/main";
 		]
 	}),
 	props: {
-		user: Object
+		user: Object,
+		loaded: Boolean
 	},
 	created() {
 		EventBus.$on("bottomTabChanged", (id: number) => {
