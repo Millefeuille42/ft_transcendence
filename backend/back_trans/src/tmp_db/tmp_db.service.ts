@@ -210,8 +210,8 @@ export class TmpDbService {
 			email: 'tester@letest.com',
 			username: 'prout',
 			name: 'Le Test',
-			avatar: 'un lien osef',
-			banner: 'un autre lien tkt',
+			avatar: 'https://picsum.photos/200/200?random',
+			banner: 'https://picsum.photos/1920/1080?random',
 			online: true,
 			friends: new Set(),
 			inventory: {
