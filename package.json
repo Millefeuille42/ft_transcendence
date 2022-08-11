@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@ionic/cli": "^6.20.1",
+    "@nestjs/websockets": "^9.0.8",
+    "angular": "^1.8.3",
+    "cordova-res": "^0.15.4",
+    "native-run": "^1.6.0",
+    "ngx-socket-io": "^4.3.0"
+  }
+}
