@@ -33,7 +33,7 @@
 					></v-file-input>
 				</v-col>
 				<v-col cols="12">
-					<v-btn  class="mr-4" @click="formCheck" SI
+					<v-btn  class="mr-4" @click="formCheck"
 					>submit</v-btn>
 				</v-col>
 			</v-row>
@@ -42,7 +42,6 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import axios from "axios";
 import {postFormUsername} from "@/queries";
 
 @Component({
