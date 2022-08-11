@@ -62,3 +62,18 @@ export async function getFriendsList(login: string): Promise<friendListIn> {
         throw e
     }
 }
+
+export async function addFriend(login: string, friend: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
+    target += login + "/" + friend
+    try {
+        await axios( {
+            method: 'post',
+            url: target,
+            withCredentials: true,
+        })
+        return ;
+    } catch (e) {
+        throw e
+    }
+}
