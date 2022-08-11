@@ -1,6 +1,5 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger, ForbiddenException} from '@nestjs/common';
 import { Request, Response } from "express";
-import path from "path";
 
 @Injectable()
 export class AppLoggerMiddleware implements NestMiddleware {
@@ -12,6 +11,8 @@ export class AppLoggerMiddleware implements NestMiddleware {
     res.on('close', () => {
       const {statusCode} = res;
 
+      //if (headers["origin"] !== 'http://e1r12p1:8080')
+        //throw new ForbiddenException();
       this.logger.log(`${method} ${url} ${statusCode} - ${headers["origin"]}`)
     });
 

@@ -77,7 +77,6 @@ export class UserService {
 		}
 		const userToChange = this.tmp_db.users.find(users => users.login === login);
 		userToChange.username = change.username;
-	//	console.log(change.username)
 		console.log(change)
 	}
 
