@@ -1,6 +1,6 @@
 <template>
 	<v-sheet class="mx-auto" max-width="100%" :height="height" rounded="xl">
-		<v-img height="100%" :src=user.bannerPic align="center"
+		<v-img height="100%" width="100%" :src=user.bannerPic align="center"
 			   style="border-radius: 20px">
 			<v-sheet elevation="5" color="rgb(0, 0, 0, 0.2)"
 					 style="backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px); margin-top: 24px"

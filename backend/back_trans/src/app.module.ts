@@ -26,6 +26,6 @@ import { TmpDbModule } from './tmp_db/tmp_db.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
     consumer.apply(AppLoggerMiddleware, SetCorsHeaderMiddleware).forRoutes('*')
-    consumer.apply(IsAuthMiddleware).forRoutes('profile', 'user')
+    consumer.apply(IsAuthMiddleware).forRoutes('profile', 'user', 'friends', 'items')
   }
 }

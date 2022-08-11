@@ -1,9 +1,7 @@
 <template>
-	<v-col :cols=cols :xl=sm>
 		<v-sheet rounded="xl" :height=height :min-height=min_height elevation="4">
 			<slot></slot>
 		</v-sheet>
-	</v-col>
 </template>
 
 <script lang="ts">

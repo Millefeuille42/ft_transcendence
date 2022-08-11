@@ -7,7 +7,6 @@
 						:rules=usernameRules
 						:counter=12
 						label="Username"
-						:placeholder=user.username
 						required
 					></v-text-field>
 				</v-col>
@@ -43,6 +42,8 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
+import axios from "axios";
+import {postFormUsername} from "@/queries";
 
 @Component({
 	//TODO send user data to api
@@ -60,17 +61,25 @@ import {Component, Vue} from "vue-property-decorator";
 		],
 	}),
 	props: {
+		loaded: Boolean,
 		user: Object
 	},
 	methods: {
-		formCheck() {
-			if (!this.$data.valid)
+		async formCheck() {
+			if (!this.$data.valid) {
 				alert("Wrong data")
-			if (this.$data.formUsername.length <= 12)
-				this.$props.user.username = this.$data.formUsername
+				return
+			}
+			if (this.$data.formUsername.length <= 12) {
+				try {
+					this.$props.user.username = await postFormUsername(this.$data.formUsername, this.$props.user.login)
+				} catch (e) {
+					console.log(e)
+				}
+			}
 		}
 	},
-	created() {
+	mounted() {
 		this.$data.formUsername = this.$props.user.username
 	}
 })
