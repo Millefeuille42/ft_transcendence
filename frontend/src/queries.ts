@@ -22,7 +22,7 @@ export async function getAuthResponse(): Promise<string> {
 
 export async function getUserData(login: string): Promise<userDataIn> {
     try {
-        const response = await axios.get(process.env.VUE_APP_BACK_URL + "/profile/" + login, {
+    const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
             withCredentials: true,
         })
         return response.data
@@ -35,7 +35,6 @@ export async function postFormUsername(username: string, login: string): Promise
     const payload = {username: username}
     let target: string = process.env.VUE_APP_BACK_URL + "/user/"
     target += login
-    target += "/username"
     try {
         let response = await axios({
             method: 'patch',
