@@ -4,12 +4,12 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import {ConfigModule} from "@nestjs/config";
 import { UserModule } from './user/user.module';
-import { ProfileModule } from './profile/profile.module';
 import {IsAuthMiddleware} from "./middlewares/isAuth.middleware";
 import {SetCorsHeaderMiddleware} from "./middlewares/set-cors-header.middleware";
 import {AppLoggerMiddleware} from "./middlewares/app-logger.middleware";
 import { FriendsModule } from './friends/friends.module';
 import { ItemsModule } from './items/items.module';
+import { TmpDbModule } from './tmp_db/tmp_db.module';
 
 @Module({
   imports: [AuthModule,
@@ -17,9 +17,9 @@ import { ItemsModule } from './items/items.module';
       isGlobal:true,
     }),
     UserModule,
-    ProfileModule,
     FriendsModule,
-    ItemsModule],
+    ItemsModule,
+    TmpDbModule],
   controllers: [AppController],
   providers: [AppService],
 })
