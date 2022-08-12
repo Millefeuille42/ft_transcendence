@@ -47,6 +47,9 @@ export class FriendsController {
 	 *
 	 * @apiParam {String} login Login of the current user
 	 * @apiParam {String} friend Login of the friend
+	 *
+	 * @apiError NotFoundException User (<code>login</code>) or friend (<code>friend</code>) not found
+	 * @apiError BadRequestException <code>friend</code> is already in the list or is the same then <code>login</code>
 	 */
 	@Post(':login/:friend')
 	addFriend(@Param('login') login: string, @Param('friend') friend: string) {
