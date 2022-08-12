@@ -13,12 +13,14 @@
 								</v-tab-item>
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="800">
-										<ChatContent :user=user :loaded="loaded"/>
+										<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
+										<v-sheet v-if="!logged_in"> Please login </v-sheet>
 									</DisplayContainer>
 								</v-tab-item>
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="50px"  min-width="100%" width="100%">
-										<ProfileContent :small=false :user=user :loaded="loaded"/>
+										<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
+										<v-sheet v-if="!logged_in"> Please login </v-sheet>
 									</DisplayContainer>
 								</v-tab-item>
 							</v-tabs-items>
@@ -44,12 +46,6 @@ import axios from 'axios';
 import {getAuthResponse, RedirectToFTAuth, getUserData} from "@/queries";
 import { userDataIn } from "./queriesData";
 
-function getCook(cookieName: string)
-{
-	let cookieString=RegExp(cookieName+"=[^;]+").exec(document.cookie);
-	return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
-}
-
 @Component( {
 	components: {DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
 	data: () => ({
@@ -57,6 +53,7 @@ function getCook(cookieName: string)
 		component: "HomeContent",
 		currentTab: "Home",
 		loaded: false,
+		logged_in: false,
 		links: [
 			{text: 'Home', icon:"mdi-home", component:"HomeContent"},
 			{text: 'Chat', icon:"mdi-forum", component:"ChatContent"},
@@ -89,7 +86,7 @@ function getCook(cookieName: string)
 			})
 		},
 		changeTab() {
-			if (window.location.hash != "#Home" && !this.$cookies.isKey("Session")) {
+			if (window.location.hash != "#Home" && !this.$cookies.isKey("Session") && false) {
 				this.$data.loaded = false
 				RedirectToFTAuth()
 			}
@@ -123,6 +120,7 @@ function getCook(cookieName: string)
 				let session = await getAuthResponse()
 				this.$cookies.set("Session", session)
 				window.history.pushState('home', 'Home', "/")
+				this.$data.logged_in = true
 				await this.queryUserData()
 				this.resetTabId()
 			}
