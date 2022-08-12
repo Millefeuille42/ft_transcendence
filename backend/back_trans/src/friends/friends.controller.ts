@@ -1,13 +1,11 @@
-import {Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {BadRequestException, Controller, Delete, Get, Param, Post} from '@nestjs/common';
 import {UserService} from "../user/user.service";
 import {FriendsService} from "./friends.service";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
 
 @Controller('friends')
 export class FriendsController {
 	constructor(private readonly friendsService: FriendsService,
-				private readonly userService: UserService,
-				private tmp_db: TmpDbService) {}
+				private readonly userService: UserService) {}
 
 	/**
 	 * @api {get} /friends/:login Request the friend list
@@ -34,11 +32,11 @@ export class FriendsController {
 	 * @apiParam {String} friend Login of the friend
 	 *
 	 * @apiSuccess {Boolean} res True if the other user is in the list of friends
+	 *
+	 * @apiError NotFoundException User (<code>login</code>) or friend (<code>friend</code>) not found
 	 */
 	@Get(':login/:friend')
 	isFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.tmp_db.users.find(user => user.login === friend)))
-			return ("Login doesn't exist")
 		return (this.friendsService.isFriend(login, friend));
 	}
 
@@ -51,7 +49,7 @@ export class FriendsController {
 	 * @apiParam {String} friend Login of the friend
 	 *
 	 * @apiError NotFoundException User (<code>login</code>) or friend (<code>friend</code>) not found
-	 * @apiError BadRequestException <code>friend</code> is already in the list or is the same then <code>login</code>
+	 * @apiError BadRequestException <code>friend</code> is already in the list of friends or is the same then <code>login</code>
 	 */
 	@Post(':login/:friend')
 	addFriend(@Param('login') login: string, @Param('friend') friend: string) {
@@ -65,11 +63,12 @@ export class FriendsController {
 	 *
 	 * @apiParam {String} login Login of the current user
 	 * @apiParam {String} friend Login of the friend
+	 *
+	 * @apiError NotFoundException User (<code>login</code>) or friend (<code>friend</code>) not found
+	 * @apiError BadRequestException <code>friend</code> is not in the list of friends or is the same then <code>login</code>
 	 */
 	@Delete(':login/:friend')
 	deleteFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.tmp_db.users.find(user => user.login === friend)))
-			return ("Login doesn't exist")
 		this.friendsService.deleteFriend(login, friend);
 	}
 
@@ -82,13 +81,15 @@ export class FriendsController {
 	 * @apiParam {String} friend Login of the friend
 	 *
 	 * @apiSuccess {Boolean} res True if the friend is online
+	 *
+	 * @apiError NotFoundException User (<code>login</code>) or friend (<code>friend</code>) not found
+	 * @apiError BadRequestException <code>friend</code> is not in the list of friends
 	 */
 	@Get(':login/:friend/online')
 	isFriendOnline(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.tmp_db.users.find(user => user.login === friend)))
-			return ("Login doesn't exist")
+		this.friendsService.verificationUsers(login, friend)
 		if (this.friendsService.isFriend(login, friend) == false)
-			return ('Not a friend')
+			throw new BadRequestException()
 		return (this.userService.isOnline(friend));
 	}
 }
