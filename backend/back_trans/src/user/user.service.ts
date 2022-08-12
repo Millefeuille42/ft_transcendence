@@ -86,4 +86,14 @@ export class UserService {
 		console.log(change);
 	}
 
+	isUsernameExist(username: string) {
+		const user = this.tmp_db.users.find(users => users.username === username)
+		if (!user)
+			return {userExist: false}
+		return {
+			userExist: true,
+			login: user.login,
+		}
+	}
+
 }
