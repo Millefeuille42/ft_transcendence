@@ -19,8 +19,8 @@
 										<v-list-item-title class="text-left">{{ friend.username }}</v-list-item-title>
 									</v-list-item-content>
 								</v-btn>
-								<v-btn icon x-small class="ml-2" color="red">
-									<v-icon>mdi-skull-scan</v-icon>
+								<v-btn icon x-small class="ml-2" color="white" @click="removeFriend(friend)">
+									<v-icon>mdi-close-circle</v-icon>
 								</v-btn>
 							</v-list-item>
 					</template>
@@ -31,14 +31,15 @@
 			</v-sheet>
 		</v-sheet>
 		<v-img v-if="loaded && !hasFriends" src="@/assets/pong-bg.jpg" height="80%" />
-		<ProfileFriendsAddFriend v-if="loaded" :user="user" v-model="formFriend" />
+		<ProfileFriendsAddFriend v-if="loaded" :user="user" @input="addFriendFromForm" />
+		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-sheet>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
-import {getFriendsList, getFriendStatus, getUserData} from "@/queries";
+import {getFriendsList, getFriendStatus, getUserData, removeFriendFromList} from "@/queries";
 import {friendListIn, userDataIn} from "@/queriesData";
 import SkeletonProfileFriends from "@/components/SkeletonComponents/SkeletonProfileFriends.vue"
 import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFriendsAddon/ProfileFriendsAddFriend.vue";
@@ -50,19 +51,43 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 		hasFriends: false,
 		hasFriendSelected: false,
 		friends: Array,
-		formFriend: Object,
-		selectedFriend: Object,
+		selectedFriend: Object as () => userDataIn,
+
+		snackShow: false,
+		snackText: "",
+		snackColor: "green"
 	}),
 	props: {
 		user: Object
 	},
-	watch: {
-		formFriend() {
-			this.$data.friends.push(this.$data.formFriend)
-			this.$data.hasFriends = true
-		}
-	},
 	methods: {
+		showSnack(text: string, color: string) {
+			this.$data.snackColor = color
+			this.$data.snackText = text
+			this.$data.snackShow = true
+		},
+		async addFriendFromForm(friendData: userDataIn) {
+			this.$data.friends.push(friendData)
+			this.$data.hasFriends = true
+			this.showSnack(friendData.username + " added", "green")
+		},
+		async removeFriend(friend: userDataIn) {
+			let that = this
+			removeFriendFromList(this.$props.user.login, friend.login).then(function() {
+				const index = that.$data.friends.indexOf(friend, 0);
+				if (index > -1)
+					that.$data.friends.splice(index, 1);
+				if (that.$data.friends.length <= 0)
+					that.$data.hasFriends = false
+				if (that.$data.selectedFriend === friend) {
+					that.$data.selectedFriend = Object as () => userDataIn
+					that.$data.hasFriendSelected = false
+				}
+			}).catch(() => {
+				this.showSnack("Failed to remove " + friend.username, "red")
+			})
+			this.showSnack(friend.username + " removed", "green")
+		},
 		async loadFriends() {
 			try {
 				this.$data.friends = []
@@ -79,26 +104,26 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 										let fFriend = that.$data.friends.find((f: userDataIn) => f.login === friendData.login)
 										if (fFriend)
 											fFriend.status = onlineData
-									}).catch((e) => {
-									console.log(e)
+									}).catch(() => {
+									that.showSnack("Failed to get " + friend + " status", "red")
 								})
 								if (!friendData.banner)
 									friendData.banner = "https://picsum.photos/1920/1080?random";
 								that.$data.friends.push(friendData)
-								that.$data.loaded = true
-							}).catch((err) => {
-							console.log(err)
+							}).catch(() => {
+							that.showSnack("Failed to get " + friend + " data", "red")
 						})
 					}
 				}
+				this.$data.loaded = true
 			} catch (e) {
-				console.log(e);
+				this.showSnack("Failed to get friend list", "red")
 			}
 		},
 	},
 	async mounted() {
 		await this.loadFriends()
-	}
+	},
 })
 export default class ProfileFriends extends Vue {}
 </script>
