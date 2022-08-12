@@ -10,6 +10,7 @@ import {AppLoggerMiddleware} from "./middlewares/app-logger.middleware";
 import { FriendsModule } from './friends/friends.module';
 import { ItemsModule } from './items/items.module';
 import { TmpDbModule } from './tmp_db/tmp_db.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [AuthModule,
@@ -19,7 +20,8 @@ import { TmpDbModule } from './tmp_db/tmp_db.module';
     UserModule,
     FriendsModule,
     ItemsModule,
-    TmpDbModule],
+    TmpDbModule,
+    GameModule],
   controllers: [AppController],
   providers: [AppService],
 })
