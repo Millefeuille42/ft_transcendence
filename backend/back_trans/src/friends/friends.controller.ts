@@ -17,6 +17,8 @@ export class FriendsController {
 	 * @apiParam {String} login Login of the current user
 	 *
 	 * @apiSuccess {String[]} friends The list with all friends
+	 *
+	 * @apiError NotFoundException User (<code>login</code>) not found
 	 */
 	@Get(':login')
 	friendList(@Param('login') login: string) {
