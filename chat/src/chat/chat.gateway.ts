@@ -47,19 +47,18 @@ interface Chiasse {
 	}
 
 	@SubscribeMessage('verify')
-	async onVerify(client, message) {
+	async onVerify(client: string, message: string) {
+		let verifyUser = new Map<string, string>([]);
+		verifyUser[client] = false;
 		// Requete sur /verify/:login de l'api REST
 		try {
-			axios
-				.get('https://api.com/verify/:login')
-				.then(response => (this.info = response))
+			await axios.get(process.env.VUE_APP_BACK_URL + "/verify/:login").
+			then(() => { verifyUser[client] = true });
 		} catch (e) {
-			console.log(e);
-			return e;
+			throw ("Error : Profile don't exist");
 		}
 		// Si ca te dit OK, la personne existe tout va bien
 		// dans ta map[socket]boolean tu met l'entree client a true // map[client] =  true
 		// et tu retourne "tout va bien"
-		// Sinon tu retourne "ntm"
 	} 
   } 
