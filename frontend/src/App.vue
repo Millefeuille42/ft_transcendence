@@ -63,11 +63,11 @@ function getCook(cookieName: string)
 			{text: 'Profile', icon:"mdi-account-circle", component:"ProfileContent"}
 		],
 		user: {
-			profilePic: "https://picsum.photos/200/200?random",
-			bannerPic: "https://picsum.photos/1920/1080?random",
+			avatar: "https://picsum.photos/200/200?random",
+			banner: "https://picsum.photos/1920/1080?random",
 			username: "Username",
 			login: "login",
-			status: "status"
+			status: "online"
 		},
 	}),
 	methods: {
@@ -104,9 +104,9 @@ function getCook(cookieName: string)
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Session"))
 			this.$data.user.username = selfData.username
 			if (selfData.banner !== "")
-				this.$data.user.bannerPic= selfData.banner
+				this.$data.user.banner= selfData.banner
 			if (selfData.avatar !== "")
-				this.$data.user.profilePic = selfData.avatar
+				this.$data.user.avatar = selfData.avatar
 			this.$data.user.login = selfData.login
 			this.$data.loaded = true
 		}
