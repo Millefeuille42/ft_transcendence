@@ -50,8 +50,6 @@ export class FriendsController {
 	 */
 	@Post(':login/:friend')
 	addFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		if (!(this.tmp_db.users.find(user => user.login === friend)))
-			return ("Login doesn't exist")
 		this.friendsService.addFriend(login, friend);
 	}
 
