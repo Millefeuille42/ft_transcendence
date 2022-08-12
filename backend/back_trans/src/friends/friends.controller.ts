@@ -14,7 +14,8 @@ export class FriendsController {
 	 *
 	 * @apiParam {String} login Login of the current user
 	 *
-	 * @apiSuccess {String[]} friends The list with all friends
+	 * @apiSuccess {Json} thereIsFriend Boolean set to false if no friends
+	 * @apiSuccess {Json} listOfFriends if <code>thereIsFriend</code> is true, there is String[] of friends
 	 *
 	 * @apiError NotFoundException User (<code>login</code>) not found
 	 */
