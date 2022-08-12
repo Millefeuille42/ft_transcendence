@@ -1,6 +1,7 @@
 import {BadRequestException, ConflictException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {User} from "./user.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
+import {CreateUserDto} from "./create-user.dto";
 
 @Injectable()
 export class UserService {
@@ -90,8 +91,16 @@ export class UserService {
 		this.verificationUser(login)
 		if (change.username.length > 12)
 			throw new BadRequestException()
-		if (!this.isUsernameExist(change.username).userExist)
-			throw new ConflictException()
+		const loginOtherUser = this.isUsernameExist(change.username)
+		if (loginOtherUser.userExist) {
+			if (change.username === login) {
+				let otherUser = this.tmp_db.users.find(user => user.login === loginOtherUser.login)
+				const newChange: CreateUserDto = {username : otherUser.login}
+				this.changeUsername(otherUser.login, newChange)
+			}
+			else
+				throw new ConflictException()
+		}
 		const userToChange = this.tmp_db.users.find(users => users.login === login);
 		userToChange.username = change.username;
 		console.log(change)
@@ -104,13 +113,13 @@ export class UserService {
 		console.log(change);
 	}
 
-	isUsernameExist(username: string) {
+	isUsernameExist(username: string): {userExist: boolean, login?: string} {
 		const user = this.tmp_db.users.find(users => users.username === username)
 		if (!user)
 			return {userExist: false}
 		return {
 			userExist: true,
-			login: user.login,
+			login: user.login
 		}
 	}
 
