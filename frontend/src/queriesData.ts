@@ -4,3 +4,8 @@ export interface userDataIn {
     banner: string,
     avatar: string,
 }
+
+export interface friendListIn {
+    thereIsFriend: Boolean,
+    listOfFriends: Array<string>,
+}
