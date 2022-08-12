@@ -94,3 +94,18 @@ export async function addFriend(login: string, friend: string) {
         throw e
     }
 }
+
+export async function removeFriendFromList(login: string, friend: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
+    target += login + "/" + friend
+    try {
+        await axios( {
+            method: 'delete',
+            url: target,
+            withCredentials: true,
+        })
+        return ;
+    } catch (e) {
+        throw e
+    }
+}
