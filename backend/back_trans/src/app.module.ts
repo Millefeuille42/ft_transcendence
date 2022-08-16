@@ -10,6 +10,7 @@ import {SetCorsHeaderMiddleware} from "./middlewares/set-cors-header.middleware"
 import {AppLoggerMiddleware} from "./middlewares/app-logger.middleware";
 import { FriendsModule } from './friends/friends.module';
 import { ItemsModule } from './items/items.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [AuthModule,
@@ -19,7 +20,8 @@ import { ItemsModule } from './items/items.module';
     UserModule,
     ProfileModule,
     FriendsModule,
-    ItemsModule],
+    ItemsModule,
+	ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })

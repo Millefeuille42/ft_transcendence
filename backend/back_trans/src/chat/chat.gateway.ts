@@ -50,13 +50,27 @@ interface Chiasse {
 	async onVerify(client: string, message: string) {
 		let verifyUser = new Map<string, string>([]);
 		verifyUser[client] = false;
+		const payload = {
+			grant_type: "authorization_code",
+			client_id: this.configService.get<string>('API_UID'),
+		};
 		// Requete sur /verify/:login de l'api REST
-		try {
-			await axios.get(process.env.VUE_APP_BACK_URL + "/verify/:login").
-			then(() => { verifyUser[client] = true });
-		} catch (e) {
-			throw ("Error : Profile don't exist");
-		}
+		let ret: string;
+		await axios ({
+			method: "post",
+			url: this.configService.get<string>('API') + "/verify/:login",
+			data: JSON.stringify(payload),
+			headers: {
+				"content-type": "application/json",
+			}
+		})
+		.then(function(res) {
+		ret = res.data.access_token;
+		})
+		.catch ((err) => { 
+			throw new HttpException(err.response.statusText + " on token grab", err.response.status);
+		});
+		return ret;
 		// Si ca te dit OK, la personne existe tout va bien
 		// dans ta map[socket]boolean tu met l'entree client a true // map[client] =  true
 		// et tu retourne "tout va bien"
