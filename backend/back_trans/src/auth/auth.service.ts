@@ -1,15 +1,17 @@
-import {HttpException, Injectable, NotFoundException} from '@nestjs/common';
+import {HttpException, Injectable} from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import {UserService} from "../user/user.service";
 import axios from "axios";
 import {User} from "../user/user.interface";
 import {ItemsService} from "../items/items.service";
+import {TmpDbService} from "../tmp_db/tmp_db.service";
 
 @Injectable()
 export class AuthService {
 	constructor(public configService: ConfigService,
 				private userService: UserService,
-				private itemsService: ItemsService) { }
+				private itemsService: ItemsService,
+				private tmp_db: TmpDbService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -74,7 +76,11 @@ export class AuthService {
 		if (login !== '')
 			return login;
 		this.userService.connectSession.set(userData.login, access_token);
-		this.userService.users = [...this.userService.users, userData];
+		if (this.tmp_db.users.find(users => users.login === userData.login)) {
+			console.log("User already exist")
+			return (userData.login);
+		}
+		this.tmp_db.users = [...this.tmp_db.users, userData];
 		return userData.login;
 	}
 

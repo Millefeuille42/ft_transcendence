@@ -3,7 +3,7 @@
 		<v-row class="pa-5">
 			<v-col cols="12">
 				<v-avatar class="profile" size="64">
-					<v-img :src=user.profilePic lazy-src="@/assets/42.jpg"></v-img>
+					<v-img :src=user.avatar></v-img>
 				</v-avatar>
 			</v-col>
 			<v-col class="py-0">
