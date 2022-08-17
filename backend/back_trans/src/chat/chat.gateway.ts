@@ -5,9 +5,13 @@ import {
 	OnGatewayConnection,
 	OnGatewayDisconnect,
   } from '@nestjs/websockets';
+import { HttpException } from '@nestjs/common';
+import { ConfigService } from "@nestjs/config";
 import { json } from 'stream/consumers';
 import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
-
+import { UserService } from "../user/user.service";
+import { User } from "../user/user.interface";
+import { ItemsService } from "../items/items.service";
   
 interface Chiasse {
 	message: String,
@@ -18,6 +22,7 @@ interface Chiasse {
   export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server;
 	users: number = 0;
+	configService: ConfigService;
   
 	async handleConnection() {
 	  // A client has connected
@@ -55,7 +60,6 @@ interface Chiasse {
 			client_id: this.configService.get<string>('API_UID'),
 		};
 		// Requete sur /verify/:login de l'api REST
-		let ret: string;
 		await axios ({
 			method: "post",
 			url: this.configService.get<string>('API') + "/verify/:login",
@@ -65,12 +69,12 @@ interface Chiasse {
 			}
 		})
 		.then(function(res) {
-		ret = res.data.access_token;
+		verifyUser[client] = true;
 		})
 		.catch ((err) => { 
 			throw new HttpException(err.response.statusText + " on token grab", err.response.status);
 		});
-		return ret;
+		return verifyUser[client];
 		// Si ca te dit OK, la personne existe tout va bien
 		// dans ta map[socket]boolean tu met l'entree client a true // map[client] =  true
 		// et tu retourne "tout va bien"
