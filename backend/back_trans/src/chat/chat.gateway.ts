@@ -12,6 +12,7 @@ import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 import { UserService } from "../user/user.service";
 import { User } from "../user/user.interface";
 import { ItemsService } from "../items/items.service";
+import { channel } from 'diagnostics_channel';
   
 interface Chiasse {
 	message: String,
@@ -80,3 +81,6 @@ interface Chiasse {
 		// et tu retourne "tout va bien"
 	} 
   } 
+
+//   id channel
+//   message
