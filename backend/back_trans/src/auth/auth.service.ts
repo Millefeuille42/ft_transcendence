@@ -5,6 +5,7 @@ import axios from "axios";
 import {User} from "../user/user.interface";
 import {ItemsService} from "../items/items.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
+import {CreateUserDto} from "../user/create-user.dto";
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,7 @@ export class AuthService {
 			},
 		})
 			.then(function (res) { // Une fois que la requete est faite et a reussi, il faut donner une fonction a call
-			ret = res.data.access_token; // Et en gros tu la definis la, la dite fonction
+				ret = res.data.access_token; // Et en gros tu la definis la, la dite fonction
 		})
 			.catch((err) => {
 				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
@@ -63,6 +64,11 @@ export class AuthService {
 					friends: new Set(),
 					inventory: that.itemsService.initEquipement(),
 					equipped: that.itemsService.initEquipped(),
+				}
+				const otherLogin = that.userService.isUsernameExist(userData.login)
+				if (otherLogin.userExist) {
+					const otherUser: CreateUserDto = {username: otherLogin.login}
+					that.userService.changeUsername(otherLogin.login, otherUser)
 				}
 				return ('');
 			})
