@@ -14,13 +14,13 @@
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="800">
 										<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
-										<v-sheet v-if="!logged_in"> Please login </v-sheet>
+										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="50px"  min-width="100%" width="100%">
 										<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
-										<v-sheet v-if="!logged_in"> Please login </v-sheet>
+										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 							</v-tabs-items>
@@ -45,9 +45,10 @@ import ChatContent from "@/components/ChatContent.vue";
 import axios from 'axios';
 import {getAuthResponse, RedirectToFTAuth, getUserData} from "@/queries";
 import { userDataIn } from "./queriesData";
+import LoginPage from "@/components/LoginPage.vue";
 
 @Component( {
-	components: {DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
+	components: {LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
 	data: () => ({
 		curTab: 0,
 		component: "HomeContent",
@@ -111,6 +112,7 @@ import { userDataIn } from "./queriesData";
 	async mounted () {
 		try {
 			if (this.$cookies.isKey("Session")) {
+				this.$data.logged_in = true
 				await this.queryUserData()
 			}
 

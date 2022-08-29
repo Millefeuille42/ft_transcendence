@@ -88,41 +88,53 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 			})
 			this.showSnack(friend.username + " removed", "green")
 		},
-		async loadFriends() {
-			try {
-				this.$data.friends = []
-				let friendList: friendListIn = await getFriendsList(this.$props.user.login)
-				if (friendList.thereIsFriend) {
-					this.$data.hasFriends = true
-					for (let friend in friendList.listOfFriends) {
-						let that = this
-						getUserData(friendList.listOfFriends[friend])
-							.then(async function (friendData: userDataIn) {
-								friendData.status = "not loaded"
-								getFriendStatus(that.$props.user.login, friendData.login)
-									.then (function (onlineData: string) {
-										let fFriend = that.$data.friends.find((f: userDataIn) => f.login === friendData.login)
-										if (fFriend)
-											fFriend.status = onlineData
-									}).catch(() => {
-									that.showSnack("Failed to get " + friend + " status", "red")
-								})
-								if (!friendData.banner)
-									friendData.banner = "https://picsum.photos/1920/1080?random";
-								that.$data.friends.push(friendData)
-							}).catch(() => {
-							that.showSnack("Failed to get " + friend + " data", "red")
-						})
-					}
-				}
-				this.$data.loaded = true
-			} catch (e) {
-				this.showSnack("Failed to get friend list", "red")
-			}
+
+		async loadFriendStatus(friend: string) {
+			let that = this
+			getFriendStatus(that.$props.user.login, friend)
+				.then (function (onlineData: string) {
+					let fFriend: userDataIn = that.$data.friends.find((f: userDataIn) => f.login === friend)
+					if (fFriend)
+						fFriend.status = onlineData
+				}).catch(() => {
+					that.showSnack("Failed to get " + friend + " status", "red")
+				})
+		},
+		async loadFriendData(friend: string) {
+			let that = this
+			getUserData(friend)
+				.then((friendData: userDataIn) => {
+					friendData.status = "not loaded"
+					if (!friendData.banner)
+						friendData.banner = "https://picsum.photos/1920/1080?random";
+					that.$data.friends.push(friendData)
+					that.loadFriendStatus(friend)
+				}).catch(() => {
+					that.showSnack("Failed to get " + friend + " data", "red")
+				})
+		},
+		async loadFriends(): Promise<friendListIn> {
+			this.$data.friends = []
+			this.$data.hasFriends = false
+			let that = this
+			return await getFriendsList(this.$props.user.login)
+				.then((friendList: friendListIn) => {
+					that.$data.hasFriends = friendList.thereIsFriend
+					return friendList
+				}).catch(() => {
+					that.showSnack("Failed to get friend list", "red")
+					return {thereIsFriend: false, listOfFriends: []} as friendListIn
+				})
 		},
 	},
 	async mounted() {
-		await this.loadFriends()
+		let friendList: friendListIn = await this.loadFriends()
+		this.$data.loaded = true
+		if (!this.$data.hasFriends)
+			return
+		for (let friend in friendList.listOfFriends) {
+			this.loadFriendData(friendList.listOfFriends[friend])
+		}
 	},
 })
 export default class ProfileFriends extends Vue {}
