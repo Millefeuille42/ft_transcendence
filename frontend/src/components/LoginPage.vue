@@ -1,5 +1,5 @@
 <template>
-	<v-img width="100%" height="100%" src="@/assets/image_libre_de_droite.jpg" style="border-radius: 20px">
+	<v-img width="100%" height="100%" src="@/assets/42.jpg" style="border-radius: 20px">
 		<v-sheet width="100%" height="100%"
 				 style="backdrop-filter: blur(11px); -webkit-backdrop-filter: blur(11px);"
 				 class="d-flex " rounded="xl" color="rgb(0, 0, 0, 0.4)">
