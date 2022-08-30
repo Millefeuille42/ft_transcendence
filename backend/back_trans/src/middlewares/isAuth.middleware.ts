@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware} from '@nestjs/common';
+import {ForbiddenException, HttpException, HttpStatus, Injectable, NestMiddleware} from '@nestjs/common';
 import {Request, Response} from 'express';
 import {UserService} from "../user/user.service";
 import {ConfigService} from "@nestjs/config";
@@ -39,25 +39,24 @@ export class IsAuthMiddleware implements NestMiddleware {
       next();
       return ;
     }
+    console.log(login)
     if (!login) {
       console.log("No login")
-      res.redirect(redir + '/auth');
-      return ;
+      res.statusCode = 401
+      throw new HttpException("User not logged", 401) ;
     }
     const token: string = this.userService.getToken(login);
     if (!token) {
       console.log('Pas dans la base de donnee')
-      res.clearCookie('Session');
-      res.redirect(redir + '/auth');
-      return ;
+      res.statusCode = 401
+      throw new HttpException("User not logged", 401) ;
     }
     const ret: boolean = await this.meRequest(token);
     if (!ret) {
       console.log(ret)
       console.log('Token qui fonctionne pas')
-      res.clearCookie('Session');
-      res.redirect(redir + '/auth');
-      return ;
+      res.statusCode = 401
+      throw new HttpException("User not logged", 401) ;
     }
     next();
   }

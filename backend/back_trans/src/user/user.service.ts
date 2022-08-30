@@ -61,12 +61,10 @@ export class UserService {
 
 
 	getToken(login: string) {
-		this.verificationUser(login)
 		return this.connectSession.get(login);
 	}
 
 	deleteToken(login: string) {
-		this.verificationUser(login)
 		this.connectSession.delete(login);
 	}
 
