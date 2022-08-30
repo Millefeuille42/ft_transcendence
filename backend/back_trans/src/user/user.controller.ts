@@ -8,6 +8,21 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	/**
+	 * @api {get} user/username/:username Get User if username exist
+	 * @apiName isUsernameExist
+	 * @apiGroup User
+	 *
+	 * @apiParam username Username that need a check
+	 *
+	 * @apiSuccess {Json} userExist Boolean set to false if username doesn't exist
+	 * @apiSuccess {Json} login if <code>userExist</code> is true, the login of the user
+	 */
+	@Get('username/:username')
+	isUsernameExist(@Param('username') username: string) {
+		return (this.userService.isUsernameExist(username))
+	}
+
+	/**
 	 * @api {get} /user/:login/:ressource Request information about a User
 	 * @apiName getUser
 	 * @apiGroup User
@@ -43,7 +58,7 @@ export class UserController {
 	}
 
 	/**
-	 * @api {patch} user/:login Change informations about a User
+	 * @api {patch} user/:login Change information about a User
 	 * @apiName changeUser
 	 * @apiGroup User
 	 *

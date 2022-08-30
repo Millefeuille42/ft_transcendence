@@ -1,6 +1,6 @@
 <template>
 	<v-container fill-height class="align-content-start text-left">
-		<v-img color="transparent" height="0%" :src=user.bannerPic align="center"></v-img>
+		<v-img color="transparent" height="0%" :src=user.banner align="center"></v-img>
 		<v-row style="height: 100%">
 			<v-col cols="3" style="height: 100%">
 				<ChatNavDrawer :loaded="loaded" :user=user></ChatNavDrawer>
@@ -25,7 +25,8 @@ import SkeletonChatMainWindow from "@/components/SkeletonComponents/SkeletonChat
 	components: {SkeletonChatMainWindow, ProfileCard, ProfileContent, ChatMainWindow, ChatNavDrawer},
 	props: {
 		user: Object,
-		loaded: Boolean
+		loaded: Boolean,
+		loggedIn: Boolean
 	}
 })
 export default class ChatContent extends Vue {

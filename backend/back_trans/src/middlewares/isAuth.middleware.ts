@@ -34,7 +34,7 @@ export class IsAuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: () => void) {
     const redir: string = this.configService.get<string>('HOST') + ':' + this.configService.get<string>('PORT');
     const login: string = req.cookies['Session'];
-    if (req.ip === "::ffff:127.0.0.1") {
+    if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
       console.log("from localhost")
       next();
       return ;

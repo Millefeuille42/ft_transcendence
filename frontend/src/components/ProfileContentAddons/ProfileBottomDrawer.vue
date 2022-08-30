@@ -32,7 +32,6 @@ import {EventBus} from "@/main";
 	}),
 	watch: {
 		bottomTab () {
-			console.log("Selected: ", this.$data.bottomTab)
 			EventBus.$emit("bottomTabChanged", this.$data.bottomTab)
 		}
 	}

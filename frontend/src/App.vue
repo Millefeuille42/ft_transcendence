@@ -13,12 +13,14 @@
 								</v-tab-item>
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="800">
-										<ChatContent :user=user :loaded="loaded"/>
+										<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
+										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="50px"  min-width="100%" width="100%">
-										<ProfileContent :small=false :user=user :loaded="loaded"/>
+										<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
+										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 							</v-tabs-items>
@@ -43,31 +45,27 @@ import ChatContent from "@/components/ChatContent.vue";
 import axios from 'axios';
 import {getAuthResponse, RedirectToFTAuth, getUserData} from "@/queries";
 import { userDataIn } from "./queriesData";
-
-function getCook(cookieName: string)
-{
-	let cookieString=RegExp(cookieName+"=[^;]+").exec(document.cookie);
-	return decodeURIComponent(!!cookieString ? cookieString.toString().replace(/^[^=]+./,"") : "");
-}
+import LoginPage from "@/components/LoginPage.vue";
 
 @Component( {
-	components: {DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
+	components: {LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
 	data: () => ({
 		curTab: 0,
 		component: "HomeContent",
 		currentTab: "Home",
 		loaded: false,
+		logged_in: false,
 		links: [
 			{text: 'Home', icon:"mdi-home", component:"HomeContent"},
 			{text: 'Chat', icon:"mdi-forum", component:"ChatContent"},
 			{text: 'Profile', icon:"mdi-account-circle", component:"ProfileContent"}
 		],
 		user: {
-			profilePic: "https://picsum.photos/200/200?random",
-			bannerPic: "https://picsum.photos/1920/1080?random",
+			avatar: "https://picsum.photos/200/200?random",
+			banner: "https://picsum.photos/1920/1080?random",
 			username: "Username",
 			login: "login",
-			status: "status"
+			status: "online"
 		},
 	}),
 	methods: {
@@ -89,7 +87,7 @@ function getCook(cookieName: string)
 			})
 		},
 		changeTab() {
-			if (window.location.hash != "#Home" && !this.$cookies.isKey("Session")) {
+			if (window.location.hash != "#Home" && !this.$cookies.isKey("Session") && false) {
 				this.$data.loaded = false
 				RedirectToFTAuth()
 			}
@@ -104,9 +102,9 @@ function getCook(cookieName: string)
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Session"))
 			this.$data.user.username = selfData.username
 			if (selfData.banner !== "")
-				this.$data.user.bannerPic= selfData.banner
+				this.$data.user.banner= selfData.banner
 			if (selfData.avatar !== "")
-				this.$data.user.profilePic = selfData.avatar
+				this.$data.user.avatar = selfData.avatar
 			this.$data.user.login = selfData.login
 			this.$data.loaded = true
 		}
@@ -114,6 +112,7 @@ function getCook(cookieName: string)
 	async mounted () {
 		try {
 			if (this.$cookies.isKey("Session")) {
+				this.$data.logged_in = true
 				await this.queryUserData()
 			}
 
@@ -123,6 +122,7 @@ function getCook(cookieName: string)
 				let session = await getAuthResponse()
 				this.$cookies.set("Session", session)
 				window.history.pushState('home', 'Home', "/")
+				this.$data.logged_in = true
 				await this.queryUserData()
 				this.resetTabId()
 			}

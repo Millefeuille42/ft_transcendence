@@ -9,7 +9,9 @@ import {SetCorsHeaderMiddleware} from "./middlewares/set-cors-header.middleware"
 import {AppLoggerMiddleware} from "./middlewares/app-logger.middleware";
 import { FriendsModule } from './friends/friends.module';
 import { ItemsModule } from './items/items.module';
+import { ChatModule } from './chat/chat.module';
 import { TmpDbModule } from './tmp_db/tmp_db.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [AuthModule,
@@ -19,7 +21,9 @@ import { TmpDbModule } from './tmp_db/tmp_db.module';
     UserModule,
     FriendsModule,
     ItemsModule,
-    TmpDbModule],
+	ChatModule,
+    TmpDbModule,
+    GameModule],
   controllers: [AppController],
   providers: [AppService],
 })

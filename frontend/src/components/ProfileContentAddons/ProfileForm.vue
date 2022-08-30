@@ -11,29 +11,23 @@
 					></v-text-field>
 				</v-col>
 				<v-col cols="12">
-					<v-file-input
-						show-size
-						chips
-						placeholder="Change your profile pic"
+					<v-text-field
 						v-model="formProfilePic"
-						:rules=picRules
-						accept="image/png, image/jpeg"
 						prepend-icon="mdi-camera"
 						label="Profile pic"
-					></v-file-input>
+					></v-text-field>
 				</v-col>
 				<v-col cols="12">
-					<v-file-input
+					<v-text-field
 						v-model="formBannerPic"
-						:rules=picRules
+						:rules=usernameRules
 						accept="image/png, image/jpeg"
-						placeholder="Change your banner pic"
 						prepend-icon="mdi-image-area"
 						label="Banner pic"
-					></v-file-input>
+					></v-text-field>
 				</v-col>
 				<v-col cols="12">
-					<v-btn  class="mr-4" @click="formCheck" SI
+					<v-btn  class="mr-4" @click="formCheck"
 					>submit</v-btn>
 				</v-col>
 			</v-row>
@@ -42,7 +36,6 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import axios from "axios";
 import {postFormUsername} from "@/queries";
 
 @Component({
@@ -50,8 +43,8 @@ import {postFormUsername} from "@/queries";
 	data: () => ({
 		valid: false,
 		formUsername: "",
-		formBannerPic: null,
-		formProfilePic: null,
+		formBannerPic: "",
+		formProfilePic: "",
 		picRules: [
 			(value: any) =>	!value || "No file provided!",
 			(value: any) => value.size < 2500000 || "File size must be less than 25MB!"
