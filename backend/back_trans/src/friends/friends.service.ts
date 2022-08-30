@@ -20,11 +20,11 @@ export class FriendsService {
 		this.verificationUsers(login)
 
 		const friends = this.tmp_db.users.find(users => users.login === login).friends;
-		if (friends.size === 0)
+		if (friends.length === 0)
 			return { thereIsFriend: false}
 		return {
 			thereIsFriend: true,
-			listOfFriends: Array.from(friends),
+			listOfFriends: friends,
 		};
 	}
 
@@ -32,23 +32,25 @@ export class FriendsService {
 		this.verificationUsers(login, friend)
 
 		const friends = this.tmp_db.users.find(users => users.login === login).friends
-		if (friends.has(friend) || friend === login)
+		if (friends.find(f => f === friend) || friend === login)
 			throw new BadRequestException()
-		friends.add(friend);
+		friends.push(friend);
 	}
 
 	deleteFriend(login: string, friend: string) {
 		this.verificationUsers(login, friend)
 
 		let friends = this.tmp_db.users.find(users => users.login === login).friends;
-		if (!friends.has(friend) || friend === login)
+		if (!(friends.find(f => f === friend)) || friend === login)
 			throw new BadRequestException()
-		friends.delete(friend)
+		this.tmp_db.users.find(users => users.login === login).friends = friends.filter(f => f !== friend)
 	}
 
 	isFriend(login: string, friend: string) {
 		this.verificationUsers(login, friend)
 		const friends = this.tmp_db.users.find(users => users.login === login).friends
-		return friends.has(friend);
+		if (friends.find(f => f === friend))
+			return true
+		return false
 	}
 }
