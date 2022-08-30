@@ -54,6 +54,7 @@ export class IsAuthMiddleware implements NestMiddleware {
     if (!ret) {
       console.log(ret)
       console.log('Token qui fonctionne pas')
+      this.userService.deleteToken(login)
       res.statusCode = 401
       throw new HttpException("User not logged", 401) ;
     }
