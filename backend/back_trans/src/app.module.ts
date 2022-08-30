@@ -12,6 +12,7 @@ import { ItemsModule } from './items/items.module';
 import { ChatModule } from './chat/chat.module';
 import { TmpDbModule } from './tmp_db/tmp_db.module';
 import { GameModule } from './game/game.module';
+import { BlockedModule } from './blocked/blocked.module';
 
 @Module({
   imports: [AuthModule,
@@ -23,7 +24,8 @@ import { GameModule } from './game/game.module';
     ItemsModule,
 	ChatModule,
     TmpDbModule,
-    GameModule],
+    GameModule,
+    BlockedModule],
   controllers: [AppController],
   providers: [AppService],
 })

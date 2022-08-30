@@ -9,6 +9,7 @@ export interface User {
 	banner?: string;
 	online?: boolean;
 	friends?: Array<string>;
+	blocked?: Array<string>;
 	inventory?: inventory;
 	equipped?: equipped;
 }

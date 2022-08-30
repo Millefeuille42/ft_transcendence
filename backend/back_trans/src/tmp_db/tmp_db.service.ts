@@ -71,13 +71,6 @@ export class TmpDbService {
 		},
 		{
 			id: 12,
-			rarity: 3,
-			category: 'rod',
-			name: 'zizi',
-			description: '../assets/rods/rod_zizi.png',
-		},
-		{
-			id: 13,
 			rarity: 1,
 			category: 'rod',
 			name: 'zizou',
@@ -86,35 +79,35 @@ export class TmpDbService {
 
 		//BALLS
 		{
-			id: 14,
+			id: 13,
 			rarity: 2,
 			category: 'ball',
 			name: 'bob',
 			description: '../assets/balls/ball_bob.png'
 		},
 		{
-			id: 15,
+			id: 14,
 			rarity: 1,
 			category: 'ball',
 			name: 'chrome',
 			description: '../assets/balls/ball_chrome.png'
 		},
 		{
-			id: 16,
+			id: 15,
 			rarity: 1,
 			category: 'ball',
 			name: 'discord',
 			description: '../assets/balls/ball_discord.png'
 		},
 		{
-			id: 17,
+			id: 16,
 			rarity: 2,
 			category: 'ball',
 			name: 'eye',
 			description: '../assets/balls/ball_eye.png'
 		},
 		{
-			id: 18,
+			id: 17,
 			rarity: 1,
 			category: 'ball',
 			name: 'firefox',
@@ -128,42 +121,42 @@ export class TmpDbService {
 			description: '../assets/balls/ball_github.png'
 		},
 		{
-			id: 20,
+			id: 19,
 			rarity: 4,
 			category: 'ball',
 			name: 'mlabouri',
 			description: '../assets/balls/ball_mlabouri.png'
 		},
 		{
-			id: 21,
+			id: 20,
 			rarity: 4,
 			category: 'ball',
 			name: 'normiball',
 			description: '../assets/balls/ball_normiball.png'
 		},
 		{
-			id: 22,
+			id: 21,
 			rarity: 2,
 			category: 'ball',
 			name: 'peach',
 			description: '../assets/balls/ball_peach.png'
 		},
 		{
-			id: 23,
+			id: 22,
 			rarity: 3,
 			category: 'ball',
 			name: 'pikaball',
 			description: '../assets/balls/ball_pikaball.png'
 		},
 		{
-			id: 24,
+			id: 23,
 			rarity: 3,
 			category: 'ball',
 			name: 'rich',
 			description: '../assets/balls/ball_rich.png'
 		},
 		{
-			id: 25,
+			id: 24,
 			rarity: 4,
 			category: 'ball',
 			name: 'tefroiss',
@@ -179,7 +172,31 @@ export class TmpDbService {
 			category: 'rod',
 			name: 'karant 2',
 			description: '../assets/rods/rod_karant2.png'
+		},
+
+		//Default
+		{
+			id: 0,
+			rarity: 0,
+			category: 'rod',
+			name: 'default',
+			description: '../assets/rods/rod_default.png'
+		},
+		{
+			id: 1,
+			rarity: 0,
+			category: 'ball',
+			name: 'default',
+			description: '../assets/balls/ball_default.png'
+		},
+		{
+			id: 2,
+			rarity: 0,
+			category: 'sound',
+			name: 'default',
+			description: 'Le son par défaut'
 		}
+
 	]
 
 	defaultRod: ItemsInterface = {
@@ -214,6 +231,7 @@ export class TmpDbService {
 			banner: 'https://picsum.photos/1920/1080?random',
 			online: true,
 			friends: new Array<string>(),
+			blocked: new Array<string>(),
 			inventory: {
 				rod: [this.defaultRod],
 				ball: [this.defaultBall],

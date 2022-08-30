@@ -62,6 +62,7 @@ export class AuthService {
 					banner: "",
 					online: true,
 					friends: new Array<string>(),
+					blocked: new Array<string>(),
 					inventory: that.itemsService.initEquipement(),
 					equipped: that.itemsService.initEquipped(),
 				}

@@ -9,6 +9,7 @@ export class CreateUserDto {
 	readonly banner?: string;
 	readonly online?: boolean;
 	readonly friends?: Array<string>;
+	readonly blocked?: Array<string>;
 	readonly inventory?: inventory;
 	readonly equipped?: equipped;
 }
