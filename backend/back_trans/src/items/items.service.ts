@@ -179,7 +179,8 @@ export class ItemsService {
 	isEquipped(login: string, category: string, item: string) {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
-		this.verificationItem(item)
+		if (item !== 'default')
+			this.verificationItem(item)
 
 		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
 		if (category === 'rod')
@@ -194,7 +195,8 @@ export class ItemsService {
 	equipItem(login: string, category: string, item: string) {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
-		this.verificationItem(item)
+		if (item !== 'default')
+			this.verificationItem(item)
 
 		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
 		const itemToEquip = this.tmp_db.listItems.find(items => items.name === item)
@@ -214,7 +216,8 @@ export class ItemsService {
 	unequipItem(login: string, category: string, item: string) {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
-		this.verificationItem(item)
+		if (item !== 'default')
+			this.verificationItem(item)
 
 		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
 		if (!this.isEquipped(login, category, item))

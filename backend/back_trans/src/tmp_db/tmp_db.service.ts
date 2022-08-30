@@ -172,7 +172,31 @@ export class TmpDbService {
 			category: 'rod',
 			name: 'karant 2',
 			description: '../assets/rods/rod_karant2.png'
+		},
+
+		//Default
+		{
+			id: 0,
+			rarity: 0,
+			category: 'rod',
+			name: 'default',
+			description: '../assets/rods/rod_default.png'
+		},
+		{
+			id: 1,
+			rarity: 0,
+			category: 'ball',
+			name: 'default',
+			description: '../assets/balls/ball_default.png'
+		},
+		{
+			id: 2,
+			rarity: 0,
+			category: 'sound',
+			name: 'default',
+			description: 'Le son par défaut'
 		}
+
 	]
 
 	defaultRod: ItemsInterface = {
