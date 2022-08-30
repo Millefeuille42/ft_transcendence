@@ -213,7 +213,7 @@ export class TmpDbService {
 			avatar: 'https://picsum.photos/200/200?random',
 			banner: 'https://picsum.photos/1920/1080?random',
 			online: true,
-			friends: new Set(),
+			friends: new Array<string>(),
 			inventory: {
 				rod: [this.defaultRod],
 				ball: [this.defaultBall],

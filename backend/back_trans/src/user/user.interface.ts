@@ -8,7 +8,7 @@ export interface User {
 	avatar?: string;
 	banner?: string;
 	online?: boolean;
-	friends?: Set<string>;
+	friends?: Array<string>;
 	inventory?: inventory;
 	equipped?: equipped;
 }

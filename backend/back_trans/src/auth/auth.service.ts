@@ -61,7 +61,7 @@ export class AuthService {
 					avatar: res.data.image_url,
 					banner: "",
 					online: true,
-					friends: new Set(),
+					friends: new Array<string>(),
 					inventory: that.itemsService.initEquipement(),
 					equipped: that.itemsService.initEquipped(),
 				}

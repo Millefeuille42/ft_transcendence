@@ -8,7 +8,7 @@ export class CreateUserDto {
 	readonly avatar?: string;
 	readonly banner?: string;
 	readonly online?: boolean;
-	readonly friends?: Set<string>;
+	readonly friends?: Array<string>;
 	readonly inventory?: inventory;
 	readonly equipped?: equipped;
 }
