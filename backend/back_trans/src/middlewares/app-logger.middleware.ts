@@ -1,14 +1,18 @@
 import {Injectable, NestMiddleware, Logger, ForbiddenException, HttpException, HttpStatus} from '@nestjs/common';
 import { Request, Response } from "express";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class AppLoggerMiddleware implements NestMiddleware {
   private logger = new Logger('HTTP');
+  constructor(private configService: ConfigService) {}
 
   use(req: Request, res: Response, next: () => void) {
+    const ipHost = this.configService.get('HOST') + ':' + this.configService.get('PORT_FRONT')
+
     const {headers, method, originalUrl: url} = req;
     //::ffff:10.11.12.1
-    if (headers["origin"] !== 'http://e1r12p1:8080' && req.ip !== "::ffff:127.0.0.1" &&
+    if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
         req.ip !== "::1") /*Postman*/ {
       res.statusCode = HttpStatus.FORBIDDEN
     }
@@ -18,7 +22,7 @@ export class AppLoggerMiddleware implements NestMiddleware {
       this.logger.log(`${method} ${url} ${statusCode} - ${headers["origin"]}`)
     });
 
-    if (headers["origin"] !== 'http://e1r12p1:8080' && req.ip !== "::ffff:127.0.0.1" &&
+    if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
         req.ip !== "::1") /*Postman*/ {
       res.statusCode = HttpStatus.FORBIDDEN
       throw new ForbiddenException()
