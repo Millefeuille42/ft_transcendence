@@ -76,8 +76,9 @@ export class ItemsService {
 			throw new HttpException('Category not found', HttpStatus.NOT_FOUND)
 	}
 
-	verificationItem(item: string) {
-		if (!this.tmp_db.listItems.find(items => items.name === item))
+	verificationItemInCategory(category: string, item: string) {
+		if (!this.tmp_db.listItems.filter(items => items.category === category).
+		find(items => items.name === item))
 			throw new HttpException('Item not found', HttpStatus.NOT_FOUND)
 	}
 
@@ -99,7 +100,7 @@ export class ItemsService {
  	isItem(login: string, category: string, item: string) {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
-		this.verificationItem(item)
+		this.verificationItemInCategory(category, item)
 
 		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
 		let hasItem;
@@ -120,10 +121,10 @@ export class ItemsService {
  	addItem(login: string, category: string, item: string) {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
-		this.verificationItem(item)
+		this.verificationItemInCategory(category, item)
 
 		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
-		const itemToAdd = this.tmp_db.listItems.find(items => items.name === item)
+		const itemToAdd = this.tmp_db.listItems.filter(items => items.category === category).find(items => items.name === item)
 		if (category === 'rod')
 			inventory.rod = [...inventory.rod, itemToAdd]
 		if (category === 'ball')
@@ -138,7 +139,7 @@ export class ItemsService {
 		this.verificationCategory(category)
 		if (item === 'default')
 			throw new BadRequestException("Can't delete default items")
-		this.verificationItem(item)
+		this.verificationItemInCategory(category, item)
 		if (!this.isItem(login, category, item))
 			throw new BadRequestException("User don't have this item")
 
@@ -180,7 +181,7 @@ export class ItemsService {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
 		if (item !== 'default')
-			this.verificationItem(item)
+			this.verificationItemInCategory(category, item)
 
 		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
 		if (category === 'rod')
@@ -196,7 +197,7 @@ export class ItemsService {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
 		if (item !== 'default')
-			this.verificationItem(item)
+			this.verificationItemInCategory(category, item)
 
 		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
 		const itemToEquip = this.tmp_db.listItems.find(items => items.name === item)
@@ -217,7 +218,7 @@ export class ItemsService {
 		this.userService.verificationUser(login);
 		this.verificationCategory(category)
 		if (item !== 'default')
-			this.verificationItem(item)
+			this.verificationItemInCategory(category, item)
 
 		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
 		if (!this.isEquipped(login, category, item))
