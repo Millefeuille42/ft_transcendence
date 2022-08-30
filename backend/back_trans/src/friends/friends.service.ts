@@ -1,11 +1,14 @@
-import {BadRequestException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {UserService} from "../user/user.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
+import {BlockedService} from "../blocked/blocked.service";
 
 @Injectable()
 export class FriendsService {
 	constructor(private readonly userService: UserService,
-				private readonly tmp_db: TmpDbService) {}
+				private readonly tmp_db: TmpDbService,
+				@Inject(forwardRef(() => BlockedService))
+				private blockedService: BlockedService) {}
 
 	verificationUsers(login: string, friend?: string) {
 		if (!(this.tmp_db.users.find(user => user.login === login)))
@@ -34,6 +37,8 @@ export class FriendsService {
 		const friends = this.tmp_db.users.find(users => users.login === login).friends
 		if (friends.find(f => f === friend) || friend === login)
 			throw new BadRequestException()
+		if (this.blockedService.isBlocked(friend, login))
+			throw new HttpException("Friend blocked User", HttpStatus.FORBIDDEN)
 		friends.push(friend);
 	}
 
