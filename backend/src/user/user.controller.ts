@@ -7,6 +7,11 @@ import {Response} from "express";
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
+	@Get('online/:login')
+	getOnlineList(@Param('login') login: string) {
+		return (this.userService.listOfOnlinePeople(login))
+	}
+
 	/**
 	 * @api {get} user/username/:username Get User if username exist
 	 * @apiName isUsernameExist
