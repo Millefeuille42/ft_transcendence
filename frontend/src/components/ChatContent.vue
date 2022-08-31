@@ -1,5 +1,6 @@
 <template>
 	<v-container fill-height class="align-content-start text-left">
+		<!--suppress HtmlDeprecatedAttribute -->
 		<v-img color="transparent" height="0%" :src=user.banner align="center"></v-img>
 		<v-row style="height: 100%">
 			<v-col cols="3" style="height: 100%">
@@ -21,13 +22,38 @@ import ProfileContent from "@/components/ProfileContent.vue";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import SkeletonChatMainWindow from "@/components/SkeletonComponents/SkeletonChatMainWindow.vue";
 
+
 @Component({
 	components: {SkeletonChatMainWindow, ProfileCard, ProfileContent, ChatMainWindow, ChatNavDrawer},
 	props: {
 		user: Object,
 		loaded: Boolean,
 		loggedIn: Boolean
-	}
+	},
+	data: () => ({
+		isConnected: false,
+		socketMessage: ''
+	}),
+	sockets: {
+		connect() {
+			console.log("Connected")
+			this.$data.isConnected = true
+		},
+
+		disconnect() {
+			console.log("Disconnected")
+			this.$data.isConnected = false
+		},
+
+		chat(data) {
+			this.$data.socketMessage = data
+		}
+	},
+	methods: {
+		pingServer() {
+			this.$socket.emit("ping", "PING!")
+		}
+	},
 })
 export default class ChatContent extends Vue {
 }
