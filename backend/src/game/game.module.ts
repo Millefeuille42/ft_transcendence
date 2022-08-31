@@ -7,6 +7,7 @@ import {TmpDbModule} from "../tmp_db/tmp_db.module";
 @Module({
   imports: [UserModule, TmpDbModule],
   controllers: [GameController],
-  providers: [GameService]
+  providers: [GameService],
+  exports: [GameService]
 })
 export class GameModule {}
