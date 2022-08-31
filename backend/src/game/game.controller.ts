@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Patch, Post} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {GameService} from "./game.service";
 import {AddStatsDto} from "./add-stats.dto";
 
@@ -25,8 +25,9 @@ export class GameController {
 
 	@Patch('points/:login')
 	fixPoints(@Param('login') login: string,
-			  @Body() points: number) {
-		return this.gameService.fixPoints(login, points)
+			  @Query() points: {points: number}) {
+		console.log(points)
+		return this.gameService.fixPoints(login, points.points)
 	}
 
 	@Post(':login')
