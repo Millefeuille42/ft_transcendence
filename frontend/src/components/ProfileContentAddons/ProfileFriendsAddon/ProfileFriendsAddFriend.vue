@@ -5,17 +5,7 @@
 			label="Add a friend"
 			required
 		></v-text-field>
-		<v-btn  class="ml-8" @click="formCheck"
-		>submit</v-btn>
-		<v-snackbar v-model="snackAddFriendLoading" color="grey darken-3" tile>
-			<v-sheet color="grey darken-3" class="d-flex flex-column align-center">
-				Adding {{ formFriend }}
-				<v-progress-linear class="mt-2" :query="true"
-					indeterminate
-					color="primary"
-				></v-progress-linear>
-			</v-sheet>
-		</v-snackbar>
+		<v-btn  class="ml-8" @click="formCheck" :loading="addFriendLoading">submit</v-btn>
 		<v-snackbar v-model="snackAddFriendError" color="red" tile timeout="2000">
 			{{ snackErrorText }}
 		</v-snackbar>
@@ -33,14 +23,14 @@ import {userDataIn} from "@/queriesData";
 	},
 	data: () => ({
 		formFriend: "",
-		snackAddFriendLoading: false,
+		addFriendLoading: false,
 		snackAddFriendError: false,
 		snackErrorText: "An unknown error occurred"
 	}),
 	methods: {
 		async formCheck() {
 			try {
-				this.$data.snackAddFriendLoading = true
+				this.$data.addFriendLoading = true
 				await addFriend(this.$props.user.login, this.$data.formFriend)
 				try {
 					let friendData: userDataIn = await getUserData(this.$data.formFriend)
@@ -49,7 +39,7 @@ import {userDataIn} from "@/queriesData";
 						friendData.banner = "https://picsum.photos/1920/1080?random";
 					friendData.status = onlineData
 					this.$emit('input', friendData)
-					this.$data.snackAddFriendLoading = false
+					this.$data.addFriendLoading = false
 				} catch (e) {
 					console.log(e)
 				}
@@ -59,7 +49,7 @@ import {userDataIn} from "@/queriesData";
 				else if (e.response.status === 400)
 					this.$data.snackErrorText = "This user is already your friend"
 				this.$data.snackAddFriendError = true
-				this.$data.snackAddFriendLoading = false
+				this.$data.addFriendLoading = false
 			}
 			this.$data.formFriend = ""
 		}
