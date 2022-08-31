@@ -91,7 +91,8 @@ export class UserService {
 		if (change.username.length > 12)
 			throw new BadRequestException()
 		const loginOtherUser = this.isUsernameExist(change.username)
-		if (loginOtherUser.userExist) {
+		const user = this.getUser(login)
+		if (loginOtherUser.userExist && user.username !== change.username) {
 			if (change.username === login) {
 				let otherUser = this.tmp_db.users.find(user => user.login === loginOtherUser.login)
 				const newChange: CreateUserDto = {username : otherUser.login}
