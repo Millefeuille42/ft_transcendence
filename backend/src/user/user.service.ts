@@ -74,7 +74,7 @@ export class UserService {
 		const userToChange = this.tmp_db.users.find(users => users.login === login);
 		userToChange.avatar = change.avatar;
 	//	console.log(change.avatar)
-		console.log(change)
+		//console.log(change)
 	}
 
 	changeBanner(login: string, change: User) {
@@ -82,7 +82,7 @@ export class UserService {
 		const userToChange = this.tmp_db.users.find(users => users.login === login);
 		userToChange.banner = change.banner;
 	//	console.log(change.banner)
-		console.log(change)
+	//	console.log(change)
 	}
 
 
@@ -102,7 +102,7 @@ export class UserService {
 		}
 		const userToChange = this.tmp_db.users.find(users => users.login === login);
 		userToChange.username = change.username;
-		console.log(change)
+		//console.log(change)
 	}
 
 	changeOnlineInDB(online: OnlineDto) {
