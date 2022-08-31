@@ -2,6 +2,7 @@ import {BadRequestException, ConflictException, HttpException, HttpStatus, Injec
 import {User} from "./user.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUserDto} from "./create-user.dto";
+import {OnlineDto} from "./online.dto";
 
 @Injectable()
 export class UserService {
@@ -104,11 +105,20 @@ export class UserService {
 		console.log(change)
 	}
 
+	changeOnlineInDB(online: OnlineDto) {
+		const user = this.tmp_db.onlinePeople.find(u => u.login === online.login)
+		if (user)
+			user.online = online.online
+		else
+			this.tmp_db.onlinePeople = [...this.tmp_db.onlinePeople, online];
+	}
+
 	changeOnline(login: string, change: User) {
 		this.verificationUser(login)
 		const userToChange = this.tmp_db.users.find(users => users.login === login)
 		userToChange.online = change.online;
-		console.log(change);
+		this.changeOnlineInDB({login: login, online: change.online})
+		//console.log(change);
 	}
 
 	isUsernameExist(username: string): {userExist: boolean, login?: string} {
@@ -119,6 +129,28 @@ export class UserService {
 			userExist: true,
 			login: user.login
 		}
+	}
+
+	isBlocked(login: string, other: string) {
+		let user = this.getUser(other)
+		if (user.blocked.find(u => u === login))
+			return true
+		user = this.getUser(login)
+		if (user.blocked.find(u => u === other))
+			return true
+		return false
+	}
+
+	listOfOnlinePeople(login: string) {
+		this.verificationUser(login)
+		let users : Array<string> = []
+		this.tmp_db.onlinePeople.forEach((u) => {
+			if (u.login !== login && u.online === true && (!this.isBlocked(login, u.login)))
+				users.push(u.login)
+		})
+		//const users = [...this.tmp_db.onlinePeople.filter(u => u.online === true)]
+		//Trier les gens connectés et qui n'ont pas bloqués user
+		return (Array(users));
 	}
 
 }

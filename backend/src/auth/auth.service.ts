@@ -88,9 +88,12 @@ export class AuthService {
 		this.userService.connectSession.set(userData.login, access_token);
 		if (this.tmp_db.users.find(users => users.login === userData.login)) {
 			console.log("User already exist")
+			this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}
 		this.tmp_db.users = [...this.tmp_db.users, userData];
+		this.userService.changeOnlineInDB({login: userData.login, online: true})
+		//console.log(this.userService.onlinePeople.has('tester'))
 		return userData.login;
 	}
 
