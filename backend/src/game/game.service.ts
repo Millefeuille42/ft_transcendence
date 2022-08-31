@@ -58,15 +58,21 @@ export class GameService {
 		return {lastRival: user.stats.lastRival}
 	}
 
-	addStats(login: string, result: string, rival: string) {
+	fixPoints(login: string, points: number) {
+		const user = this.userService.getUser(login)
+		user.stats.points = points
+		return {points: user.stats.points}
+	}
+
+	addStats(login: string, result: boolean, rival: string) {
 		this.verificationUsers(login, rival)
 		let user = this.userService.getUser(login);
 
-		if (result === 'win') {
+		if (result) {
 			user.stats.wins++
 			user.stats.points += 2
 		}
-		else if (result === 'loose') {
+		else if (!result) {
 			user.stats.looses++
 			user.stats.points++
 		}
