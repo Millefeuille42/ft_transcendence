@@ -11,70 +11,70 @@ export class TmpDbService {
 			rarity: 4,
 			category: 'rod',
 			name: 'bretagne',
-			description: '../assets/rods/rod_bretagne.png',
+			description: '/rods/rod_bretagne.png',
 		},
 		{
 			id: 4,
 			rarity: 4,
 			category: 'rod',
 			name: 'cristaquette',
-			description: '../assets/rods/rod_cristaquette.png',
+			description: '/rods/rod_cristaquette.png',
 		},
 		{
 			id: 5,
 			rarity: 1,
 			category: 'rod',
 			name: 'droite',
-			description: '../assets/rods/rod_droite.png',
+			description: '/rods/rod_droite.png',
 		},
 		{
 			id: 6,
 			rarity: 2,
 			category: 'rod',
 			name: 'feu',
-			description: '../assets/rods/rod_feu.png',
+			description: '/rods/rod_feu.png',
 		},
 		{
 			id: 7,
 			rarity: 3,
 			category: 'rod',
 			name: 'github',
-			description: '../assets/rods/rod_github.png',
+			description: '/rods/rod_github.png',
 		},
 		{
 			id: 8,
 			rarity: 4,
 			category: 'rod',
 			name: 'millefeuille',
-			description: '../assets/rods/rod_millefeuille.png',
+			description: '/rods/rod_millefeuille.png',
 		},
 		{
 			id: 9,
 			rarity: 4,
 			category: 'rod',
 			name: 'normirod',
-			description: '../assets/rods/rod_normirod.png',
+			description: '/rods/rod_normirod.png',
 		},
 		{
 			id: 10,
 			rarity: 3,
 			category: 'rod',
 			name: 'raguette',
-			description: '../assets/rods/rod_raguette.png',
+			description: '/rods/rod_raguette.png',
 		},
 		{
 			id: 11,
 			rarity: 2,
 			category: 'rod',
 			name: 'zevent',
-			description: '../assets/rods/rod_zevent.png',
+			description: '/rods/rod_zevent.png',
 		},
 		{
 			id: 12,
 			rarity: 1,
 			category: 'rod',
 			name: 'zizou',
-			description: '../assets/rods/rod_zizou.png',
+			description: '/rods/rod_zizou.png',
 		},
 
 		//BALLS
@@ -83,84 +83,84 @@ export class TmpDbService {
 			rarity: 2,
 			category: 'ball',
 			name: 'bob',
-			description: '../assets/balls/ball_bob.png'
+			description: '/balls/ball_bob.png'
 		},
 		{
 			id: 14,
 			rarity: 1,
 			category: 'ball',
 			name: 'chrome',
-			description: '../assets/balls/ball_chrome.png'
+			description: '/balls/ball_chrome.png'
 		},
 		{
 			id: 15,
 			rarity: 1,
 			category: 'ball',
 			name: 'discord',
-			description: '../assets/balls/ball_discord.png'
+			description: '/balls/ball_discord.png'
 		},
 		{
 			id: 16,
 			rarity: 2,
 			category: 'ball',
 			name: 'eye',
-			description: '../assets/balls/ball_eye.png'
+			description: '/balls/ball_eye.png'
 		},
 		{
 			id: 17,
 			rarity: 1,
 			category: 'ball',
 			name: 'firefox',
-			description: '../assets/balls/ball_firefox.png'
+			description: '/balls/ball_firefox.png'
 		},
 		{
 			id: 18,
 			rarity: 1,
 			category: 'ball',
 			name: 'github',
-			description: '../assets/balls/ball_github.png'
+			description: '/balls/ball_github.png'
 		},
 		{
 			id: 19,
 			rarity: 4,
 			category: 'ball',
 			name: 'mlabouri',
-			description: '../assets/balls/ball_mlabouri.png'
+			description: '/balls/ball_mlabouri.png'
 		},
 		{
 			id: 20,
 			rarity: 4,
 			category: 'ball',
 			name: 'normiball',
-			description: '../assets/balls/ball_normiball.png'
+			description: '/balls/ball_normiball.png'
 		},
 		{
 			id: 21,
 			rarity: 2,
 			category: 'ball',
 			name: 'peach',
-			description: '../assets/balls/ball_peach.png'
+			description: '/balls/ball_peach.png'
 		},
 		{
 			id: 22,
 			rarity: 3,
 			category: 'ball',
 			name: 'pikaball',
-			description: '../assets/balls/ball_pikaball.png'
+			description: '/balls/ball_pikaball.png'
 		},
 		{
 			id: 23,
 			rarity: 3,
 			category: 'ball',
 			name: 'rich',
-			description: '../assets/balls/ball_rich.png'
+			description: '/balls/ball_rich.png'
 		},
 		{
 			id: 24,
 			rarity: 4,
 			category: 'ball',
 			name: 'tefroiss',
-			description: '../assets/balls/ball_tefroiss.png'
+			description: '/balls/ball_tefroiss.png'
 		},
 
 		//SOUNDS
@@ -171,7 +171,7 @@ export class TmpDbService {
 			rarity: 0,
 			category: 'rod',
 			name: 'karant 2',
-			description: '../assets/rods/rod_karant2.png'
+			description: '/rods/rod_karant2.png'
 		},
 
 		//Default
@@ -180,14 +180,14 @@ export class TmpDbService {
 			rarity: 0,
 			category: 'rod',
 			name: 'default',
-			description: '../assets/rods/rod_default.png'
+			description: '/rods/rod_default.png'
 		},
 		{
 			id: 1,
 			rarity: 0,
 			category: 'ball',
 			name: 'default',
-			description: '../assets/balls/ball_default.png'
+			description: '/balls/ball_default.png'
 		},
 		{
 			id: 2,
@@ -204,14 +204,14 @@ export class TmpDbService {
 		rarity: 0,
 		category: 'rod',
 		name: 'default',
-		description: '../assets/rods/rod_default.png'
+		description: '/rods/rod_default.png'
 	}
 	defaultBall: ItemsInterface = {
 		id: 1,
 		rarity: 0,
 		category: 'ball',
 		name: 'default',
-		description: '../assets/balls/ball_default.png'
+		description: '/balls/ball_default.png'
 	}
 	defaultSound: ItemsInterface = {
 		id: 2,
