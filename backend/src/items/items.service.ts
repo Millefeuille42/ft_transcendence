@@ -32,6 +32,10 @@ export class ItemsService {
 
 	dropItem(login: string) {
 		this.userService.verificationUser(login);
+		const user = this.userService.getUser(login)
+		if (user.stats.points === 0)
+			throw new HttpException('User have not enough points', HttpStatus.FORBIDDEN)
+		user.stats.points--
 
 		const rarity = Math.floor(Math.random() * 100) + 1
 		console.log('rarity : ' + rarity)
