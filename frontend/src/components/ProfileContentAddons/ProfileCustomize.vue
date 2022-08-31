@@ -1,8 +1,14 @@
 <template>
-	<v-sheet style="width: 100%; height: 100%" class="d-flex justify-space-between" color="">
-		<ProfileCustomizeInventorySheet/>
-		<ProfileCustomizeInventorySheet/>
-		<ProfileCustomizeInventorySheet/>
+	<v-sheet width="100%" height="100%">
+		<v-sheet width="100%" height="90%" class="d-flex justify-space-between" color="">
+			<ProfileCustomizeInventorySheet v-if="!load" :login="user.login" category="ball" heightOfRow="25%"/>
+			<ProfileCustomizeInventorySheet v-if="!load" :login="user.login" category="rod" heightOfRow="35%"/>
+			<ProfileCustomizeInventorySheet v-if="!load" :login="user.login" category="sound" heightOfRow="25%"/>
+		</v-sheet>
+		<v-sheet width="100%" height="10%" class="mt-2 d-flex row justify-center">
+			<v-btn :loading="loadingButton" class="ml-2" @click="saveItem"> Save </v-btn>
+		</v-sheet>
+		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-sheet>
 </template>
 
@@ -10,9 +16,60 @@
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCustomizeInventorySheet
 	from "@/components/ProfileContentAddons/ProfileCustomizeAddon/ProfileCustomizeInventorySheet.vue";
+import {equipItem} from "@/queries";
+import {inventoryItem} from "@/queriesData";
+import {EventBus} from "@/main";
+
+interface selectedComponent {
+	cat: String
+	selected: inventoryItem
+}
 
 @Component({
-	components: {ProfileCustomizeInventorySheet}
+	components: {ProfileCustomizeInventorySheet},
+	props: {
+		user: Object,
+	},
+	data: () => ({
+		load: false,
+		loadingButton: false,
+		sel: [{cat: "ball", selected: {name: ""}}, {cat: "rod", selected: {name: ""}}, {cat: "sound", selected: {name: ""}}],
+		snackShow: false,
+		snackText: "",
+		snackColor: "green"
+	}),
+	methods: {
+		async saveItem() {
+			this.$data.loadingButton = true
+			try {
+				for (let i in this.$data.sel) {
+					if (this.$data.sel[i].selected.name === "") {
+						continue
+					}
+					await equipItem(this.$props.user.login, this.$data.sel[i].selected)
+				}
+			}
+			catch {
+				this.$data.snackShow = false
+				this.$data.snackColor = "red"
+				this.$data.snackText = "Failed to save loadout"
+				this.$data.snackShow = true
+				return
+			}
+
+			this.$data.loadingButton = false
+			this.$data.snackShow = false
+			this.$data.snackColor = "green"
+			this.$data.snackText = "Loadout successfully saved"
+			this.$data.snackShow = true
+		},
+	},
+	created() {
+		EventBus.$on("itemChanged", (item: inventoryItem) => {
+			let id = this.$data.sel.findIndex((it: selectedComponent) => it.cat === item.category)
+			this.$data.sel[id].selected = item
+		})
+	}
 })
 export default class ProfileCustomize extends Vue {
 }

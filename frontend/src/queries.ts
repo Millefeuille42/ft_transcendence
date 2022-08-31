@@ -1,5 +1,5 @@
 import axios from "axios";
-import { userDataIn, friendListIn } from "@/queriesData"
+import {userDataIn, friendListIn, inventoryItem} from "@/queriesData"
 
 export async function RedirectToFTAuth() {
     try {
@@ -108,4 +108,62 @@ export async function removeFriendFromList(login: string, friend: string) {
     } catch (e) {
         throw e
     }
+}
+
+export async function getInventoryByCategory(login: string, category: string): Promise<Array<inventoryItem>> {
+    let target:string = process.env.VUE_APP_BACK_URL + "/items/inventory/"
+    target += login + "/" + category
+
+    return await axios({
+        method: 'get',
+        url: target,
+        withCredentials: true
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+   })
+}
+
+export async function getEquippedByCategory(login: string, category: string): Promise<inventoryItem> {
+    let target:string = process.env.VUE_APP_BACK_URL + "/items/equipped/"
+    target += login + "/" + category
+
+    return await axios({
+        method: 'get',
+        url: target,
+        withCredentials: true
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function equipItem(login: string, item: inventoryItem) {
+    let target:string = process.env.VUE_APP_BACK_URL + "/items/equipped/"
+    target += login + "/" + item.category + "/" + item.name
+
+    return await axios({
+        method: 'post',
+        url: target,
+        withCredentials: true
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function dropItem(login: string): Promise<inventoryItem> {
+    let target:string = process.env.VUE_APP_BACK_URL + "/items/drop/"
+    target += login
+
+    return await axios({
+        method: 'get',
+        url: target,
+        withCredentials: true
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
 }

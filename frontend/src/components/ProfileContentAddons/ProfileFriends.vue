@@ -30,7 +30,7 @@
 				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%"/>
 			</v-sheet>
 		</v-sheet>
-		<v-img v-if="loaded && !hasFriends" src="@/assets/pong-bg.jpg" height="80%" />
+		<v-img v-if="loaded && !hasFriends" src="@/assets/curly.png" height="80%" />
 		<ProfileFriendsAddFriend v-if="loaded" :user="user" @input="addFriendFromForm" />
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-sheet>
@@ -136,6 +136,8 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 			this.loadFriendData(friendList.listOfFriends[friend])
 		}
 	},
+
+	//TODO add block friend
 })
 export default class ProfileFriends extends Vue {}
 </script>

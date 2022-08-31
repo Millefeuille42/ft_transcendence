@@ -3,6 +3,7 @@
 		<v-app id="inspire">
 			<AppBar :Links=links :user=user :curTab=curTab />
 			<v-main class="grey darken-3">
+				<!--suppress HtmlDeprecatedAttribute -->
 				<v-sheet color="transparent" align="center" class="d-flex justify-center">
 					<v-container>
 							<v-tabs-items v-model="curTab" style="background-color: transparent" dark>
@@ -42,7 +43,6 @@ import DisplayContainer from "@/components/DisplayContainer.vue";
 import ProfileContent from "@/components/ProfileContent.vue";
 import HomeContent from "@/components/HomeContent.vue";
 import ChatContent from "@/components/ChatContent.vue";
-import axios from 'axios';
 import {getAuthResponse, RedirectToFTAuth, getUserData} from "@/queries";
 import { userDataIn } from "./queriesData";
 import LoginPage from "@/components/LoginPage.vue";
@@ -100,6 +100,11 @@ import LoginPage from "@/components/LoginPage.vue";
 		},
 		async queryUserData() {
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Session"))
+				.catch(() => {
+					this.$cookies.remove("Session")
+					window.location.reload()
+					return {} as userDataIn
+				})
 			this.$data.user.username = selfData.username
 			if (selfData.banner !== "")
 				this.$data.user.banner= selfData.banner
