@@ -80,22 +80,31 @@ export class UserController {
 	changeUser(@Param('login') login: string,
 			   @Body() change: CreateUserDto,
 			   @Res() res: Response) {
+
+		let user = this.userService.getUser(login)
+		let newChange = {
+			online: user.online,
+			avatar: user.avatar,
+			banner: user.banner,
+			username: user.username
+		}
 		if (change.hasOwnProperty('online')) {
 			this.userService.changeOnline(login, change)
-			res.send (this.userService.isOnline(login))
+			newChange.online = change.online
 		}
 		if (change.avatar) {
 			this.userService.changeAvatar(login, change)
-			res.send (this.userService.getAvatar(login));
+			newChange.avatar = change.avatar
 		}
 		if (change.banner) {
 			this.userService.changeBanner(login, change)
-			res.send (this.userService.getBanner(login));
+			newChange.banner = change.banner
 		}
 		if (change.username) {
 			this.userService.changeUsername(login, change)
-			res.send (this.userService.getUsername(login));
+			newChange.username = change.username
 		}
+		res.send(newChange)
 		return ;
 	}
 }
