@@ -241,6 +241,13 @@ export class TmpDbService {
 				rod: this.defaultRod,
 				ball: this.defaultBall,
 				sound: this.defaultSound,
+			},
+			stats: {
+				total: 0,
+				win: 0,
+				loose: 0,
+				points: 5,
+				lastRival: 'No one :(',
 			}
 		}];
 }
