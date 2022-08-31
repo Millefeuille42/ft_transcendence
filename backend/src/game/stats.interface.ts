@@ -1,7 +1,7 @@
 export interface stats {
 	total: number,
-	win: number,
-	loose: number,
+	wins: number,
+	looses: number,
 	points: number,
 	lastRival: string,
 }

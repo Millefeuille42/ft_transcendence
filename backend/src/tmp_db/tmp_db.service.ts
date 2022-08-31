@@ -244,8 +244,8 @@ export class TmpDbService {
 			},
 			stats: {
 				total: 0,
-				win: 0,
-				loose: 0,
+				wins: 0,
+				looses: 0,
 				points: 5,
 				lastRival: 'No one :(',
 			}
