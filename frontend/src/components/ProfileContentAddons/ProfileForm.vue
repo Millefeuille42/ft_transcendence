@@ -75,9 +75,11 @@ import {postFormUsername} from "@/queries";
 	mounted() {
 		this.$data.formUsername = this.$props.user.username
 	}
+	//TODO add other form data send
 })
 export default class ProfileForm extends Vue {
 }
+
 </script>
 
 <style scoped>

@@ -136,6 +136,8 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 			this.loadFriendData(friendList.listOfFriends[friend])
 		}
 	},
+
+	//TODO add block friend
 })
 export default class ProfileFriends extends Vue {}
 </script>

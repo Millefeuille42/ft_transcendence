@@ -44,6 +44,7 @@ import SkeletonProfileComponent from "@/components/SkeletonComponents/SkeletonPr
 			this.$data.bottomTab = id
 		})
 	}
+	// TODO Add stats
 })
 export default class ProfileContent extends Vue {
 }
