@@ -1,7 +1,10 @@
 <template>
-	<v-sheet color="grey" width="100%" :height=heightOfRow
-			 class="d-flex justify-space-around align-center">
-		<ProfileCustomizeInventoryElement v-for="n in numOfElements" :key=n />
+	<v-sheet width="100%" :height=heightOfRow color="grey darken-4"
+			 class="d-flex justify-space-around align-center flex-wrap">
+		<ProfileCustomizeInventoryElement
+			v-for="element in elements" :key="element.id + element.category"
+			:item="element" :category="element.category"
+		/>
 	</v-sheet>
 </template>
 
@@ -14,7 +17,7 @@ import ProfileCustomizeInventoryElement
 	components: {ProfileCustomizeInventoryElement},
 	props: {
 		heightOfRow: String,
-		numOfElements: Number,
+		elements: Array,
 	},
 })
 export default class ProfileCustomizeInventoryRow extends Vue {

@@ -10,3 +10,11 @@ export interface friendListIn {
     thereIsFriend: Boolean,
     listOfFriends: Array<string>,
 }
+
+export interface inventoryItem {
+    id: number,
+    rarity: number,
+    category: string,
+    name: string,
+    description: string,
+}

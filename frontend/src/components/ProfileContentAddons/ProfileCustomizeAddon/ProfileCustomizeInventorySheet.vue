@@ -1,12 +1,19 @@
 <template>
 	<v-sheet width="30%" height="100%">
-		<v-sheet color="white" width="100%" height="15%"></v-sheet>
-		<v-sheet width="100%" height="75%" color="white" class="overflow-y-auto" >
-			<ProfileCustomizeInventoryRow :numOfElements=3 />
-			<ProfileCustomizeInventoryRow :numOfElements=3 />
-			<ProfileCustomizeInventoryRow :numOfElements=3 />
-			<ProfileCustomizeInventoryRow :numOfElements=1 />
+		<v-sheet color="grey darken-4" elevation="0" rounded="t-xl"
+				 width="100%" height="15%" class="d-flex align-center">
+			<v-container class="text-h6 text-truncate">
+				<v-skeleton-loader v-if="currentItem.name === ''" type="text"/>
+				{{ currentItem.name }}
+			</v-container>
 		</v-sheet>
+		<v-sheet width="100%" height="75%"  rounded="b-xl" elevation="0"
+				 color="grey darken-4" class="overflow-y-auto mt-4">
+			<v-progress-circular v-if="!inventoryLoaded" indeterminate class="mt-16"/>
+			<ProfileCustomizeInventoryRow v-else v-for="row in rows"
+										  :key="row[0].name" :elements="row" :heightOfRow=heightOfRow />
+		</v-sheet>
+		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-sheet>
 </template>
 
@@ -14,9 +21,77 @@
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCustomizeInventoryRow
 	from "@/components/ProfileContentAddons/ProfileCustomizeAddon/ProfileCustomizeInventoryRow.vue";
+import { EventBus } from "@/main";
+import {inventoryItem} from "@/queriesData";
+import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 
 @Component({
-	components: {ProfileCustomizeInventoryRow}
+	components: {ProfileCustomizeInventoryRow},
+	props: {
+		login: String,
+		heightOfRow: String,
+		category: String,
+	},
+	data: () => ({
+		rows: [],
+		inventoryLoaded: false,
+		inventory: Array,
+		currentItem: {name: ""} as () => inventoryItem,
+		snackShow: false,
+		snackText: "",
+		snackColor: "green"
+	}),
+	methods: {
+		sortItems() {
+			this.$data.rows = []
+			let row = []
+			for (let index in this.$data.inventory) {
+				row.push(this.$data.inventory[index])
+			}
+			this.$data.rows.push(row)
+			this.$data.inventoryLoaded = true
+		},
+
+		async loadItems() {
+			let that = this
+			getInventoryByCategory(this.$props.login, this.$props.category)
+				.then((inv: Array<inventoryItem>) => {
+					that.$data.inventory = inv
+					that.sortItems()
+				})
+				.catch(() => {
+					this.$data.snackShow = false
+					this.$data.snackColor = "red"
+					this.$data.snackText = "Failed to load " + this.$props.category + "s"
+					this.$data.snackShow = true
+				})
+		},
+
+		async loadEquipment() {
+			let that = this
+			getEquippedByCategory(this.$props.login, this.$props.category)
+				.then((inv: inventoryItem) => {
+					that.$data.currentItem = inv
+				})
+				.catch(() => {
+					this.$data.snackShow = false
+					this.$data.snackColor = "red"
+					this.$data.snackText = "Failed to load equipped " + this.$props.category
+					this.$data.snackShow = true
+				})
+		},
+	},
+	mounted() {
+		this.loadEquipment()
+		this.loadItems()
+	},
+	created() {
+		EventBus.$on("itemChanged", (item: inventoryItem) => {
+			if (this.$props.category === item.category) {
+				this.$data.currentItem = item
+			}
+		})
+	}
 })
 export default class ProfileCustomizeInventorySheet extends Vue {
 }
