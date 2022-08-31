@@ -23,12 +23,12 @@ export class UserController {
 	}
 
 	/**
-	 * @api {get} /user/:login/:ressource Request information about a User
+	 * @api {get} /user/:login/:resource Request information about a User
 	 * @apiName getUser
 	 * @apiGroup User
 	 *
 	 * @apiParam login Login of user
-	 * @apiParam ressource Infomation needed about <code>login</code>. (<code>profile</code>, <code>name</code>, <code>email</code>, <code>avatar</code>, <code>banner</code>, <code>username</code>, <code>online</code>)
+	 * @apiParam resource Infomation needed about <code>login</code>. (<code>profile</code>, <code>name</code>, <code>email</code>, <code>avatar</code>, <code>banner</code>, <code>username</code>, <code>online</code>)
 	 *
 	 * @apiSuccess {Json} profile All informations about <code>login</code>
 	 * @apiSuccess {String} name Full name of <code>login</code>
@@ -38,22 +38,22 @@ export class UserController {
 	 * @apiSuccess {String} username Username of <code>login</code>
 	 * @apiSuccess {Boolean} online True if <code>login</code> is online
 	 */
-	@Get('/:login/:ressource')
+	@Get('/:login/:resource')
 	getUser(@Param('login') login: string,
-			@Param('ressource') ressource: string) {
-		if (ressource === 'profile')
+			@Param('resource') resource: string) {
+		if (resource === 'profile')
 			return (this.userService.getUser(login));
-		if (ressource === 'name')
+		if (resource === 'name')
 			return (this.userService.getName(login));
-		if (ressource === 'email')
+		if (resource === 'email')
 			return (this.userService.getMail(login));
-		if (ressource === 'avatar')
+		if (resource === 'avatar')
 			return (this.userService.getAvatar(login));
-		if (ressource === 'banner')
+		if (resource === 'banner')
 			return (this.userService.getBanner(login));
-		if (ressource === 'username')
+		if (resource === 'username')
 			return (this.userService.getUsername(login));
-		if (ressource === 'online')
+		if (resource === 'online')
 			return (this.userService.isOnline(login));
 	}
 
