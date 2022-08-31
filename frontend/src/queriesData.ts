@@ -18,3 +18,17 @@ export interface inventoryItem {
     name: string,
     description: string,
 }
+
+export interface statsIn {
+    total: number,
+    wins: number,
+    looses: number,
+    points: number,
+    lastRival: string,
+}
+
+export interface formDataOut {
+    username: string,
+    avatar: string,
+    banner: string
+}

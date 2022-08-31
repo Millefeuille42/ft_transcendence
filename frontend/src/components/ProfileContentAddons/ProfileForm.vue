@@ -1,5 +1,5 @@
 <template>
-		<v-form height="100%" width="100%" v-model="valid" lazy-validation>
+		<v-form height="100%" width="100%" v-model="valid" lazy-validation ref="form">
 			<v-row>
 				<v-col cols="12">
 					<v-text-field
@@ -20,7 +20,6 @@
 				<v-col cols="12">
 					<v-text-field
 						v-model="formBannerPic"
-						:rules=usernameRules
 						accept="image/png, image/jpeg"
 						prepend-icon="mdi-image-area"
 						label="Banner pic"
@@ -31,12 +30,15 @@
 					>submit</v-btn>
 				</v-col>
 			</v-row>
+			<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 		</v-form>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import {postFormUsername} from "@/queries";
+import {postForm} from "@/queries";
+import {formDataOut} from "@/queriesData";
+import {EventBus} from "@/main";
 
 @Component({
 	//TODO send user data to api
@@ -45,35 +47,48 @@ import {postFormUsername} from "@/queries";
 		formUsername: "",
 		formBannerPic: "",
 		formProfilePic: "",
-		picRules: [
-			(value: any) =>	!value || "No file provided!",
-			(value: any) => value.size < 2500000 || "File size must be less than 25MB!"
-		],
 		usernameRules: [
 			(v: string) => v.length <= 12 || 'Username must be less than 12 characters'
 		],
+		snackShow: false,
+		snackText: "",
+		snackColor: "green"
 	}),
 	props: {
 		loaded: Boolean,
 		user: Object
 	},
 	methods: {
+		showSnack(text: string, color: string) {
+			this.$data.snackColor = color
+			this.$data.snackText = text
+			this.$data.snackShow = true
+		},
 		async formCheck() {
 			if (!this.$data.valid) {
-				alert("Wrong data")
+				this.showSnack("Invalid data in the form", "red")
 				return
 			}
 			if (this.$data.formUsername.length <= 12) {
 				try {
-					this.$props.user.username = await postFormUsername(this.$data.formUsername, this.$props.user.login)
+					let formOut: formDataOut = {
+						username: this.$data.formUsername,
+						banner: this.$data.formBannerPic,
+						avatar: this.$data.formProfilePic
+					}
+					await postForm(formOut, this.$props.user.login)
+					EventBus.$emit("userChanged", "")
+					this.showSnack("Profile updated", "green")
 				} catch (e) {
-					console.log(e)
+					this.showSnack("Failed to update profile", "red")
 				}
 			}
 		}
 	},
 	mounted() {
 		this.$data.formUsername = this.$props.user.username
+		this.$data.formProfilePic = this.$props.user.avatar
+		this.$data.formBannerPic = this.$props.user.banner
 	}
 	//TODO add other form data send
 })

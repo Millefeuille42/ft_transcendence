@@ -1,5 +1,5 @@
 import axios from "axios";
-import {userDataIn, friendListIn, inventoryItem} from "@/queriesData"
+import {userDataIn, friendListIn, inventoryItem, statsIn, formDataOut} from "@/queriesData"
 
 export async function RedirectToFTAuth() {
     try {
@@ -31,18 +31,18 @@ export async function getUserData(login: string): Promise<userDataIn> {
     }
 }
 
-export async function postFormUsername(username: string, login: string): Promise<string> {
-    const payload = {username: username}
+export async function postForm(userData: formDataOut, login: string): Promise<formDataOut> {
     let target: string = process.env.VUE_APP_BACK_URL + "/user/"
     target += login
+    console.log(userData)
     try {
         let response = await axios({
             method: 'patch',
             url: target,
-            data: payload,
+            data: userData,
             withCredentials: true,
         })
-        return response.data.username + ""
+        return response.data
     } catch (e) {
         throw e
     }
@@ -156,6 +156,21 @@ export async function equipItem(login: string, item: inventoryItem) {
 export async function dropItem(login: string): Promise<inventoryItem> {
     let target:string = process.env.VUE_APP_BACK_URL + "/items/drop/"
     target += login
+
+    return await axios({
+        method: 'get',
+        url: target,
+        withCredentials: true
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getUserStats(login: string): Promise<statsIn> {
+    let target:string = process.env.VUE_APP_BACK_URL + "/game/" + login
+    target += "/stats"
 
     return await axios({
         method: 'get',

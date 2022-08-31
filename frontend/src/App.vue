@@ -154,6 +154,10 @@ import LoginPage from "@/components/LoginPage.vue";
 			this.changeTab()
 		})
 
+		EventBus.$on("userChanged", async () => {
+			await this.queryUserData()
+			EventBus.$emit("userChangedDone", "")
+		})
 		this.listenToTabChanged()
 	}
 })

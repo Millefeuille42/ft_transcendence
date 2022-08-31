@@ -1,7 +1,7 @@
 <template>
 	<v-sheet style="width: 100%; height: 100%" class="d-flex flex-column align-items" color="">
 		<SkeletonProfileFriends v-if="!loaded"></SkeletonProfileFriends>
-		<v-sheet width="100%" height="85%" class="d-flex justify-space-between justify-space-between mb-auto">
+		<v-sheet width="100%" height="85%" class="d-flex justify-space-between mb-auto">
 			<v-sheet width="33%" height="100%" class="overflow-y-auto" v-if="loaded && hasFriends">
 				<v-list>
 					<template v-for="friend in friends">

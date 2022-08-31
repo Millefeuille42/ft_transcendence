@@ -13,6 +13,7 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
+import ProfileStats from "@/components/ProfileContentAddons/ProfileStats.vue";
 import ProfileForm from "@/components/ProfileContentAddons/ProfileForm.vue";
 import ProfileFriends from "@/components/ProfileContentAddons/ProfileFriends.vue";
 import ProfileCustomize from "@/components/ProfileContentAddons/ProfileCustomize.vue";
@@ -25,11 +26,12 @@ import SkeletonProfileComponent from "@/components/SkeletonComponents/SkeletonPr
 @Component({
 	components: {
 		SkeletonProfileComponent,
+		ProfileStats,
 		ProfileBottomDrawer, ProfileDataContainer, ProfileCustomize, ProfileForm, ProfileFriends, ProfileCard, SkeletonProfileCard},
 	data: () => ({
 		bottomTab: 0,
 		tabs: [
-			"ProfileForm",
+			"ProfileStats",
 			"ProfileCustomize",
 			"ProfileFriends",
 			"ProfileForm"
