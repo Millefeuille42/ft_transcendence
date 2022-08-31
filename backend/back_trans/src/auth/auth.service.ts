@@ -6,13 +6,15 @@ import {User} from "../user/user.interface";
 import {ItemsService} from "../items/items.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUserDto} from "../user/create-user.dto";
+import {GameService} from "../game/game.service";
 
 @Injectable()
 export class AuthService {
 	constructor(public configService: ConfigService,
 				private userService: UserService,
 				private itemsService: ItemsService,
-				private tmp_db: TmpDbService) { }
+				private tmp_db: TmpDbService,
+				private gameService: GameService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -65,6 +67,7 @@ export class AuthService {
 					blocked: new Array<string>(),
 					inventory: that.itemsService.initEquipement(),
 					equipped: that.itemsService.initEquipped(),
+					stats: that.gameService.initStats(),
 				}
 				const otherLogin = that.userService.isUsernameExist(userData.login)
 				if (otherLogin.userExist) {

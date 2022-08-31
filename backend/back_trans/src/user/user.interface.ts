@@ -1,4 +1,5 @@
 import {equipped, inventory} from "../items/inventory.interface";
+import {stats} from "../game/stats.interface"
 
 export interface User {
 	email?: string;
@@ -12,4 +13,5 @@ export interface User {
 	blocked?: Array<string>;
 	inventory?: inventory;
 	equipped?: equipped;
+	stats?: stats;
 }

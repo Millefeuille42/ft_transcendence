@@ -1,4 +1,5 @@
 import {equipped, inventory} from "../items/inventory.interface";
+import {stats} from "../game/stats.interface";
 
 export class CreateUserDto {
 	readonly email?: string;
@@ -12,4 +13,5 @@ export class CreateUserDto {
 	readonly blocked?: Array<string>;
 	readonly inventory?: inventory;
 	readonly equipped?: equipped;
+	readonly stats?: stats;
 }
