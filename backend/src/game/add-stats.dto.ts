@@ -1,4 +1,6 @@
 export class AddStatsDto {
-	win: boolean;
 	rival: string;
+	points: number;
+	rPoints: number;
+	mode: string;
 }
