@@ -59,6 +59,11 @@ export class GameService {
 		return {lastRival: user.stats.lastRival}
 	}
 
+	getHistory(login: string) {
+		const user = this.userService.getUser(login)
+		return {history: user.stats.history}
+	}
+
 	fixPoints(login: string, points: number) {
 		const user = this.userService.getUser(login)
 		user.stats.points = points
