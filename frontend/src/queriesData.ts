@@ -11,6 +11,11 @@ export interface friendListIn {
     listOfFriends: Array<string>,
 }
 
+export interface blockedListIn {
+    thereIsBlocked: Boolean,
+    listOfBlocked: Array<string>
+}
+
 export interface inventoryItem {
     id: number,
     rarity: number,
@@ -31,4 +36,15 @@ export interface formDataOut {
     username: string,
     avatar: string,
     banner: string
+}
+
+export interface onlineDataIn {
+    login: string,
+    username: string,
+    banner: string,
+    avatar: string,
+    stats: statsIn,
+    friend: boolean,
+    friendLoading: boolean
+    blockLoading: boolean
 }

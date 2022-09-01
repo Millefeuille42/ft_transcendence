@@ -1,5 +1,5 @@
 <template>
-	<v-sheet v-if="loadedCard" elevation="3" class="mx-auto" max-width="100%" min-width="80%" :height="height" rounded="xl">
+	<v-sheet v-if="loadedCard" elevation="3" class="mx-auto" max-width="90%" min-width="80%" :height="height" rounded="xl">
 		<!--suppress HtmlDeprecatedAttribute -->
 		<v-img height="100%" width="100%" :src="user.banner" align="center"
 			   style="border-radius: 20px">
@@ -24,7 +24,7 @@
 			</v-sheet>
 			<TransparentCard v-if="height === '100%'" class="mt-8">
 				<v-skeleton-loader v-if="!loaded" type="paragraph, text@3"/>
-				<ProfileCardStats v-else :stats="stats"/>
+				<ProfileCardStats v-else :stats="stats" :user="user"/>
 			</TransparentCard>
 		</v-img>
 	</v-sheet>

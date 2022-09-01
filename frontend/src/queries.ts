@@ -1,5 +1,5 @@
 import axios from "axios";
-import {userDataIn, friendListIn, inventoryItem, statsIn, formDataOut} from "@/queriesData"
+import {userDataIn, friendListIn, inventoryItem, statsIn, formDataOut, onlineDataIn, blockedListIn} from "@/queriesData"
 
 export async function RedirectToFTAuth() {
     try {
@@ -83,6 +83,21 @@ export async function getFriendStatus(login: string, friend: string): Promise<st
 export async function addFriend(login: string, friend: string) {
     let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
     target += login + "/" + friend
+    try {
+        await axios( {
+            method: 'post',
+            url: target,
+            withCredentials: true,
+        })
+        return ;
+    } catch (e) {
+        throw e
+    }
+}
+
+export async function addBlock(login: string, block: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/blocked/"
+    target += login + "/" + block
     try {
         await axios( {
             method: 'post',
@@ -181,4 +196,45 @@ export async function getUserStats(login: string): Promise<statsIn> {
     }).catch((e) => {
         throw e
     })
+}
+
+export async function getOnlineList(login: string): Promise<Array<onlineDataIn>> {
+    let target:string = process.env.VUE_APP_BACK_URL + "/user/online/" + login
+    return await axios({
+        method: 'get',
+        url: target,
+        withCredentials: true
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getBlockedList(login: string): Promise<Array<blockedListIn>> {
+    let target:string = process.env.VUE_APP_BACK_URL + "/blocked/" + login
+    return await axios({
+        method: 'get',
+        url: target,
+        withCredentials: true
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function removeBlock(login: string, block: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/blocked/"
+    target += login + "/" + block
+    try {
+        await axios( {
+            method: 'delete',
+            url: target,
+            withCredentials: true,
+        })
+        return ;
+    } catch (e) {
+        throw e
+    }
 }

@@ -7,7 +7,7 @@
 					<template v-for="friend in friends">
 							<v-list-item :key="friend.login" class="mr-5 pl-0 ml-2">
 								<v-btn width="100%" height="20%" rounded :key="'btn-' + friend.login"
-									   @click="selectedFriend = friend; hasFriendSelected = true"
+									   @click="handleSelect(friend)"
 									   class="d-flex justify-center mb-2 mt-2 pl-4" color="grey darken-4">
 									<v-list-item-avatar>
 											<v-img :src="friend.avatar"/>
@@ -28,6 +28,7 @@
 			</v-sheet>
 			<v-sheet width="63%" rounded="xl" height="100%">
 				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%"/>
+				<v-img height="100%" width="80%" v-else-if="loaded && hasFriends" src="/giphy.gif" style="border-radius: 20px"/>
 			</v-sheet>
 		</v-sheet>
 		<v-img v-if="loaded && !hasFriends" src="@/assets/curly.png" height="80%" />
@@ -73,7 +74,7 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 		},
 		async removeFriend(friend: userDataIn) {
 			let that = this
-			removeFriendFromList(this.$props.user.login, friend.login).then(function() {
+			await removeFriendFromList(this.$props.user.login, friend.login).then(function() {
 				const index = that.$data.friends.indexOf(friend, 0);
 				if (index > -1)
 					that.$data.friends.splice(index, 1);
@@ -126,6 +127,13 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 					return {thereIsFriend: false, listOfFriends: []} as friendListIn
 				})
 		},
+		handleSelect(friend: userDataIn) {
+			this.$data.hasFriendSelected = false
+			setTimeout(() => {
+				this.$data.hasFriendSelected = true
+			}, 100)
+			this.$data.selectedFriend = friend
+		}
 	},
 	async mounted() {
 		let friendList: friendListIn = await this.loadFriends()

@@ -21,20 +21,33 @@
 		</v-row>
 		<v-row>
 			<v-col> {{"Last rival: " + stats.lastRival}} </v-col>
+			<v-col>
+				<v-btn color="transparent" @click="showDialog = true">
+					See match history
+				</v-btn>
+			</v-col>
 		</v-row>
+		<v-dialog v-model="showDialog" dark>
+			<ProfileCardMatchHistoryDialog :user="user"/>
+		</v-dialog>
 	</v-sheet>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import {statsIn} from "@/queriesData";
+import ProfileCardMatchHistoryDialog
+	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
 
 @Component({
+	components: {ProfileCardMatchHistoryDialog},
 	props: {
-		stats: Object as () => statsIn
+		stats: Object as () => statsIn,
+		user: Object
 	},
 	data: () => ({
 		wr: Number,
+		showDialog: false
 	}),
 	mounted() {
 		if (this.$props.stats.total === 0) {

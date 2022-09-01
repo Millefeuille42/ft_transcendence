@@ -9,7 +9,8 @@
 							<v-tabs-items v-model="curTab" style="background-color: transparent" dark>
 								<v-tab-item>
 									<DisplayContainer cols="12" sm="8" height="90vh" min_height="800" min-width="100%" width="100%">
-										<HomeContent/>
+										<HomeContent v-if="logged_in && this.loaded" :user="user"/>
+										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 								<v-tab-item>

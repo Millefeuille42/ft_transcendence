@@ -1,37 +1,37 @@
 <template>
-		<v-form height="100%" width="100%" v-model="valid" lazy-validation ref="form">
-			<v-row>
-				<v-col cols="12">
-					<v-text-field
-						v-model=formUsername
-						:rules=usernameRules
-						:counter=12
-						label="Username"
-						required
-					></v-text-field>
-				</v-col>
-				<v-col cols="12">
-					<v-text-field
-						v-model="formProfilePic"
-						prepend-icon="mdi-camera"
-						label="Profile pic"
-					></v-text-field>
-				</v-col>
-				<v-col cols="12">
-					<v-text-field
-						v-model="formBannerPic"
-						accept="image/png, image/jpeg"
-						prepend-icon="mdi-image-area"
-						label="Banner pic"
-					></v-text-field>
-				</v-col>
-				<v-col cols="12">
-					<v-btn  class="mr-4" @click="formCheck"
-					>submit</v-btn>
-				</v-col>
-			</v-row>
-			<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
-		</v-form>
+	<v-form height="100%" width="100%" v-model="valid" lazy-validation ref="form">
+		<v-row>
+			<v-col cols="12">
+				<v-text-field
+					v-model=formUsername
+					:rules=usernameRules
+					:counter=12
+					label="Username"
+					required
+				></v-text-field>
+			</v-col>
+			<v-col cols="12">
+				<v-text-field
+					v-model="formProfilePic"
+					prepend-icon="mdi-camera"
+					label="Profile pic"
+				></v-text-field>
+			</v-col>
+			<v-col cols="12">
+				<v-text-field
+					v-model="formBannerPic"
+					accept="image/png, image/jpeg"
+					prepend-icon="mdi-image-area"
+					label="Banner pic"
+				></v-text-field>
+			</v-col>
+			<v-col cols="12">
+				<v-btn  class="mr-4" @click="formCheck"
+				>submit</v-btn>
+			</v-col>
+		</v-row>
+		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
+	</v-form>
 </template>
 
 <script lang="ts">
@@ -41,7 +41,6 @@ import {formDataOut} from "@/queriesData";
 import {EventBus} from "@/main";
 
 @Component({
-	//TODO send user data to api
 	data: () => ({
 		valid: false,
 		formUsername: "",
@@ -90,9 +89,8 @@ import {EventBus} from "@/main";
 		this.$data.formProfilePic = this.$props.user.avatar
 		this.$data.formBannerPic = this.$props.user.banner
 	}
-	//TODO add other form data send
 })
-export default class ProfileForm extends Vue {
+export default class ProfileSettingsForm extends Vue {
 }
 
 </script>

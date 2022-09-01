@@ -39,6 +39,7 @@ import {dropItem, getUserData, getUserStats} from "@/queries";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
 
+
 @Component({
 	components: {TransparentCard, ProfileCard, ProfileCardStats},
 	props: {

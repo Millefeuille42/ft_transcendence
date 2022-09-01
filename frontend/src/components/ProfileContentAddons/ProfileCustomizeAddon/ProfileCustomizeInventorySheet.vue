@@ -49,9 +49,10 @@ import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 		},
 		sortItems() {
 			this.$data.rows = []
-			let row = []
+			let row: inventoryItem[] = []
 			for (let index in this.$data.inventory) {
-				row.push(this.$data.inventory[index])
+				if (!(row.find(i => i.name === this.$data.inventory[index].name)))
+					row.push(this.$data.inventory[index])
 			}
 			this.$data.rows.push(row)
 			this.$data.inventoryLoaded = true
