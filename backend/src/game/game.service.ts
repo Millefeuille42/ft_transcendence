@@ -24,6 +24,7 @@ export class GameService {
 			looses: 0,
 			points: 5,
 			lastRival: 'No one :(',
+			history: []
 		}
 		return(stats);
 	}
@@ -58,16 +59,36 @@ export class GameService {
 		return {lastRival: user.stats.lastRival}
 	}
 
+	getHistory(login: string) {
+		const user = this.userService.getUser(login)
+		return {history: user.stats.history}
+	}
+
 	fixPoints(login: string, points: number) {
 		const user = this.userService.getUser(login)
 		user.stats.points = points
 		return {points: user.stats.points}
 	}
 
+	addHistory(login: string, rival: string,
+			   points: number, rivalPoints: number,
+			   mode: string) {
+		this.verificationUsers(login, rival)
+		const user = this.userService.getUser(login)
+		const game = {
+			rival: rival,
+			userPoints: points,
+			rivalPoints: rivalPoints,
+			gameMode: mode,
+		}
+		user.stats.history = [game, ...user.stats.history]
+		return (this.addStats(login, points >= 5, rival))
+	}
+
 	addStats(login: string, result: boolean, rival: string) {
 		this.verificationUsers(login, rival)
 		let user = this.userService.getUser(login);
-
+		console.log(result)
 		if (result) {
 			user.stats.wins++
 			user.stats.points += 2

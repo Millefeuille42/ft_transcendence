@@ -21,6 +21,8 @@ export class GameController {
 			return this.gameService.getPoints(login)
 		if (resource === 'rival')
 			return this.gameService.getLastRival(login)
+		if (resource === 'history')
+			return this.gameService.getHistory(login)
 	}
 
 	@Patch('points/:login')
@@ -33,6 +35,7 @@ export class GameController {
 	@Post(':login')
 	addStats(@Param('login') login: string,
 			 @Body() stats: AddStatsDto) {
-		return this.gameService.addStats(login, stats.win, stats.rival)
+		console.log(stats)
+		return (this.gameService.addHistory(login, stats.rival, stats.points, stats.rPoints, stats.mode))
 	}
 }
