@@ -15,3 +15,11 @@ export interface User {
 	equipped?: equipped;
 	stats?: stats;
 }
+
+export interface UserGlobal {
+	login: string;
+	username: string;
+	avatar: string;
+	banner: string;
+	stats: stats;
+}
