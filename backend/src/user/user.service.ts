@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {User} from "./user.interface";
+import {UserGlobal, User} from "./user.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUserDto} from "./create-user.dto";
 import {OnlineDto} from "./online.dto";
@@ -144,14 +144,14 @@ export class UserService {
 
 	listOfOnlinePeople(login: string) {
 		this.verificationUser(login)
-		let users : Array<string> = []
+		let users: UserGlobal[] = []
 		this.tmp_db.onlinePeople.forEach((u) => {
-			if (u.login !== login && u.online === true && (!this.isBlocked(login, u.login)))
-				users.push(u.login)
+			if (u.login !== login && u.online === true && (!this.isBlocked(login, u.login))) {
+				const {username, avatar, login: ulogin, banner, stats} = this.getUser(u.login)
+				users = [...users, {login: ulogin, username, avatar, banner, stats}]
+			}
 		})
-		//const users = [...this.tmp_db.onlinePeople.filter(u => u.online === true)]
-		//Trier les gens connectés et qui n'ont pas bloqués user
-		return (Array(users));
+		return (users);
 	}
 
 }

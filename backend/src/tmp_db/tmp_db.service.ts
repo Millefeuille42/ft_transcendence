@@ -254,6 +254,12 @@ export class TmpDbService {
 				looses: 0,
 				points: 5,
 				lastRival: 'No one :(',
+				history: [{
+					rival: 'patate',
+					userPoints: 5,
+					rivalPoints: 3,
+					gameMode: 'normal',
+				}]
 			}
 		}];
 
