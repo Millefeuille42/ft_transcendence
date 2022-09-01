@@ -142,13 +142,24 @@ export class UserService {
 		return false
 	}
 
+	isFriend(login: string, other: string) {
+		const user = this.getUser(login)
+		if (user.friends.find(f => f === other))
+			return true
+		return false
+	}
+
 	listOfOnlinePeople(login: string) {
 		this.verificationUser(login)
-		let users: UserGlobal[] = []
+		let users: {
+			info: UserGlobal;
+			friend: boolean
+		}[] = []
 		this.tmp_db.onlinePeople.forEach((u) => {
 			if (u.login !== login && u.online === true && (!this.isBlocked(login, u.login))) {
 				const {username, avatar, login: ulogin, banner, stats} = this.getUser(u.login)
-				users = [...users, {login: ulogin, username, avatar, banner, stats}]
+				const friend = this.isFriend(login, u.login)
+				users = [...users, {info: {login: ulogin, username, avatar, banner, stats}, friend}]
 			}
 		})
 		return (users);

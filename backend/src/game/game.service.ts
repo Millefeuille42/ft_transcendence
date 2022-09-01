@@ -66,6 +66,8 @@ export class GameService {
 
 	fixPoints(login: string, points: number) {
 		const user = this.userService.getUser(login)
+		if (points < 0)
+			throw new HttpException('User can\'t have less of 0 point', HttpStatus.BAD_REQUEST)
 		user.stats.points = points
 		return {points: user.stats.points}
 	}
