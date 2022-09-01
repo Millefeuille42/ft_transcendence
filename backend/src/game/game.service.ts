@@ -65,10 +65,25 @@ export class GameService {
 		return {points: user.stats.points}
 	}
 
+	addHistory(login: string, rival: string,
+			   points: number, rivalPoints: number,
+			   mode: string) {
+		this.verificationUsers(login, rival)
+		const user = this.userService.getUser(login)
+		const game = {
+			rival: rival,
+			userPoints: points,
+			rivalPoints: rivalPoints,
+			gameMode: mode,
+		}
+		user.stats.history = [game, ...user.stats.history]
+		return (this.addStats(login, points >= 5, rival))
+	}
+
 	addStats(login: string, result: boolean, rival: string) {
 		this.verificationUsers(login, rival)
 		let user = this.userService.getUser(login);
-
+		console.log(result)
 		if (result) {
 			user.stats.wins++
 			user.stats.points += 2
