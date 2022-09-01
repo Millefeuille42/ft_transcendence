@@ -21,6 +21,8 @@ export class GameController {
 			return this.gameService.getPoints(login)
 		if (resource === 'rival')
 			return this.gameService.getLastRival(login)
+		if (resource === 'history')
+			return this.gameService.getHistory(login)
 	}
 
 	@Patch('points/:login')
