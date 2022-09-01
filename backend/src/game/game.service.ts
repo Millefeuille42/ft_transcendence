@@ -24,6 +24,7 @@ export class GameService {
 			looses: 0,
 			points: 5,
 			lastRival: 'No one :(',
+			history: []
 		}
 		return(stats);
 	}
