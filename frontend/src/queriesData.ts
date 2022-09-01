@@ -39,12 +39,22 @@ export interface formDataOut {
 }
 
 export interface onlineDataIn {
-    login: string,
-    username: string,
-    banner: string,
-    avatar: string,
-    stats: statsIn,
+    info: {
+        login: string,
+        username: string,
+        banner: string,
+        avatar: string,
+        stats: statsIn,
+    }
     friend: boolean,
     friendLoading: boolean
     blockLoading: boolean
+}
+
+export interface match {
+    rival: string,
+    userPoints: number,
+    rivalPoints: number,
+    gameMode: string,
+    key: number
 }

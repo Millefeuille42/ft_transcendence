@@ -21,14 +21,14 @@
 		</v-row>
 		<v-row>
 			<v-col> {{"Last rival: " + stats.lastRival}} </v-col>
-			<v-col>
+			<v-col v-if="dialog">
 				<v-btn color="transparent" @click="showDialog = true">
 					See match history
 				</v-btn>
 			</v-col>
 		</v-row>
-		<v-dialog v-model="showDialog" dark>
-			<ProfileCardMatchHistoryDialog :user="user"/>
+		<v-dialog v-if="dialog" v-model="showDialog" dark width="40%">
+			<ProfileCardMatchHistoryDialog :user="user" :stats="stats"/>
 		</v-dialog>
 	</v-sheet>
 </template>
@@ -43,7 +43,11 @@ import ProfileCardMatchHistoryDialog
 	components: {ProfileCardMatchHistoryDialog},
 	props: {
 		stats: Object as () => statsIn,
-		user: Object
+		user: Object,
+		dialog: {
+			type: Boolean,
+			default: true
+		}
 	},
 	data: () => ({
 		wr: Number,

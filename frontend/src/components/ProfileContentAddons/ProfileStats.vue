@@ -3,7 +3,7 @@
 		<v-sheet color="transparent" height="100%" width="55%" class="d-flex flex-column justify-space-around">
 			<TransparentCard>
 				<v-skeleton-loader v-if="!loaded" type="paragraph, text@3"/>
-				<ProfileCardStats v-else :stats="stats" class="mt-auto mb-auto"/>
+				<ProfileCardStats v-else :dialog="false" :stats="stats" class="mt-auto mb-auto"/>
 			</TransparentCard>
 			<TransparentCard>
 				<v-sheet width="100%" height="100%" class="d-flex flex-row justify-space-around" color="transparent">
@@ -24,9 +24,9 @@
 				</v-sheet>
 			</TransparentCard>
 		</v-sheet>
-		<v-sheet width="40%" height="100%" color="transparent">
-			<v-img height="100%" v-if="!loadedRival" src="/gifPanda.gif" style="border-radius: 20px"/>
-			<ProfileCard v-else height="100%" :user="rivalData"/>
+		<v-sheet :width="hasMatch ? '50%' : '45%'" height="100%" color="transparent">
+			<v-img height="100%" v-if="!hasMatch" src="/gifPanda.gif" style="border-radius: 20px"/>
+			<ProfileCardMatchHistoryDialog v-else height="100%" :stats="stats" :user="user"/>
 		</v-sheet>
 	</v-sheet>
 </template>
@@ -38,10 +38,12 @@ import {inventoryItem, statsIn, userDataIn} from "@/queriesData";
 import {dropItem, getUserData, getUserStats} from "@/queries";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
+import ProfileCardMatchHistoryDialog
+	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
 
 
 @Component({
-	components: {TransparentCard, ProfileCard, ProfileCardStats},
+	components: {ProfileCardMatchHistoryDialog, TransparentCard, ProfileCard, ProfileCardStats},
 	props: {
 		user: Object as () => userDataIn
 	},
@@ -50,6 +52,7 @@ import TransparentCard from "@/components/TransparentCard.vue";
 		loaded: false,
 		rivalData: Object as () => userDataIn,
 		loadedRival: false,
+		hasMatch: false,
 		item: {name: ""} as () => inventoryItem,
 		loadedItem: true,
 	}),
@@ -85,6 +88,8 @@ import TransparentCard from "@/components/TransparentCard.vue";
 		this.$data.loadedRival = false
 
 		await this.loadUserStats()
+		this.$data.hasMatch = (this.$data.stats.history != undefined && this.$data.stats.history.length > 0)
+		console.log(this.$data.hasMatch)
 		if (!this.$data.loaded || this.$data.stats.lastRival === "No one :(")
 			return
 		getUserData(this.$data.stats.lastRival).then((data: userDataIn) => {

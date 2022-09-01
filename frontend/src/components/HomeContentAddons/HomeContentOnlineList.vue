@@ -1,16 +1,16 @@
 <template>
 	<v-sheet class="" height="100%">
-		<v-sheet class="text-h6 mb-2" height="10%"> Online users </v-sheet>
+		<v-sheet class="text-h6 mb-4 pt-3" height="10%"> Online users </v-sheet>
 		<v-sheet v-if="loaded" height="80%" class="overflow-y-auto">
-			<v-list-item v-for="online in onlineList" :key="online.login" class="d-flex flex-row justify-space-between">
-				<v-btn width="70%" height="20%" rounded :key="'btn-' + online.login"
+			<v-list-item v-for="online in onlineList" :key="online.info.login" class="d-flex flex-row justify-space-between">
+				<v-btn width="70%" height="20%" rounded :key="'btn-' + online.info.login"
 					   @click="selectedUser = online; handleUserClick()"
 					   class="d-flex justify-center mb-2 mt-2 pl-4" color="grey darken-4">
 					<v-list-item-avatar>
-						<v-img :src="online.avatar"/>
+						<v-img :src="online.info.avatar"/>
 					</v-list-item-avatar>
 					<v-list-item-content color="grey">
-						<v-list-item-title class="text-left">{{ online.username }}</v-list-item-title>
+						<v-list-item-title class="text-left">{{ online.info.username }}</v-list-item-title>
 					</v-list-item-content>
 				</v-btn>
 				<v-btn icon @click="handleBlock(online)" x-small>
@@ -31,7 +31,7 @@
 			<v-progress-circular class="mt-auto mb-auto" size="128" indeterminate></v-progress-circular>
 		</v-sheet>
 		<v-dialog v-model="hasUserSelected" width="70%" height="100%" dark>
-			<ProfileCard v-if="hasUserSelected" height="100%" :user="selectedUser"/>
+			<ProfileCard v-if="hasUserSelected" height="100%" :user="selectedUser.info" mWidth="100%" rounded="false"/>
 		</v-dialog>
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-sheet>
@@ -74,48 +74,48 @@ import {EventBus} from "@/main";
 		},
 		async handleBlock(block: onlineDataIn) {
 			block.blockLoading = true
-			addBlock(this.$props.user.login, block.login)
+			addBlock(this.$props.user.login, block.info.login)
 				.then(() => {
 					EventBus.$emit("updateFriendList", "")
 					setTimeout(() => {
 						EventBus.$emit("updateOnlineList", "")
-						this.showSnack(block.login + " blocked", "green")
+						this.showSnack(block.info.login + " blocked", "green")
 						block.blockLoading = false
 					}, 100)
 				})
 				.catch(() => {
-					this.showSnack("Failed to block " + block.login, "red")
+					this.showSnack("Failed to block " + block.info.login, "red")
 					block.blockLoading = false
 				})
 		},
 		async handleAdd(friend: onlineDataIn) {
 			friend.friendLoading = true
-			addFriend(this.$props.user.login, friend.login)
+			addFriend(this.$props.user.login, friend.info.login)
 				.then(() => {
-					this.showSnack(friend.login + " added", "green")
+					this.showSnack(friend.info.login + " added", "green")
 					EventBus.$emit("updateFriendList", "")
 					friend.friend = true
 					friend.friendLoading = false
 				})
 				.catch((e) => {
 					if (e.response.status === 404)
-						this.showSnack(friend.login + " not found", "red")
+						this.showSnack(friend.info.login + " not found", "red")
 					else if (e.response.status === 400)
-						this.showSnack(friend.login + " is already your friend", "red")
+						this.showSnack(friend.info.login + " is already your friend", "red")
 					friend.friendLoading = false
 				})
 		},
 		async handleRemove(friend: onlineDataIn) {
 			friend.friendLoading = true
-			removeFriendFromList(this.$props.user.login, friend.login)
+			removeFriendFromList(this.$props.user.login, friend.info.login)
 				.then(() => {
-					this.showSnack(friend.login + " removed", "green")
+					this.showSnack(friend.info.login + " removed", "green")
 					EventBus.$emit("updateFriendList", "")
 					friend.friend = false
 					friend.friendLoading = false
 				})
 				.catch(() => {
-					this.showSnack("Failed to remove " + friend.login, "red")
+					this.showSnack("Failed to remove " + friend.info.login, "red")
 					friend.friendLoading = false
 				})
 		},

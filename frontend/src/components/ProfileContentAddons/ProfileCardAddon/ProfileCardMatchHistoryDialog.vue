@@ -1,42 +1,72 @@
 <template>
-	<v-card>
+	<v-card height="100%" rounded="xl">
 		<v-card-title>{{  user.username + "'s match history" }}</v-card-title>
 		<v-divider/>
-		<v-card-text v-if="loaded && blockedList.thereIsBlocked" style="max-height: 300px;">
-			<v-list-item  v-for="blocked in blockedList.listOfBlocked" :key="blocked" class="d-flex flex-row justify-space-between">
-				<v-btn width="100%" height="20%" rounded :key="'btn-' + blocked" @click="handleUnblock(blocked)"
-					   class="d-flex justify-center mb-2 mt-2 pl-4" color="grey darken-4">
-					<v-list-item-content color="grey">
-						<v-list-item-title class="text-center">{{ blocked }}</v-list-item-title>
-					</v-list-item-content>
-				</v-btn>
-			</v-list-item>
+		<v-card-text v-if="hasHistory" style="max-height: 300px;">
+			<v-sheet width="100%" height="100%" class="flex-column" color="transparent">
+				<template v-for="n in 5">
+					<v-sheet v-for="match in stats.history" :key="match.key + n"
+							 width="100%" height="100%" class="d-flex flex-row justify-space-around mt-2 mb-2 text-h6">
+						<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"
+								 class="d-flex flex-row" :elevation="userVictory(match) ? 10 : 2">
+							<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'"
+									 class="text-left pa-2 ml-2" width="50%" height="100%">
+								{{ user.username}}
+							</v-sheet>
+							<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'"
+									 class="text-right pa-2 mr-2" width="50%" height="100%">
+								{{ match.userPoints}}
+							</v-sheet>
+						</v-sheet>
+						<v-sheet width="10%" height="100%" class="text-center text-h5 pa-2">
+							VS
+						</v-sheet>
+						<v-sheet :color="!userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"
+								 class="d-flex flex-row" :elevation="!userVictory(match) ? 10 : 2">
+							<v-sheet :color="!userVictory(match) ? 'grey darken-3' : 'grey darken-4'"
+									 class="text-left pa-2 ml-2" width="50%" height="100%">
+								{{ match.rivalPoints}}
+							</v-sheet>
+							<v-sheet :color="!userVictory(match) ? 'grey darken-3' : 'grey darken-4'"
+									 class="text-right pa-2 mr-2" width="50%" height="100%">
+								{{ match.rival}}
+							</v-sheet>
+						</v-sheet>
+					</v-sheet>
+				</template>
+			</v-sheet>
 		</v-card-text>
-		<v-card-text v-else-if="loaded" class="mt-5">
-			You don't have any blocked user
+		<v-card-text v-else class="mt-4">
+			You don't have participated in any match
 		</v-card-text>
-		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-card>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
+import {match} from "@/queriesData";
 
 @Component({
 	props: {
 		user: Object,
+		stats: Object,
 	},
 	data: () => ({
 		loaded: false,
-		matchHistory: Array
+		hasHistory: false,
 	}),
 	methods: {
-		loadHistory() {
-
+		userVictory(match: match): Boolean {
+			return match.rivalPoints < match.userPoints
 		}
 	},
 	mounted() {
-		this.loadHistory()
+		console.log(this.$props.stats.history)
+		this.$data.hasHistory = this.$props.stats.history != undefined
+			&& this.$props.stats.history.length > 0
+		for (let matchIndex in this.$props.stats.history) {
+			this.$props.stats.history[matchIndex].key = matchIndex
+		}
 	}
 })
 export default class ProfileCardMatchHistoryDialog extends Vue {

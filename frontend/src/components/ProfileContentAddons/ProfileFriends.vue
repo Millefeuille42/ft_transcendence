@@ -27,7 +27,7 @@
 				</v-list>
 			</v-sheet>
 			<v-sheet width="63%" rounded="xl" height="100%">
-				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%"/>
+				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%" mWidth="100%"/>
 				<v-img height="100%" width="80%" v-else-if="loaded && hasFriends" src="/giphy.gif" style="border-radius: 20px"/>
 			</v-sheet>
 		</v-sheet>
@@ -44,6 +44,7 @@ import {getFriendsList, getFriendStatus, getUserData, removeFriendFromList} from
 import {friendListIn, userDataIn} from "@/queriesData";
 import SkeletonProfileFriends from "@/components/SkeletonComponents/SkeletonProfileFriends.vue"
 import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFriendsAddon/ProfileFriendsAddFriend.vue";
+import {EventBus} from "@/main";
 
 @Component({
 	components: {ProfileFriendsAddFriend, ProfileCard, SkeletonProfileFriends},
@@ -71,6 +72,7 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 			this.$data.friends.push(friendData)
 			this.$data.hasFriends = true
 			this.showSnack(friendData.username + " added", "green")
+			EventBus.$emit("updateOnlineList", "")
 		},
 		async removeFriend(friend: userDataIn) {
 			let that = this
@@ -84,6 +86,7 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 					that.$data.selectedFriend = Object as () => userDataIn
 					that.$data.hasFriendSelected = false
 				}
+				EventBus.$emit("updateOnlineList", "")
 			}).catch(() => {
 				this.showSnack("Failed to remove " + friend.username, "red")
 			})

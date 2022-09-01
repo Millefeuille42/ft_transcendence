@@ -1,8 +1,8 @@
 <template>
-	<v-sheet v-if="loadedCard" elevation="3" class="mx-auto" max-width="90%" min-width="80%" :height="height" rounded="xl">
+	<v-sheet v-if="loadedCard" elevation="3" class="mx-auto" :max-width="mWidth" min-width="80%" :height="height" :rounded="rounded">
 		<!--suppress HtmlDeprecatedAttribute -->
 		<v-img height="100%" width="100%" :src="user.banner" align="center"
-			   style="border-radius: 20px">
+			   :style="rounded === 'xl' ? 'border-radius: 20px' : ''">
 			<v-sheet elevation="5" color="rgb(0, 0, 0, 0.2)"
 					 style="backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px); margin-top: 24px"
 					 width="75%" max-width="24em" rounded="xl">
@@ -43,6 +43,11 @@ import {EventBus} from "@/main";
 	props: {
 		user: Object as () => userDataIn,
 		height: String,
+		mWidth: String,
+		rounded: {
+			type: String,
+			default: "xl"
+		}
 	},
 	data: () => ({
 		stats: Object as () => statsIn,
