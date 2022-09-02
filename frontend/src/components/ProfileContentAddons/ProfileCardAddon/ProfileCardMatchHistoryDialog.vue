@@ -1,10 +1,10 @@
 <template>
-	<v-card height="100%" rounded="xl">
+	<v-card height="100%" elevation="0" :rounded="is_rounded ? 'xl' : 'false'" max-height="40vh">
 		<v-card-title>{{  user.username + "'s match history" }}</v-card-title>
 		<v-divider/>
-		<v-card-text v-if="hasHistory" style="max-height: 300px;">
-			<v-sheet width="100%" height="100%" class="flex-column" color="transparent">
-				<template v-for="n in 5">
+		<v-card-text v-if="hasHistory" :style="'max-height: ' + max_height + ';'" class="overflow-y-auto">
+			<v-sheet width="100%" class="d-flex flex-column overflow-y-auto" color="transparent">
+				<template v-for="n in 10">
 					<v-sheet v-for="match in stats.history" :key="match.key + n"
 							 width="100%" height="100%" class="d-flex flex-row justify-space-around mt-2 mb-2 text-h6">
 						<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"
@@ -50,6 +50,14 @@ import {match} from "@/queriesData";
 	props: {
 		user: Object,
 		stats: Object,
+		is_rounded: {
+			type: Boolean,
+			default: true
+		},
+		max_height: {
+			type: String,
+			default: "35vh"
+		}
 	},
 	data: () => ({
 		loaded: false,
@@ -61,7 +69,6 @@ import {match} from "@/queriesData";
 		}
 	},
 	mounted() {
-		console.log(this.$props.stats.history)
 		this.$data.hasHistory = this.$props.stats.history != undefined
 			&& this.$props.stats.history.length > 0
 		for (let matchIndex in this.$props.stats.history) {

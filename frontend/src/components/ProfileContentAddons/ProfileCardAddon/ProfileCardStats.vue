@@ -28,21 +28,20 @@
 			</v-col>
 		</v-row>
 		<v-dialog v-if="dialog" v-model="showDialog" dark width="40%">
-			<ProfileCardMatchHistoryDialog :user="user" :stats="stats"/>
+			<ProfileCardMatchHistoryDialog :is_rounded="false" :user="user" :stats="stats"/>
 		</v-dialog>
 	</v-sheet>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import {statsIn} from "@/queriesData";
 import ProfileCardMatchHistoryDialog
 	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
 
 @Component({
 	components: {ProfileCardMatchHistoryDialog},
 	props: {
-		stats: Object as () => statsIn,
+		stats: Object,
 		user: Object,
 		dialog: {
 			type: Boolean,
@@ -54,6 +53,8 @@ import ProfileCardMatchHistoryDialog
 		showDialog: false
 	}),
 	mounted() {
+		console.log("got")
+		console.log(this.$props.stats)
 		if (this.$props.stats.total === 0) {
 			this.$data.wr = 0
 			return
