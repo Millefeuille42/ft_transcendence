@@ -1,7 +1,7 @@
-import {BadRequestException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {equipped, inventory} from "./inventory.interface";
+import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
+import {EInventory, equipped, inventory} from "./inventory.interface";
 import {UserService} from "../user/user.service";
-import {ItemsInterface} from "./items.interface";
+import {EItems, ItemsInterface} from "./items.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -9,7 +9,8 @@ import {Items} from "./items.entity";
 
 @Injectable()
 export class ItemsService {
-	constructor(private userService: UserService,
+	constructor(@Inject(forwardRef(() => UserService))
+				private userService: UserService,
 				private tmp_db: TmpDbService,
 				@InjectRepository(Items) private listItems: Repository<Items> ) {}
 
@@ -60,18 +61,41 @@ export class ItemsService {
 		return (itemToAdd)
 	}
 
-	initEquipement(): inventory {
-		let inventory: inventory = {
-			rod: [this.tmp_db.defaultRod],
-			ball: [this.tmp_db.defaultBall],
-			sound: [this.tmp_db.defaultSound],
-		}
+	async initEquipement(login: string) {
+		let defRod: EItems = {
+			rarity: 0,
+			category: 'rod',
+			name: 'default',
+			description: 'lol'
+		} as EItems
+		let defBall: EItems = {
+			rarity: 0,
+			category: 'ball',
+			name: 'default',
+			description: 'lol'
+		} as EItems
+		let defSound: EItems = {
+			rarity: 0,
+			category: 'sound',
+			name: 'default',
+			description: 'lol'
+		} as EItems
+		let inventory: EInventory = {
+			login: login,
+			rod: [] as EItems[],
+			ball: [] as EItems[],
+			sound: [] as EItems[],
+		} as EInventory
+		inventory.rod.push(defRod)
+		inventory.ball.push(defBall)
+		inventory.sound.push(defSound)
 		return (inventory);
 	}
 
 
-	initEquipped(): equipped {
+	async initEquipped(login: string) {
 		return {
+			login: login,
 			rod: this.tmp_db.defaultRod,
 			ball: this.tmp_db.defaultBall,
 			sound: this.tmp_db.defaultSound,
@@ -161,9 +185,9 @@ export class ItemsService {
 		if (!(await this.isItem(login, category, item)))
 			throw new BadRequestException("User don't have this item")
 
-		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
-		if (this.isEquipped(login, category, item))
-			this.unequipItem(login, category, item)
+		const inventory = user.inventory
+		if (await this.isEquipped(login, category, item))
+			await this.unequipItem(login, category, item)
 		if (category === 'rod')
 			inventory.rod = [...inventory.rod.filter(i => i.name !== item)]
 		if (category === 'ball')

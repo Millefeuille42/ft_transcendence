@@ -1,5 +1,5 @@
 import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
-import {User} from "./user.interface";
+import {EUser} from "./user.interface";
 
 @Entity()
 export class UsersList {
@@ -9,6 +9,6 @@ export class UsersList {
 	@Column()
 	login: string
 
-	@Column()
-	user: User
+	@Column(() => EUser)
+	user: EUser
 }

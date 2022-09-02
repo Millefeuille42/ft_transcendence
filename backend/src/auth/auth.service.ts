@@ -45,7 +45,7 @@ export class AuthService {
 	}
 
 	async addSomeone(access_token: string) {
-		let userData: User;
+		let userData: CreateUser;
 		let that = this;
 		const login: string = await axios({
 			method: "GET",
@@ -64,17 +64,17 @@ export class AuthService {
 					avatar: res.data.image_url,
 					banner: "",
 					online: true,
-					friends: new Array<string>(),
-					blocked: new Array<string>(),
-					inventory: that.itemsService.initEquipement(),
-					equipped: that.itemsService.initEquipped(),
-					stats: that.gameService.initStats(),
+					//friends: new Array<string>(),
+					//blocked: new Array<string>(),
+					//inventory: that.itemsService.initEquipement(),
+					//equipped: that.itemsService.initEquipped(),
+					//stats: that.gameService.initStats(),
 				}
-				const otherLogin = that.userService.isUsernameExist(userData.login)
-				if (otherLogin.userExist) {
-					const otherUser: CreateUserDto = {username: otherLogin.login}
-					that.userService.changeUsername(otherLogin.login, otherUser)
-				}
+				//const otherLogin = that.userService.isUsernameExist(userData.login)
+				//if (otherLogin.userExist) {
+				//	const otherUser: CreateUserDto = {username: otherLogin.login}
+				//	that.userService.changeUsername(otherLogin.login, otherUser)
+				//}
 				return ('');
 			})
 			.catch(async (err) => {
@@ -87,16 +87,17 @@ export class AuthService {
 		if (login !== '')
 			return login;
 		this.userService.connectSession.set(userData.login, access_token);
-		if (this.tmp_db.users.find(users => users.login === userData.login)) {
+		const us = await this.userService.getUser(userData.login)
+		if (us) {
 			console.log("User already exist")
 			//2fa
-			this.userService.changeOnline(userData.login, {online: true})
+			await this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}
 
 		await this.userService.initUser(userData)
 
-		this.tmp_db.users = [...this.tmp_db.users, userData];
+		//this.tmp_db.users = [...this.tmp_db.users, userData];
 		this.userService.changeOnlineInDB({login: userData.login, online: true})
 		//console.log(this.userService.onlinePeople.has('tester'))
 		return userData.login;

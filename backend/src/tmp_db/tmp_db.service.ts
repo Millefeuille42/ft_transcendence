@@ -227,41 +227,41 @@ export class TmpDbService {
 		online: true,
 	}]
 
-	users: User[] = [
-		{
-			login: 'tester',
-			email: 'tester@letest.com',
-			username: 'prout',
-			name: 'Le Test',
-			avatar: 'https://picsum.photos/200/200?random',
-			banner: 'https://picsum.photos/1920/1080?random',
-			online: true,
-			friends: new Array<string>(),
-			blocked: new Array<string>(),
-			inventory: {
-				rod: [this.defaultRod],
-				ball: [this.defaultBall],
-				sound: [this.defaultSound],
-			},
-			equipped: {
-				rod: this.defaultRod,
-				ball: this.defaultBall,
-				sound: this.defaultSound,
-			},
-			stats: {
-				total: 0,
-				wins: 0,
-				looses: 0,
-				points: 5,
-				lastRival: 'No one :(',
-				history: [{
-					rival: 'patate',
-					userPoints: 5,
-					rivalPoints: 3,
-					gameMode: 'normal',
-				}]
-			}
-		}];
+	//users: User[] = [
+	//	{
+	//		login: 'tester',
+	//		email: 'tester@letest.com',
+	//		username: 'prout',
+	//		name: 'Le Test',
+	//		avatar: 'https://picsum.photos/200/200?random',
+	//		banner: 'https://picsum.photos/1920/1080?random',
+	//		online: true,
+	//		friends: new Array<string>(),
+	//		blocked: new Array<string>(),
+	//		inventory: {
+	//			rod: [this.defaultRod],
+	//			ball: [this.defaultBall],
+	//			sound: [this.defaultSound],
+	//		},
+	//		equipped: {
+	//			rod: this.defaultRod,
+	//			ball: this.defaultBall,
+	//			sound: this.defaultSound,
+	//		},
+	//		stats: {
+	//			total: 0,
+	//			wins: 0,
+	//			looses: 0,
+	//			points: 5,
+	//			lastRival: 'No one :(',
+	//			history: [{
+	//				rival: 'patate',
+	//				userPoints: 5,
+	//				rivalPoints: 3,
+	//				gameMode: 'normal',
+	//			}]
+	//		}
+	//	}];
 
 }
 

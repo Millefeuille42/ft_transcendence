@@ -1,16 +1,33 @@
-import {BadRequestException, ConflictException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {UserGlobal, User} from "./user.interface";
+import {
+	BadRequestException,
+	ConflictException,
+	forwardRef,
+	HttpException,
+	HttpStatus, Inject,
+	Injectable
+} from '@nestjs/common';
+import {UserGlobal, User, EFriend, EBlocked, EUser} from "./user.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {OnlineDto} from "./online.dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {UsersList} from "./users.entity";
 import {Repository} from "typeorm";
+import {FriendsService} from "../friends/friends.service";
+import {ItemsService} from "../items/items.service";
+import {EStats} from "../game/stats.interface";
+import {GameService} from "../game/game.service";
 
 @Injectable()
 export class UserService {
 	constructor(private tmp_db: TmpDbService,
-				@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>) {}
+				@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>,
+				@InjectRepository(EFriend) private friendListRepository: Repository<EFriend>,
+				@InjectRepository(EBlocked) private blockedListRepository: Repository<EBlocked>,
+				@Inject(forwardRef(() => ItemsService))
+				private itemService: ItemsService,
+				@Inject(forwardRef(() => GameService))
+				private gameService: GameService) {}
 
 	connectSession = new Map<string, string>([]);
 
@@ -22,9 +39,28 @@ export class UserService {
 		return (user)
 	}
 
-	async initUser(newUser: User) {
-		await this.usersListRepository.save({login: newUser.login, user: newUser})
+	async getAllUsers() {
+		return (this.usersListRepository.find())
 	}
+
+	async initUser(newUser: CreateUser) {
+		const user: EUser = {
+			login: newUser.login,
+			email: newUser.email,
+			username: newUser.username,
+			name: newUser.name,
+			avatar: newUser.avatar,
+			banner: newUser.banner,
+			online: newUser.online,
+			friends: new Array<string>(),
+			blocked: new Array<string>(),
+			inventory: await this.itemService.initEquipement(newUser.login),
+			equipped: await this.itemService.initEquipped(newUser.login),
+			stats: await this.gameService.initStats(newUser.login),
+		}
+		await this.usersListRepository.save({login: newUser.login, user: user})
+	}
+
 
 	async getUUID(login: string) {
 		const user = await this.verificationUser(login)
@@ -102,16 +138,16 @@ export class UserService {
 		const user = await this.getUser(login)
 		if (change.username.length > 12)
 			throw new BadRequestException()
-		const loginOtherUser = this.isUsernameExist(change.username)
-		if (loginOtherUser.userExist && user.username !== change.username) {
-			if (change.username === login) {
-				let otherUser = this.tmp_db.users.find(user => user.login === loginOtherUser.login)
-				const newChange: CreateUserDto = {username : otherUser.login}
-				await this.changeUsername(otherUser.login, newChange)
-			}
-			else
-				throw new ConflictException()
-		}
+		//const loginOtherUser = this.isUsernameExist(change.username)
+		//if (loginOtherUser.userExist && user.username !== change.username) {
+		//	if (change.username === login) {
+		//		let otherUser = this.tmp_db.users.find(user => user.login === loginOtherUser.login)
+		//		const newChange: CreateUserDto = {username : otherUser.login}
+		//		await this.changeUsername(otherUser.login, newChange)
+		//	}
+		//	else
+		//		throw new ConflictException()
+		//}
 		user.username = change.username;
 		//console.log(change)
 	}
@@ -132,15 +168,15 @@ export class UserService {
 	}
 
 	//TODO Chercher dans la db
-	isUsernameExist(username: string): {userExist: boolean, login?: string} {
-		const user = this.tmp_db.users.find(users => users.username === username)
-		if (!user)
-			return {userExist: false}
-		return {
-			userExist: true,
-			login: user.login
-		}
-	}
+	//isUsernameExist(username: string): {userExist: boolean, login?: string} {
+	//	const user = this.tmp_db.users.find(users => users.username === username)
+	//	if (!user)
+	//		return {userExist: false}
+	//	return {
+	//		userExist: true,
+	//		login: user.login
+	//	}
+	//}
 
 	async isBlocked(login: string, other: string) {
 		let user = await this.getUser(other)
@@ -169,7 +205,7 @@ export class UserService {
 			if (u.login !== login && u.online === true && (!await this.isBlocked(login, u.login))) {
 				const {username, avatar, login: ulogin, banner, stats} = await this.getUser(u.login)
 				const friend = await this.isFriend(login, u.login)
-				users = [...users, {info: {login: ulogin, username, avatar, banner, stats}, friend}]
+				users = [...users, {info: {login: ulogin, username, avatar, banner, stats }, friend}]
 			}
 		}
 		return (users);

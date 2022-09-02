@@ -2,13 +2,17 @@ import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Inje
 import {UserService} from "../user/user.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {BlockedService} from "../blocked/blocked.service";
+import {InjectRepository} from "@nestjs/typeorm";
+import {EFriend} from "../user/user.interface";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class FriendsService {
 	constructor(private readonly userService: UserService,
 				private readonly tmp_db: TmpDbService,
 				@Inject(forwardRef(() => BlockedService))
-				private blockedService: BlockedService) {}
+				private blockedService: BlockedService,
+				@InjectRepository(EFriend) private friendListRepository: Repository<EFriend>) {}
 
 	async verificationUsers(login: string, friend?: string) {
 		let user = await this.userService.getUser(login)
@@ -54,6 +58,7 @@ export class FriendsService {
 		if (!(friends.find(f => f === friend)) || friend === login)
 			throw new BadRequestException()
 		user.friends = friends.filter(f => f !== friend)
+		//await this.friendListRepository.delete({login: login, loginFriend: friend})
 	}
 
 	async isFriend(login: string, friend: string) {

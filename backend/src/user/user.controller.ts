@@ -1,6 +1,6 @@
-import {Body, Controller, Get, Param, Patch, Res} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Res} from '@nestjs/common';
 import {UserService} from "./user.service";
-import {CreateUserDto} from "./create-user.dto";
+import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {Response} from "express";
 
 @Controller('user')
@@ -10,6 +10,16 @@ export class UserController {
 	@Get('online/:login')
 	async getOnlineList(@Param('login') login: string) {
 		return (await this.userService.listOfOnlinePeople(login))
+	}
+
+	@Post()
+	async createNewUser(@Body() user: CreateUser) {
+		await this.userService.initUser(user)
+	}
+
+	@Get()
+	async getUsers() {
+		return await this.userService.getAllUsers()
 	}
 
 	/**
@@ -22,10 +32,10 @@ export class UserController {
 	 * @apiSuccess {Json} userExist Boolean set to false if username doesn't exist
 	 * @apiSuccess {Json} login if <code>userExist</code> is true, the login of the user
 	 */
-	@Get('username/:username')
-	isUsernameExist(@Param('username') username: string) {
-		return (this.userService.isUsernameExist(username))
-	}
+	//@Get('username/:username')
+	//isUsernameExist(@Param('username') username: string) {
+	//	return (this.userService.isUsernameExist(username))
+	//}
 
 	/**
 	 * @api {get} /user/:login/:resource Request information about a User

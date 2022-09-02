@@ -1,11 +1,12 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {UserService} from "../user/user.service";
-import {stats} from "./stats.interface";
+import {EHistory, EStats, stats} from "./stats.interface";
 
 @Injectable()
 export class GameService {
 	constructor(private tmp_db: TmpDbService,
+				@Inject(forwardRef(() => UserService))
 				private userService: UserService) {}
 
 	async verificationUsers(login: string, rival: string) {
@@ -19,15 +20,23 @@ export class GameService {
 			throw new HttpException('User can\'t be Rival', HttpStatus.BAD_REQUEST)
 	}
 
-	initStats(): stats {
-		let stats: stats = {
+	async initStats(login: string) {
+		let stats: EStats = {
+			login: login,
 			total: 0,
 			wins: 0,
 			looses: 0,
 			points: 5,
 			lastRival: 'No one :(',
-			history: []
-		}
+			history: [] as EHistory[],
+		} as EStats
+		stats.history.push({
+			login: login,
+			rival: 'tester',
+			userPoints: 5,
+			rivalPoints: 2,
+			gameMode: 'normal',
+		} as EHistory)
 		return(stats);
 	}
 
@@ -80,6 +89,7 @@ export class GameService {
 		await this.verificationUsers(login, rival)
 		const user = await this.userService.getUser(login)
 		const game = {
+			login: login,
 			rival: rival,
 			userPoints: points,
 			rivalPoints: rivalPoints,
