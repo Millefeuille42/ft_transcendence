@@ -58,11 +58,10 @@ import {EventBus} from "@/main";
 		if (this.$props.height != "100%") {
 			return
 		}
-		let that = this
 		this.$data.loaded = false
 		getUserStats(this.$props.user.login)
 			.then((stats: statsIn) => {
-				that.$data.stats = stats
+				this.$data.stats = stats
 				this.$data.loaded = true
 			})
 			.catch((e) => {
