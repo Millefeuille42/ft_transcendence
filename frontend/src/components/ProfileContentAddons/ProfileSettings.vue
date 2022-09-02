@@ -1,11 +1,16 @@
 <template>
 	<v-sheet class="d-flex flex-column justify-center" width="100%" height="90%">
 		<ProfileSettingsForm :loaded="loaded" :user="user"/>
-		<v-sheet class="mt-auto mr-auto ml-4">
+		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around" width="70%">
 			<v-btn @click="showBlocked = true"> See blocked users </v-btn>
+			<v-btn @click="handleDisconnect"> Disconnect </v-btn>
+			<v-btn @click="sure = true" color="red"> Delete Account </v-btn>
 		</v-sheet>
 		<v-dialog v-model="showBlocked" width="20%" scrollable dark>
 				<ProfileSettingsBlockedList v-if="showBlocked" :user="user"/>
+		</v-dialog>
+		<v-dialog v-model="sure" width="20%" dark>
+			<ProfileSettingsTrollDialog @no="sure = false" @yes="handleDeletion"/>
 		</v-dialog>
 	</v-sheet>
 </template>
@@ -15,15 +20,18 @@ import {Component, Vue} from "vue-property-decorator";
 import ProfileSettingsForm from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsForm.vue";
 import ProfileSettingsBlockedList
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsBlockedList.vue";
+import ProfileSettingsTrollDialog
+	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsTrollDialog.vue";
 
 @Component({
-	components: {ProfileSettingsBlockedList, ProfileSettingsForm},
+	components: {ProfileSettingsTrollDialog, ProfileSettingsBlockedList, ProfileSettingsForm},
 	//TODO send user data to api
 	data: () => ({
 		snackShow: false,
 		snackText: "",
 		snackColor: "green",
-		showBlocked: false
+		showBlocked: false,
+		sure: false,
 	}),
 	props: {
 		loaded: Boolean,
@@ -35,6 +43,16 @@ import ProfileSettingsBlockedList
 			this.$data.snackText = text
 			this.$data.snackShow = true
 		},
+		handleDisconnect() {
+			this.$cookies.remove("Session")
+			window.location.hash = ""
+			window.location.href = "/"
+		},
+		handleDeletion() {
+			// TODO add deletion when endpoint is ready
+			this.$data.sure = false
+			this.handleDisconnect()
+		}
 	},
 	mounted() {
 		this.$data.formUsername = this.$props.user.username
