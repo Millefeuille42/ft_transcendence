@@ -13,6 +13,7 @@ import { ChatModule } from './chat/chat.module';
 import { TmpDbModule } from './tmp_db/tmp_db.module';
 import { GameModule } from './game/game.module';
 import { BlockedModule } from './blocked/blocked.module';
+import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
   imports: [AuthModule,
@@ -25,13 +26,19 @@ import { BlockedModule } from './blocked/blocked.module';
 	ChatModule,
     TmpDbModule,
     GameModule,
-    BlockedModule],
+    BlockedModule,
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'pdfDB',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    })],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
     consumer.apply(AppLoggerMiddleware, SetCorsHeaderMiddleware).forRoutes('*')
-    consumer.apply(IsAuthMiddleware).forRoutes('profile', 'user', 'friends', 'items')
+    consumer.apply(IsAuthMiddleware).forRoutes('user', 'friends', 'items', 'blocked', 'game')
   }
 }

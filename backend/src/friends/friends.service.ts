@@ -10,19 +10,22 @@ export class FriendsService {
 				@Inject(forwardRef(() => BlockedService))
 				private blockedService: BlockedService) {}
 
-	verificationUsers(login: string, friend?: string) {
-		if (!(this.tmp_db.users.find(user => user.login === login)))
+	async verificationUsers(login: string, friend?: string) {
+		let user = await this.userService.getUser(login)
+		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		if (!friend)
 			return ;
-		if (!(this.tmp_db.users.find(user => user.login === friend)))
+		user = await this.userService.getUser(friend)
+		if (!user)
 			throw new HttpException('Friend not found', HttpStatus.NOT_FOUND)
 	}
 
-	friendList(login: string) {
-		this.verificationUsers(login)
+	async friendList(login: string) {
+		await this.verificationUsers(login)
+		const user = await this.userService.getUser(login)
 
-		const friends = this.tmp_db.users.find(users => users.login === login).friends;
+		const friends = user.friends;
 		if (friends.length === 0)
 			return { thereIsFriend: false}
 		return {
@@ -31,29 +34,33 @@ export class FriendsService {
 		};
 	}
 
-	addFriend(login: string, friend: string) {
-		this.verificationUsers(login, friend)
+	async addFriend(login: string, friend: string) {
+		await this.verificationUsers(login, friend)
+		const user = await this.userService.getUser(login)
 
-		const friends = this.tmp_db.users.find(users => users.login === login).friends
+		const friends = user.friends
 		if (friends.find(f => f === friend) || friend === login)
 			throw new BadRequestException()
-		if (this.blockedService.isBlocked(friend, login))
+		if (await this.blockedService.isBlocked(friend, login))
 			throw new HttpException("Friend blocked User", HttpStatus.FORBIDDEN)
 		friends.push(friend);
 	}
 
-	deleteFriend(login: string, friend: string) {
-		this.verificationUsers(login, friend)
+	async deleteFriend(login: string, friend: string) {
+		await this.verificationUsers(login, friend)
+		const user = await this.userService.getUser(login)
 
-		let friends = this.tmp_db.users.find(users => users.login === login).friends;
+		let friends = user.friends;
 		if (!(friends.find(f => f === friend)) || friend === login)
 			throw new BadRequestException()
-		this.tmp_db.users.find(users => users.login === login).friends = friends.filter(f => f !== friend)
+		user.friends = friends.filter(f => f !== friend)
 	}
 
-	isFriend(login: string, friend: string) {
-		this.verificationUsers(login, friend)
-		const friends = this.tmp_db.users.find(users => users.login === login).friends
+	async isFriend(login: string, friend: string) {
+		await this.verificationUsers(login, friend)
+		const user = await this.userService.getUser(login)
+
+		const friends = user.friends
 		if (friends.find(f => f === friend))
 			return true
 		return false

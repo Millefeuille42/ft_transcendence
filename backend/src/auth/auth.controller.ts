@@ -1,10 +1,13 @@
 import {Body, Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
 import {Request, Response} from 'express'
 import {AuthService} from "./auth.service";
+import {UsersList} from "../user/users.entity";
+import {UserService} from "../user/user.service";
 
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(private readonly authService: AuthService,
+				private readonly userService: UserService) {}
 
 	/**
 	 * @api {get} /auth Request Auth Link
@@ -33,7 +36,8 @@ export class AuthController {
 
 		let access_token: string = await this.authService.getAccessToken(code);
 		const login: string = await this.authService.addSomeone(access_token);
-		res.send({ session: login})
+		const uuid = await this.userService.getUUID(login)
+		res.send({ session: uuid})
 		return ;
 	}
 

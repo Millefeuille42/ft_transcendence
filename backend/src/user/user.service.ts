@@ -1,63 +1,79 @@
 import {BadRequestException, ConflictException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {UserGlobal, User} from "./user.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
-import {CreateUserDto} from "./create-user.dto";
+import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {OnlineDto} from "./online.dto";
+import {InjectRepository} from "@nestjs/typeorm";
+import {UsersList} from "./users.entity";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class UserService {
-	constructor(private tmp_db: TmpDbService) {}
+	constructor(private tmp_db: TmpDbService,
+				@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>) {}
 
 	connectSession = new Map<string, string>([]);
 
-	verificationUser(login: string) {
-		if (!(this.tmp_db.users.find(user => user.login === login)))
+	async verificationUser(login: string) {
+		const user = (await this.usersListRepository.findOneBy({login: login}))
+		console.log(user)
+		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+		return (user)
 	}
 
-	getUser(login: string) {
-		this.verificationUser(login)
-		return this.tmp_db.users.find(users => users.login === login);
+	async initUser(newUser: User) {
+		await this.usersListRepository.save({login: newUser.login, user: newUser})
 	}
 
-	getName(login: string) {
-		this.verificationUser(login)
+	async getUUID(login: string) {
+		const user = await this.verificationUser(login)
+		return (user.id)
+	}
+
+	async getUser(login: string) {
+		const user: UsersList = await this.verificationUser(login)
+		return user.user ;
+	}
+
+	async getName(login: string) {
+		const user = await this.getUser(login)
 		return {
-			name: this.tmp_db.users.find(users => users.login === login).name,
+			name: user.name,
 		}
 	}
 
-	getAvatar(login: string) {
-		this.verificationUser(login)
+	async getAvatar(login: string) {
+		const user = await this.getUser(login)
 		return {
-			avatar: this.tmp_db.users.find(users => users.login === login).avatar,
+			avatar: user.avatar,
 		}
 	}
 
-	getMail(login: string) {
-		this.verificationUser(login)
+	async getMail(login: string) {
+		const user = await this.getUser(login)
 		return {
-			email: this.tmp_db.users.find(users => users.login === login).email,
+			email: user.email,
 		}
 	}
 
-	getBanner(login: string) {
-		this.verificationUser(login)
+	async getBanner(login: string) {
+		const user = await this.getUser(login)
 		return {
-			banner: this.tmp_db.users.find(users => users.login === login).banner,
+			banner: user.banner,
 		}
 	}
 
-	getUsername(login: string) {
-		this.verificationUser(login)
+	async getUsername(login: string) {
+		const user = await this.getUser(login)
 		return {
-			username: this.tmp_db.users.find(users => users.login === login).username,
+			username: user.username,
 		}
 	}
 
-	isOnline(login: string) {
-		this.verificationUser(login)
-		return (this.tmp_db.users.find(users => users.login === login).online)
+	async isOnline(login: string) {
+		const user = await this.getUser(login)
+		return (user.online)
 	}
 
 
@@ -69,40 +85,34 @@ export class UserService {
 		this.connectSession.delete(login);
 	}
 
-	changeAvatar(login: string, change: User) {
-		this.verificationUser(login)
-		const userToChange = this.tmp_db.users.find(users => users.login === login);
-		userToChange.avatar = change.avatar;
-	//	console.log(change.avatar)
-		//console.log(change)
+	async changeAvatar(login: string, change: User) {
+		const user = await this.getUser(login)
+		user.avatar = change.avatar;
 	}
 
-	changeBanner(login: string, change: User) {
-		this.verificationUser(login)
-		const userToChange = this.tmp_db.users.find(users => users.login === login);
-		userToChange.banner = change.banner;
+	async changeBanner(login: string, change: User) {
+		const user = await this.getUser(login)
+		user.banner = change.banner;
 	//	console.log(change.banner)
 	//	console.log(change)
 	}
 
 
-	changeUsername(login: string, change: User) {
-		this.verificationUser(login)
+	async changeUsername(login: string, change: User) {
+		const user = await this.getUser(login)
 		if (change.username.length > 12)
 			throw new BadRequestException()
 		const loginOtherUser = this.isUsernameExist(change.username)
-		const user = this.getUser(login)
 		if (loginOtherUser.userExist && user.username !== change.username) {
 			if (change.username === login) {
 				let otherUser = this.tmp_db.users.find(user => user.login === loginOtherUser.login)
 				const newChange: CreateUserDto = {username : otherUser.login}
-				this.changeUsername(otherUser.login, newChange)
+				await this.changeUsername(otherUser.login, newChange)
 			}
 			else
 				throw new ConflictException()
 		}
-		const userToChange = this.tmp_db.users.find(users => users.login === login);
-		userToChange.username = change.username;
+		user.username = change.username;
 		//console.log(change)
 	}
 
@@ -114,14 +124,14 @@ export class UserService {
 			this.tmp_db.onlinePeople = [...this.tmp_db.onlinePeople, online];
 	}
 
-	changeOnline(login: string, change: User) {
-		this.verificationUser(login)
-		const userToChange = this.tmp_db.users.find(users => users.login === login)
-		userToChange.online = change.online;
+	async changeOnline(login: string, change: User) {
+		const user = await this.getUser(login)
+		user.online = change.online;
 		this.changeOnlineInDB({login: login, online: change.online})
 		//console.log(change);
 	}
 
+	//TODO Chercher dans la db
 	isUsernameExist(username: string): {userExist: boolean, login?: string} {
 		const user = this.tmp_db.users.find(users => users.username === username)
 		if (!user)
@@ -132,37 +142,36 @@ export class UserService {
 		}
 	}
 
-	isBlocked(login: string, other: string) {
-		let user = this.getUser(other)
+	async isBlocked(login: string, other: string) {
+		let user = await this.getUser(other)
 		if (user.blocked.find(u => u === login))
 			return true
-		user = this.getUser(login)
+		user = await this.getUser(login)
 		if (user.blocked.find(u => u === other))
 			return true
 		return false
 	}
 
-	isFriend(login: string, other: string) {
-		const user = this.getUser(login)
+	async isFriend(login: string, other: string) {
+		const user = await this.getUser(login)
 		if (user.friends.find(f => f === other))
 			return true
 		return false
 	}
 
-	listOfOnlinePeople(login: string) {
-		this.verificationUser(login)
+	async listOfOnlinePeople(login: string) {
+		await this.verificationUser(login)
 		let users: {
 			info: UserGlobal;
 			friend: boolean
 		}[] = []
-		this.tmp_db.onlinePeople.forEach((u) => {
-			if (u.login !== login && u.online === true && (!this.isBlocked(login, u.login))) {
-				const {username, avatar, login: ulogin, banner, stats} = this.getUser(u.login)
-				const friend = this.isFriend(login, u.login)
+		for (const u of this.tmp_db.onlinePeople) {
+			if (u.login !== login && u.online === true && (!await this.isBlocked(login, u.login))) {
+				const {username, avatar, login: ulogin, banner, stats} = await this.getUser(u.login)
+				const friend = await this.isFriend(login, u.login)
 				users = [...users, {info: {login: ulogin, username, avatar, banner, stats}, friend}]
 			}
-		})
+		}
 		return (users);
 	}
-
 }

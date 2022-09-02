@@ -1,10 +1,21 @@
-import {All, Controller, Get, Param, Req} from '@nestjs/common';
+import {All, Body, Controller, Get, Param, Post, Req} from '@nestjs/common';
 import {Request} from 'express'
 import {ItemsService} from "./items.service";
+import {Items} from "./items.entity";
 
 @Controller('items')
 export class ItemsController {
 	constructor(private readonly itemsService: ItemsService) {}
+
+	@Get()
+	async getAll() : Promise<Items[]> {
+		return await this.itemsService.getAll()
+	}
+
+	@Post()
+	async create(@Body() item: Items) : Promise<Items> {
+		return await this.itemsService.createOneItem(item)
+	}
 
 	/**
 	 * @api {get} /items/inventory/:login Request all items User have
@@ -18,9 +29,10 @@ export class ItemsController {
 	 * @apiSuccess {Json} sound All the sounds of the user
 	 */
 	@Get('inventory/:login')
-	getInventory(@Param('login') login: string) {
-		return (this.itemsService.getInventory(login))
+	async getInventory(@Param('login') login: string) {
+		return (await this.itemsService.getInventory(login))
 	}
+
 
 	/**
 	 * @api {get} /items/inventory/:login/:category Get all the items User have in a category
@@ -33,9 +45,9 @@ export class ItemsController {
 	 * @apiSuccess {Json} items All the items in the category requested
 	 */
 	@Get('inventory/:login/:category')
-	getICategory(@Param('login') login: string,
+	async getICategory(@Param('login') login: string,
 				@Param('category') category: string) {
-		return (this.itemsService.getICategory(login, category));
+		return (await this.itemsService.getICategory(login, category));
 	}
 
 	/**
@@ -70,16 +82,16 @@ export class ItemsController {
 	 * @apiParam {String} item Name of the <code>item</code> requested
 	 */
 	@All('inventory/:login/:category/:item')
-	itemInventory(@Param('login') login: string,
+	async itemInventory(@Param('login') login: string,
 				  @Param('category') category: string,
 				  @Param('item') item: string,
 				  @Req() req: Request) {
 		if (req.method === 'GET')
-			return (this.itemsService.isItem(login, category, item))
+			return (await this.itemsService.isItem(login, category, item))
 		if (req.method === 'POST')
-			return (this.itemsService.addItem(login, category, item))
+			return (await this.itemsService.addItem(login, category, item))
 		if (req.method === 'DELETE')
-			return (this.itemsService.deleteItem(login, category, item))
+			return (await this.itemsService.deleteItem(login, category, item))
 	}
 
 	/**
@@ -92,8 +104,8 @@ export class ItemsController {
 	 * @apiSuccess {Json} equipment 3 items that <code>login</code> have equipped
 	 */
 	@Get('equipped/:login')
-	getEquipped(@Param('login') login: string) {
-		return (this.itemsService.getEquipment(login));
+	async getEquipped(@Param('login') login: string) {
+		return (await this.itemsService.getEquipment(login));
 	}
 
 	/**
@@ -107,9 +119,9 @@ export class ItemsController {
 	 * @apiSuccess {Json} category Item equipped in the <code>category</code>
 	 */
 	@Get('equipped/:login/:category')
-	getECategory(@Param('login') login: string,
+	async getECategory(@Param('login') login: string,
 				@Param('category') category: string) {
-		return (this.itemsService.getECategory(login, category))
+		return (await this.itemsService.getECategory(login, category))
 	}
 
 	/**
@@ -144,16 +156,16 @@ export class ItemsController {
 	 * @apiParam {String} item Name of the <code>item</code> requested
 	 */
 	@All('equipped/:login/:category/:item')
-	itemEquipped(@Param('login') login: string,
+	async itemEquipped(@Param('login') login: string,
 				  @Param('category') category: string,
 				  @Param('item') item: string,
 				  @Req() req: Request) {
 		if (req.method === 'GET')
-			return (this.itemsService.isEquipped(login, category, item))
+			return (await this.itemsService.isEquipped(login, category, item))
 		if (req.method === 'POST')
-			return (this.itemsService.equipItem(login, category, item))
+			return (await this.itemsService.equipItem(login, category, item))
 		if (req.method === 'DELETE')
-			return (this.itemsService.unequipItem(login, category, item))
+			return (await this.itemsService.unequipItem(login, category, item))
 	}
 
 	/**
@@ -166,7 +178,7 @@ export class ItemsController {
 	 * @apiSuccess {Json} item The item drop
 	 */
 	@Get('drop/:login')
-	dropItem(@Param('login') login: string) {
-		return (this.itemsService.dropItem(login));
+	async dropItem(@Param('login') login: string) {
+		return (await this.itemsService.dropItem(login));
 	}
 }

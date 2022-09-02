@@ -3,13 +3,27 @@ import {equipped, inventory} from "./inventory.interface";
 import {UserService} from "../user/user.service";
 import {ItemsInterface} from "./items.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+import {Items} from "./items.entity";
 
 @Injectable()
 export class ItemsService {
 	constructor(private userService: UserService,
-				private tmp_db: TmpDbService) {}
+				private tmp_db: TmpDbService,
+				@InjectRepository(Items) private listItems: Repository<Items> ) {}
 
-	getItemByRarity(rarity: number) {
+	async getAll(): Promise<Items[]> {
+		return await this.listItems.find()
+	}
+
+	async createOneItem(item: Items) {
+		await this.listItems.save(item)
+		let num: number = item.id
+		return await this.listItems.findOneBy({id: num})
+	}
+
+	async getItemByRarity(rarity: number) {
 		let itemsRarity: ItemsInterface[]
 		let itemToAdd: ItemsInterface
 		if (rarity === 42) {
@@ -30,9 +44,8 @@ export class ItemsService {
 		return (itemToAdd);
 	}
 
-	dropItem(login: string) {
-		this.userService.verificationUser(login);
-		const user = this.userService.getUser(login)
+	async dropItem(login: string) {
+		const user = await this.userService.getUser(login)
 		if (user.stats.points <= 0)
 			throw new HttpException('User have not enough points', HttpStatus.FORBIDDEN)
 		user.stats.points--
@@ -40,7 +53,7 @@ export class ItemsService {
 		const rarity = Math.floor(Math.random() * 100) + 1
 		console.log('rarity : ' + rarity)
 
-		let itemToAdd: ItemsInterface = this.getItemByRarity(rarity);
+		let itemToAdd: ItemsInterface = await this.getItemByRarity(rarity);
 		console.log(itemToAdd)
 
 		this.addItem(login, itemToAdd.category, itemToAdd.name);
@@ -66,8 +79,9 @@ export class ItemsService {
 	}
 
 	//getInventory -> login
-	getInventory(login: string) {
-		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
+	async getInventory(login: string) {
+		const user = await this.userService.getUser(login)
+		const inventory = user.inventory
 		return {
 			rod: inventory.rod,
 			ball: inventory.ball,
@@ -75,23 +89,23 @@ export class ItemsService {
 		};
 	}
 
-	verificationCategory(category: string) {
+	async verificationCategory(category: string) {
 		if (category !== 'rod' && category !== 'ball' && category !== 'sound')
 			throw new HttpException('Category not found', HttpStatus.NOT_FOUND)
 	}
 
-	verificationItemInCategory(category: string, item: string) {
+	async verificationItemInCategory(category: string, item: string) {
 		if (!this.tmp_db.listItems.filter(items => items.category === category).
 		find(items => items.name === item))
 			throw new HttpException('Item not found', HttpStatus.NOT_FOUND)
 	}
 
 	//getICategory -> login + category
- 	getICategory(login: string, category: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
+ 	async getICategory(login: string, category: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
 
-		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
+		const inventory = user.inventory
 		if (category === 'rod')
 			return inventory.rod
 		if (category === 'ball')
@@ -101,12 +115,12 @@ export class ItemsService {
  	}
 
 // 	//isItem -> login + category + item
- 	isItem(login: string, category: string, item: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
-		this.verificationItemInCategory(category, item)
+ 	async isItem(login: string, category: string, item: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+		await this.verificationItemInCategory(category, item)
 
-		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
+		const inventory = user.inventory
 		let hasItem;
 		if (category === 'rod')
 			hasItem = inventory.rod.find(items => items.name === item);
@@ -122,12 +136,12 @@ export class ItemsService {
  	}
 
 // 	//addItem -> login + category + item
- 	addItem(login: string, category: string, item: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
-		this.verificationItemInCategory(category, item)
+ 	async addItem(login: string, category: string, item: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+		await this.verificationItemInCategory(category, item)
 
-		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
+		const inventory = user.inventory
 		const itemToAdd = this.tmp_db.listItems.filter(items => items.category === category).find(items => items.name === item)
 		if (category === 'rod')
 			inventory.rod = [...inventory.rod, itemToAdd]
@@ -138,13 +152,13 @@ export class ItemsService {
  	}
 
 // 	//deleteItem -> login + category + item
- 	deleteItem(login: string, category: string, item: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
+ 	async deleteItem(login: string, category: string, item: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
 		if (item === 'default')
 			throw new BadRequestException("Can't delete default items")
-		this.verificationItemInCategory(category, item)
-		if (!this.isItem(login, category, item))
+		await this.verificationItemInCategory(category, item)
+		if (!(await this.isItem(login, category, item)))
 			throw new BadRequestException("User don't have this item")
 
 		const inventory = this.tmp_db.users.find(users => users.login === login).inventory
@@ -159,19 +173,19 @@ export class ItemsService {
  	}
 
 	//getEquipment -> login
-	getEquipment(login: string) {
-		this.userService.verificationUser(login);
+	async getEquipment(login: string) {
+		const user = await this.userService.getUser(login)
 
-		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
+		const equipment = user.equipped
 		return (equipment);
 	}
 
 	//getECategory -> login + category
-	getECategory(login: string, category: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
+	async getECategory(login: string, category: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
 
-		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
+		const equipment = user.equipped
 		if (category === 'rod')
 			return equipment.rod
 		if (category === 'ball')
@@ -181,13 +195,13 @@ export class ItemsService {
 	}
 //
 //	//isEquipped -> login + category + item
-	isEquipped(login: string, category: string, item: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
+	async isEquipped(login: string, category: string, item: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
 		if (item !== 'default')
-			this.verificationItemInCategory(category, item)
+			await this.verificationItemInCategory(category, item)
 
-		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
+		const equipment = user.equipped
 		if (category === 'rod')
 			return (equipment.rod.name === item)
 		if (category === 'ball')
@@ -197,16 +211,16 @@ export class ItemsService {
 	}
 
 //	//equipItem -> login + category + item
-	equipItem(login: string, category: string, item: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
+	async equipItem(login: string, category: string, item: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
 		if (item !== 'default')
-			this.verificationItemInCategory(category, item)
+			await this.verificationItemInCategory(category, item)
 
-		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
+		const equipment = user.equipped
 		const itemToEquip = this.tmp_db.listItems.find(items => items.name === item)
 
-		if (!this.isItem(login, category, item))
+		if (!(await this.isItem(login, category, item)))
 			throw new BadRequestException("User don't have this item")
 
 		if (category === 'rod')
@@ -218,14 +232,14 @@ export class ItemsService {
 	}
 
 //	//unequipItem -> login + category  -> Change Item to default
-	unequipItem(login: string, category: string, item: string) {
-		this.userService.verificationUser(login);
-		this.verificationCategory(category)
+	async unequipItem(login: string, category: string, item: string) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
 		if (item !== 'default')
-			this.verificationItemInCategory(category, item)
+			await this.verificationItemInCategory(category, item)
 
-		const equipment = this.tmp_db.users.find(users => users.login === login).equipped
-		if (!this.isEquipped(login, category, item))
+		const equipment = user.equipped
+		if (!(await this.isEquipped(login, category, item)))
 			throw new BadRequestException("Equipment is not equipped")
 		if (category === 'rod')
 			return (equipment.rod = this.tmp_db.defaultRod)
@@ -234,5 +248,4 @@ export class ItemsService {
 		if (category === 'sound')
 			return (equipment.sound = this.tmp_db.defaultSound)
 	}
-
 }

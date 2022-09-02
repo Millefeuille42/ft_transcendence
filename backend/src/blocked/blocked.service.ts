@@ -10,19 +10,21 @@ export class BlockedService {
 				@Inject(forwardRef(() => FriendsService))
 				private friendService: FriendsService) {}
 
-	verificationUsers(login: string, block?: string) {
-		if (!(this.tmp_db.users.find(user => user.login === login)))
+	async verificationUsers(login: string, block?: string) {
+		let user = await this.userService.getUser(login)
+		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		if (!block)
 			return ;
-		if (!(this.tmp_db.users.find(user => user.login === block)))
+		user = await this.userService.getUser(block)
+		if (!user)
 			throw new HttpException('User to block not found', HttpStatus.NOT_FOUND)
 	}
 
-	blockedList(login: string) {
-		this.verificationUsers(login)
+	async blockedList(login: string) {
+		const user = await this.userService.getUser(login)
 
-		const blocks = this.tmp_db.users.find(users => users.login === login).blocked
+		const blocks = user.blocked
 		if (blocks.length === 0)
 			return { thereIsBlocked: false}
 		return {
@@ -31,10 +33,11 @@ export class BlockedService {
 		};
 	}
 
-	addBlock(login: string, block: string) {
-		this.verificationUsers(login, block)
+	async addBlock(login: string, block: string) {
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
 
-		const blocks = this.tmp_db.users.find(users => users.login === login).blocked
+		const blocks = user.blocked
 		if (blocks.find(b => b === block) || block === login)
 			throw new BadRequestException()
 		blocks.push(block)
@@ -44,20 +47,21 @@ export class BlockedService {
 			this.friendService.deleteFriend(login, block)
 	}
 
-	deleteBlock(login: string, block: string) {
-		this.verificationUsers(login, block)
+	async deleteBlock(login: string, block: string) {
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
 
-		const us = this.tmp_db.users.find(users => users.login === login)
-		const blocks = us.blocked
+		const blocks = user.blocked
 		if (!(blocks.find(b => b === block)) || block === login)
 			throw new BadRequestException()
-		us.blocked = blocks.filter(b => b !== block);
+		user.blocked = blocks.filter(b => b !== block);
 	}
 
-	isBlocked(login: string, block: string) {
-		this.verificationUsers(login, block)
+	async isBlocked(login: string, block: string) {
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
 
-		const blocks = this.tmp_db.users.find(users => users.login === login).blocked
+		const blocks = user.blocked
 		if (blocks.find(b => b === block))
 			return true
 		return false

@@ -5,8 +5,9 @@ import axios from "axios";
 import {User} from "../user/user.interface";
 import {ItemsService} from "../items/items.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
-import {CreateUserDto} from "../user/create-user.dto";
+import {CreateUser, CreateUserDto} from "../user/create-user.dto";
 import {GameService} from "../game/game.service";
+import {UsersList} from "../user/users.entity";
 
 @Injectable()
 export class AuthService {
@@ -88,9 +89,13 @@ export class AuthService {
 		this.userService.connectSession.set(userData.login, access_token);
 		if (this.tmp_db.users.find(users => users.login === userData.login)) {
 			console.log("User already exist")
+			//2fa
 			this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}
+
+		await this.userService.initUser(userData)
+
 		this.tmp_db.users = [...this.tmp_db.users, userData];
 		this.userService.changeOnlineInDB({login: userData.login, online: true})
 		//console.log(this.userService.onlinePeople.has('tester'))

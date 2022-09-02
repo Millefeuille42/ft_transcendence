@@ -7,19 +7,19 @@ export class BlockedController {
 	constructor(private readonly blockedService: BlockedService) {}
 
 	@Get(':login')
-	blockedList(@Param('login') login: string) {
-		return this.blockedService.blockedList(login);
+	async blockedList(@Param('login') login: string) {
+		return await this.blockedService.blockedList(login);
 	}
 
 	@All(':login/:block')
-	isBlocked(@Param('login') login: string,
+	async isBlocked(@Param('login') login: string,
 			  @Param('block') block: string,
 			  @Req() req: Request) {
 		if (req.method === 'GET')
-			return this.blockedService.isBlocked(login, block);
+			return await this.blockedService.isBlocked(login, block);
 		if (req.method === 'POST')
-			return this.blockedService.addBlock(login, block);
+			return await this.blockedService.addBlock(login, block);
 		if (req.method === 'DELETE')
-			return this.blockedService.deleteBlock(login, block);
+			return await this.blockedService.deleteBlock(login, block);
 	}
 }

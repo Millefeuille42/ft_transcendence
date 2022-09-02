@@ -8,10 +8,12 @@ export class GameService {
 	constructor(private tmp_db: TmpDbService,
 				private userService: UserService) {}
 
-	verificationUsers(login: string, rival: string) {
-		if (!(this.tmp_db.users.find(user => user.login === login)))
+	async verificationUsers(login: string, rival: string) {
+		let user = await this.userService.getUser(login)
+		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
-		if (!(this.tmp_db.users.find(user => user.login === rival)))
+		user = await this.userService.getUser(rival)
+		if (!user)
 			throw new HttpException('Rival not found', HttpStatus.NOT_FOUND)
 		if (login === rival)
 			throw new HttpException('User can\'t be Rival', HttpStatus.BAD_REQUEST)
@@ -29,54 +31,54 @@ export class GameService {
 		return(stats);
 	}
 
-	getStats(login: string) {
-		const user = this.userService.getUser(login)
+	async getStats(login: string) {
+		const user = await this.userService.getUser(login)
 		return user.stats
 	}
 
-	getWins(login: string) {
-		const user = this.userService.getUser(login)
+	async getWins(login: string) {
+		const user = await this.userService.getUser(login)
 		return {wins: user.stats.wins}
 	}
 
-	getLooses(login: string) {
-		const user = this.userService.getUser(login)
+	async getLooses(login: string) {
+		const user = await this.userService.getUser(login)
 		return {looses: user.stats.looses}
 	}
 
-	getTotal(login: string) {
-		const user = this.userService.getUser(login)
+	async getTotal(login: string) {
+		const user = await this.userService.getUser(login)
 		return {total: user.stats.total}
 	}
 
-	getPoints(login: string) {
-		const user = this.userService.getUser(login)
+	async getPoints(login: string) {
+		const user = await this.userService.getUser(login)
 		return {points: user.stats.points}
 	}
 
-	getLastRival(login: string) {
-		const user = this.userService.getUser(login)
+	async getLastRival(login: string) {
+		const user = await this.userService.getUser(login)
 		return {lastRival: user.stats.lastRival}
 	}
 
-	getHistory(login: string) {
-		const user = this.userService.getUser(login)
+	async getHistory(login: string) {
+		const user = await this.userService.getUser(login)
 		return {history: user.stats.history}
 	}
 
-	fixPoints(login: string, points: number) {
-		const user = this.userService.getUser(login)
+	async fixPoints(login: string, points: number) {
+		const user = await this.userService.getUser(login)
 		if (points < 0)
 			throw new HttpException('User can\'t have less of 0 point', HttpStatus.BAD_REQUEST)
 		user.stats.points = points
 		return {points: user.stats.points}
 	}
 
-	addHistory(login: string, rival: string,
+	async addHistory(login: string, rival: string,
 			   points: number, rivalPoints: number,
 			   mode: string) {
-		this.verificationUsers(login, rival)
-		const user = this.userService.getUser(login)
+		await this.verificationUsers(login, rival)
+		const user = await this.userService.getUser(login)
 		const game = {
 			rival: rival,
 			userPoints: points,
@@ -87,9 +89,9 @@ export class GameService {
 		return (this.addStats(login, points >= 5, rival))
 	}
 
-	addStats(login: string, result: boolean, rival: string) {
-		this.verificationUsers(login, rival)
-		let user = this.userService.getUser(login);
+	async addStats(login: string, result: boolean, rival: string) {
+		await this.verificationUsers(login, rival)
+		let user = await this.userService.getUser(login);
 		console.log(result)
 		if (result) {
 			user.stats.wins++
