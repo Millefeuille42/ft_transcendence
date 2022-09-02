@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="" height="100%">
+	<v-sheet class="" height="100%" rounded="xl">
 		<v-sheet class="text-h6 mb-4 pt-3" height="10%"> Online users </v-sheet>
 		<v-sheet v-if="loaded" height="80%" class="overflow-y-auto">
 			<v-list-item v-for="online in onlineList" :key="online.info.login" class="d-flex flex-row justify-space-between">
