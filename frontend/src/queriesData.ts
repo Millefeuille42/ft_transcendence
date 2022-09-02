@@ -30,6 +30,7 @@ export interface statsIn {
     looses: number,
     points: number,
     lastRival: string,
+    history: Array<match>
 }
 
 export interface formDataOut {
