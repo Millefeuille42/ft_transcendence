@@ -100,7 +100,7 @@ import LoginPage from "@/components/LoginPage.vue";
 				EventBus.$emit("routeTabChanged", tabId)
 		},
 		async queryUserData() {
-			const selfData: userDataIn = await getUserData(this.$cookies.get("Session"))
+			const selfData: userDataIn = await getUserData(this.$cookies.get("Session") as string)
 				.catch(() => {
 					this.$cookies.remove("Session")
 					window.location.reload()

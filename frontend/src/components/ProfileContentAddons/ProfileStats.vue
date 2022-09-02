@@ -24,9 +24,9 @@
 				</v-sheet>
 			</TransparentCard>
 		</v-sheet>
-		<v-sheet :width="hasMatch ? '50%' : '45%'" height="100%" color="transparent">
+		<v-sheet :width="hasMatch ? '50%' : '45%'" height="100%" color="transparent" elevation="4" rounded="xl">
 			<v-img height="100%" v-if="!hasMatch" src="/gifPanda.gif" style="border-radius: 20px"/>
-			<ProfileCardMatchHistoryDialog v-else height="100%" :stats="stats" :user="user"/>
+			<ProfileCardMatchHistoryDialog :max_height="'98%'" v-else height="100%" :stats="stats" :user="user"/>
 		</v-sheet>
 	</v-sheet>
 </template>

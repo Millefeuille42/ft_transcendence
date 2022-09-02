@@ -105,16 +105,15 @@ import {EventBus} from "@/main";
 				})
 		},
 		async loadFriendData(friend: string) {
-			let that = this
 			getUserData(friend)
 				.then((friendData: userDataIn) => {
 					friendData.status = "not loaded"
 					if (!friendData.banner)
 						friendData.banner = "https://picsum.photos/1920/1080?random";
-					that.$data.friends.push(friendData)
-					that.loadFriendStatus(friend)
+					this.$data.friends.push(friendData)
+					this.loadFriendStatus(friend)
 				}).catch(() => {
-					that.showSnack("Failed to get " + friend + " data", "red")
+					this.showSnack("Failed to get " + friend + " data", "red")
 				})
 		},
 		async loadFriends(): Promise<friendListIn> {
@@ -144,7 +143,7 @@ import {EventBus} from "@/main";
 		if (!this.$data.hasFriends)
 			return
 		for (let friend in friendList.listOfFriends) {
-			this.loadFriendData(friendList.listOfFriends[friend])
+			this.loadFriendData(friendList.listOfFriends[friend]).then()
 		}
 	},
 

@@ -6,7 +6,7 @@
 			<v-sheet width="100%" class="d-flex flex-column overflow-y-auto" color="transparent">
 				<template v-for="n in 10">
 					<v-sheet v-for="match in stats.history" :key="match.key + n"
-							 width="100%" height="100%" class="d-flex flex-row justify-space-around mt-2 mb-2 text-h6">
+							 width="100%" height="100%" class="d-flex flex-row justify-space-around mt-2 mb-2 text-h6 text-truncate">
 						<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"
 								 class="d-flex flex-row" :elevation="userVictory(match) ? 10 : 2">
 							<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'"
