@@ -67,8 +67,10 @@ import {EventBus} from "@/main";
 			this.$data.snackShow = true
 		},
 		handleUserClick() {
-			if (this.$data.selectedUser.banner === "") {
-				this.$data.selectedUser.banner = "https://picsum.photos/1920/1080?random";
+			console.log(this.$data.selectedUser)
+			console.log(this.$data.selectedUser.info.banner)
+			if (this.$data.selectedUser.info.banner === "") {
+				this.$data.selectedUser.info.banner = "https://picsum.photos/1920/1080?random";
 			}
 			this.$data.hasUserSelected = true
 		},

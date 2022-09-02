@@ -1,6 +1,7 @@
 <template>
 	<v-container fill-height class="d-flex flex-column pa-6">
-			<v-sheet color="black" height="67%" width="100%" rounded="t-xl">
+			<v-sheet color="white" height="67%" width="100%" rounded="t-xl" class="d-flex flex-row justify-center">
+				<div id="game" style="width: 98%; height: 98%; margin-top: auto; margin-bottom: auto"></div>
 			</v-sheet>
 		<v-sheet height="30%" width="100%" class="d-flex mt-auto flex-row">
 			<v-sheet height="100%" width="67%" elevation="6" class="mt-auto" rounded="bl-xl">
@@ -20,6 +21,8 @@ import ProfileCardMatchHistoryDialog
 	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
 import {getUserStats} from "@/queries";
 import {statsIn} from "@/queriesData";
+import P5 from "p5";
+import {sketch} from "@/game/gameMain";
 
 @Component({
 	components: {ProfileCardMatchHistoryDialog, HomeContentOnlineList},
@@ -27,6 +30,7 @@ import {statsIn} from "@/queriesData";
 		user: Object
 	},
 	data: () => ({
+		canvas: Object,
 		stats: {},
 		loaded: false,
 	}),
@@ -41,7 +45,13 @@ import {statsIn} from "@/queriesData";
 		}
 	},
 	mounted() {
+		this.$data.canvas = new P5(sketch);
 		this.loadStats()
+	},
+	created() {
+	},
+	destroyed() {
+		delete this.$data.canvas
 	}
 })
 export default class HomeContent extends Vue {
