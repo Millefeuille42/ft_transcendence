@@ -26,48 +26,48 @@ export class BlockedService {
 	}
 
 	async blockedList(login: string) {
-		const user = await this.userService.getUser(login)
-
-		const blocks = user.blocked
-		if (blocks.length === 0)
-			return { thereIsBlocked: false}
-		return {
-			thereIsBlocked: true,
-			listOfBlocked: blocks,
-		};
+//		const user = await this.userService.getUser(login)
+//
+//		const blocks = user.blocked
+//		if (blocks.length === 0)
+//			return { thereIsBlocked: false}
+//		return {
+//			thereIsBlocked: true,
+//			listOfBlocked: blocks,
+//		};
 	}
 
 	async addBlock(login: string, block: string) {
-		await this.verificationUsers(login, block)
-		const user = await this.userService.getUser(login)
-
-		const blocks = user.blocked
-		if (blocks.find(b => b === block) || block === login)
-			throw new BadRequestException()
-		blocks.push(block)
-		if (await this.friendService.isFriend(block, login))
-			await this.friendService.deleteFriend(block, login);
-		if (await this.friendService.isFriend(login, block))
-			await this.friendService.deleteFriend(login, block)
+//		await this.verificationUsers(login, block)
+//		const user = await this.userService.getUser(login)
+//
+//		const blocks = user.blocked
+//		if (blocks.find(b => b === block) || block === login)
+//			throw new BadRequestException()
+//		blocks.push(block)
+//		if (await this.friendService.isFriend(block, login))
+//			await this.friendService.deleteFriend(block, login);
+//		if (await this.friendService.isFriend(login, block))
+//			await this.friendService.deleteFriend(login, block)
 	}
 
 	async deleteBlock(login: string, block: string) {
-		await this.verificationUsers(login, block)
-		const user = await this.userService.getUser(login)
-
-		const blocks = user.blocked
-		if (!(blocks.find(b => b === block)) || block === login)
-			throw new BadRequestException()
-		user.blocked = blocks.filter(b => b !== block);
+//		await this.verificationUsers(login, block)
+//		const user = await this.userService.getUser(login)
+//
+//		const blocks = user.blocked
+//		if (!(blocks.find(b => b === block)) || block === login)
+//			throw new BadRequestException()
+//		user.blocked = blocks.filter(b => b !== block);
 	}
 
 	async isBlocked(login: string, block: string) {
-		await this.verificationUsers(login, block)
-		const user = await this.userService.getUser(login)
-
-		const blocks = user.blocked
-		if (blocks.find(b => b === block))
-			return true
-		return false
+//		await this.verificationUsers(login, block)
+//		const user = await this.userService.getUser(login)
+//
+//		const blocks = user.blocked
+//		if (blocks.find(b => b === block))
+//			return true
+//		return false
 	}
 }

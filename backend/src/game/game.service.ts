@@ -42,45 +42,45 @@ export class GameService {
 
 	async getStats(login: string) {
 		const user = await this.userService.getUser(login)
-		return user.stats
+//		return user.stats
 	}
 
 	async getWins(login: string) {
 		const user = await this.userService.getUser(login)
-		return {wins: user.stats.wins}
+//		return {wins: user.stats.wins}
 	}
 
 	async getLooses(login: string) {
 		const user = await this.userService.getUser(login)
-		return {looses: user.stats.looses}
+//		return {looses: user.stats.looses}
 	}
 
 	async getTotal(login: string) {
 		const user = await this.userService.getUser(login)
-		return {total: user.stats.total}
+//		return {total: user.stats.total}
 	}
 
 	async getPoints(login: string) {
 		const user = await this.userService.getUser(login)
-		return {points: user.stats.points}
+//		return {points: user.stats.points}
 	}
 
 	async getLastRival(login: string) {
 		const user = await this.userService.getUser(login)
-		return {lastRival: user.stats.lastRival}
+//		return {lastRival: user.stats.lastRival}
 	}
 
 	async getHistory(login: string) {
 		const user = await this.userService.getUser(login)
-		return {history: user.stats.history}
+//		return {history: user.stats.history}
 	}
 
 	async fixPoints(login: string, points: number) {
 		const user = await this.userService.getUser(login)
 		if (points < 0)
 			throw new HttpException('User can\'t have less of 0 point', HttpStatus.BAD_REQUEST)
-		user.stats.points = points
-		return {points: user.stats.points}
+//		user.stats.points = points
+//		return {points: user.stats.points}
 	}
 
 	async addHistory(login: string, rival: string,
@@ -99,7 +99,7 @@ export class GameService {
 		console.log(user)
 		//let result: history[] = user.stats.history
 		//result = [...result, game]
-		user.stats.history.push(game)
+//		user.stats.history.push(game)
 		return (this.addStats(login, points >= 5, rival))
 	}
 
@@ -108,17 +108,17 @@ export class GameService {
 		let user = await this.userService.getUser(login);
 		console.log(result)
 		if (result) {
-			user.stats.wins++
-			user.stats.points += 2
+//			user.stats.wins++
+//			user.stats.points += 2
 		}
 		else if (!result) {
-			user.stats.looses++
-			user.stats.points++
+//			user.stats.looses++
+//			user.stats.points++
 		}
 		else
 			throw new HttpException('Result must be a win or a loose', HttpStatus.BAD_REQUEST)
-		user.stats.total++
-		user.stats.lastRival = rival
-		return user.stats
+//		user.stats.total++
+//		user.stats.lastRival = rival
+//		return user.stats
 	}
 }

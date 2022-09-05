@@ -11,7 +11,7 @@ import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {OnlineDto} from "./online.dto";
 import {InjectRepository} from "@nestjs/typeorm";
-import {UsersList} from "./users.entity";
+import {UsersList} from "../entities/users.entity";
 import {Repository} from "typeorm";
 import {FriendsService} from "../friends/friends.service";
 import {ItemsService} from "../items/items.service";
@@ -44,7 +44,7 @@ export class UserService {
 	}
 
 	async initUser(newUser: CreateUser) {
-		const user: EUser = {
+		const user = {
 			login: newUser.login,
 			email: newUser.email,
 			username: newUser.login,
@@ -52,13 +52,13 @@ export class UserService {
 			avatar: newUser.avatar,
 			banner: "",
 			online: true,
-			friends: new Array<string>(),
-			blocked: new Array<string>(),
-			inventory: await this.itemService.initEquipement(newUser.login),
-			equipped: await this.itemService.initEquipped(newUser.login),
-			stats: await this.gameService.initStats(newUser.login),
 		}
-		await this.usersListRepository.save({login: newUser.login, user: user})
+		const otherLogin = await this.isUsernameExist(user.login)
+		if (otherLogin.userExist) {
+			const otherUser: CreateUserDto = {username: otherLogin.login}
+			await this.changeUsername(otherLogin.login, otherUser)
+		}
+		await this.usersListRepository.save(user)
 	}
 
 
@@ -68,8 +68,7 @@ export class UserService {
 	}
 
 	async getUser(login: string) {
-		const user: UsersList = await this.verificationUser(login)
-		return user.user ;
+		return await this.verificationUser(login) ;
 	}
 
 	async getName(login: string) {
@@ -123,14 +122,20 @@ export class UserService {
 
 	async changeAvatar(login: string, change: User) {
 		const user = await this.getUser(login)
-		user.avatar = change.avatar;
+		const changeUser = await this.usersListRepository.preload({
+			id: user.id,
+			avatar: change.avatar
+		})
+		await this.usersListRepository.save(changeUser);
 	}
 
 	async changeBanner(login: string, change: User) {
 		const user = await this.getUser(login)
-		user.banner = change.banner;
-	//	console.log(change.banner)
-	//	console.log(change)
+		const changeUser = await this.usersListRepository.preload({
+			id: user.id,
+			banner: change.banner
+		})
+		await this.usersListRepository.save(changeUser);
 	}
 
 
@@ -138,19 +143,21 @@ export class UserService {
 		const user = await this.getUser(login)
 		if (change.username.length > 12)
 			throw new BadRequestException()
-		//const loginOtherUser = this.isUsernameExist(change.username)
-		//if (loginOtherUser.userExist && user.username !== change.username) {
-		//	if (change.username === login) {
-		//		let otherUser = this.tmp_db.users.find(user => user.login === loginOtherUser.login)
-		//		const newChange: CreateUserDto = {username : otherUser.login}
-		//		await this.changeUsername(otherUser.login, newChange)
-		//	}
-		//	else
-		//		throw new ConflictException()
-		//}
-		//await this.usersListRepository.save({id: user.id})
-		user.username = change.username;
-		//console.log(change)
+		const loginOtherUser = await this.isUsernameExist(change.username)
+		if (loginOtherUser.userExist && user.username !== change.username) {
+			if (change.username === login) {
+				let otherUser = await this.usersListRepository.findOneBy({login: loginOtherUser.login})
+				const newChange: CreateUserDto = {username : otherUser.login}
+				await this.changeUsername(otherUser.login, newChange)
+			}
+			else
+				throw new ConflictException()
+		}
+		const changeUser = await this.usersListRepository.preload({
+			id: user.id,
+			username: change.username
+		})
+		await this.usersListRepository.save(changeUser);
 	}
 
 	changeOnlineInDB(online: OnlineDto) {
@@ -163,52 +170,55 @@ export class UserService {
 
 	async changeOnline(login: string, change: User) {
 		const user = await this.getUser(login)
-		user.online = change.online;
 		this.changeOnlineInDB({login: login, online: change.online})
-		//console.log(change);
+		const changeUser = await this.usersListRepository.preload({
+			id: user.id,
+			online: change.online
+		})
+		await this.usersListRepository.save(changeUser);
 	}
 
 	//TODO Chercher dans la db
-	//isUsernameExist(username: string): {userExist: boolean, login?: string} {
-	//	const user = this.tmp_db.users.find(users => users.username === username)
-	//	if (!user)
-	//		return {userExist: false}
-	//	return {
-	//		userExist: true,
-	//		login: user.login
-	//	}
-	//}
+	async isUsernameExist(username: string): Promise<{userExist: boolean, login?: string}> {
+		const user = await this.usersListRepository.findOneBy({username: username})
+		if (!user)
+			return {userExist: false}
+		return {
+			userExist: true,
+			login: user.login
+		}
+	}
 
 	async isBlocked(login: string, other: string) {
-		let user = await this.getUser(other)
-		if (user.blocked.find(u => u === login))
-			return true
-		user = await this.getUser(login)
-		if (user.blocked.find(u => u === other))
-			return true
-		return false
+		//let user = await this.getUser(other)
+		//if (user.blocked.find(u => u === login))
+		//	return true
+		//user = await this.getUser(login)
+		//if (user.blocked.find(u => u === other))
+		//	return true
+		//return false
 	}
 
 	async isFriend(login: string, other: string) {
-		const user = await this.getUser(login)
-		if (user.friends.find(f => f === other))
-			return true
-		return false
+		//const user = await this.getUser(login)
+		//if (user.friends.find(f => f === other))
+		//	return true
+		//return false
 	}
 
 	async listOfOnlinePeople(login: string) {
-		await this.verificationUser(login)
-		let users: {
-			info: UserGlobal;
-			friend: boolean
-		}[] = []
-		for (const u of this.tmp_db.onlinePeople) {
-			if (u.login !== login && u.online === true && (!await this.isBlocked(login, u.login))) {
-				const {username, avatar, login: ulogin, banner, stats} = await this.getUser(u.login)
-				const friend = await this.isFriend(login, u.login)
-				users = [...users, {info: {login: ulogin, username, avatar, banner, stats }, friend}]
-			}
-		}
-		return (users);
+		//await this.verificationUser(login)
+		//let users: {
+		//	info: UserGlobal;
+		//	friend: boolean
+		//}[] = []
+		//for (const u of this.tmp_db.onlinePeople) {
+		//	if (u.login !== login && u.online === true && (!await this.isBlocked(login, u.login))) {
+		//		const {username, avatar, login: ulogin, banner} = await this.getUser(u.login)
+		//		const friend = await this.isFriend(login, u.login)
+		//		users = [...users, {info: {login: ulogin, username, avatar, banner, stats }, friend}]
+		//	}
+		//}
+		//return (users);
 	}
 }

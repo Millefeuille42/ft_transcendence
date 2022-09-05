@@ -89,8 +89,8 @@ export class FriendsController {
 	@Get(':login/:friend/online')
 	async isFriendOnline(@Param('login') login: string, @Param('friend') friend: string) {
 		await this.friendsService.verificationUsers(login, friend)
-		if (await this.friendsService.isFriend(login, friend) == false)
-			throw new BadRequestException()
+	//	if (await this.friendsService.isFriend(login, friend) == false)
+	//		throw new BadRequestException()
 		return (await this.userService.isOnline(friend));
 	}
 }

@@ -7,7 +7,7 @@ import {ItemsService} from "../items/items.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUser, CreateUserDto} from "../user/create-user.dto";
 import {GameService} from "../game/game.service";
-import {UsersList} from "../user/users.entity";
+import {UsersList} from "../entities/users.entity";
 
 @Injectable()
 export class AuthService {
@@ -55,18 +55,18 @@ export class AuthService {
 				"content-type": "application/json",
 			},
 		})
-			.then(function (res) {
+			.then(async function (res) {
 				userData = {
 					login: res.data.login,
 					email: res.data.email,
 					name: res.data.usual_full_name,
 					avatar: res.data.image_url,
 				}
-				//const otherLogin = that.userService.isUsernameExist(userData.login)
-				//if (otherLogin.userExist) {
-				//	const otherUser: CreateUserDto = {username: otherLogin.login}
-				//	that.userService.changeUsername(otherLogin.login, otherUser)
-				//}
+				const otherLogin = await that.userService.isUsernameExist(userData.login)
+				if (otherLogin.userExist) {
+					const otherUser: CreateUserDto = {username: otherLogin.login}
+					await that.userService.changeUsername(otherLogin.login, otherUser)
+				}
 				return ('');
 			})
 			.catch(async (err) => {

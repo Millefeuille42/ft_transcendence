@@ -3,8 +3,8 @@ import {UserService} from "../user/user.service";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {BlockedService} from "../blocked/blocked.service";
 import {InjectRepository} from "@nestjs/typeorm";
-import {EFriend} from "../user/user.interface";
 import {Repository} from "typeorm";
+import {RelationsEntity} from "../entities/relations.entity";
 
 @Injectable()
 export class FriendsService {
@@ -12,7 +12,7 @@ export class FriendsService {
 				private readonly tmp_db: TmpDbService,
 				@Inject(forwardRef(() => BlockedService))
 				private blockedService: BlockedService,
-				@InjectRepository(EFriend) private friendListRepository: Repository<EFriend>) {}
+				@InjectRepository(RelationsEntity) private relationsRepository: Repository<RelationsEntity>) {}
 
 	async verificationUsers(login: string, friend?: string) {
 		let user = await this.userService.getUser(login)
@@ -29,12 +29,21 @@ export class FriendsService {
 		await this.verificationUsers(login)
 		const user = await this.userService.getUser(login)
 
-		const friends = user.friends;
+		const friends = await this.relationsRepository.find({
+			where: {
+				id: user.id,
+				friend: true
+			}
+		})
 		if (friends.length === 0)
 			return { thereIsFriend: false}
+		let listOfFriends = new Array<String>()
+		friends.forEach(f => {
+			listOfFriends.push(f.otherLogin)
+		})
 		return {
 			thereIsFriend: true,
-			listOfFriends: friends,
+			listOfFriends: listOfFriends,
 		};
 	}
 
@@ -42,31 +51,45 @@ export class FriendsService {
 		await this.verificationUsers(login, friend)
 		const user = await this.userService.getUser(login)
 
-		const friends = user.friends
-		if (friends.find(f => f === friend) || friend === login)
+		if (friend === login)
 			throw new BadRequestException()
-		if (await this.blockedService.isBlocked(friend, login))
+		let relation
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: friend})
+		if (alreadyRelation && alreadyRelation.friend === true)
+			throw new HttpException("Already friends", HttpStatus.FORBIDDEN)
+		if (alreadyRelation && alreadyRelation.blocked === true)
 			throw new HttpException("Friend blocked User", HttpStatus.FORBIDDEN)
-		friends.push(friend);
+		if (alreadyRelation)
+			relation = await this.relationsRepository.preload({id: user.id, otherLogin: friend, friend: true})
+		else
+			relation = {
+				id: user.id,
+				otherLogin: friend,
+				friend: true,
+				blocked: false
+			}
+		return await this.relationsRepository.save(relation)
 	}
 
 	async deleteFriend(login: string, friend: string) {
 		await this.verificationUsers(login, friend)
 		const user = await this.userService.getUser(login)
 
-		let friends = user.friends;
-		if (!(friends.find(f => f === friend)) || friend === login)
+		if (friend === login)
+			throw new BadRequestException("Login and friend are the same")
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: friend})
+		if (!alreadyRelation || (alreadyRelation && alreadyRelation.friend === false))
 			throw new BadRequestException()
-		user.friends = friends.filter(f => f !== friend)
-		//await this.friendListRepository.delete({login: login, loginFriend: friend})
+		let relation = await this.relationsRepository.preload({id: user.id, otherLogin: friend, friend: false})
+		return await this.relationsRepository.save(relation)
 	}
 
 	async isFriend(login: string, friend: string) {
 		await this.verificationUsers(login, friend)
 		const user = await this.userService.getUser(login)
 
-		const friends = user.friends
-		if (friends.find(f => f === friend))
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: friend})
+		if (alreadyRelation && alreadyRelation.friend === true)
 			return true
 		return false
 	}
