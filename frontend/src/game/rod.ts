@@ -10,7 +10,6 @@ export class rod {
 
 	constructor(x: number, y: number, p5: P5) {
 		this.position = new myVector(x, y)
-		console.log(p5.height)
 		this.height = p5.height * 0.15
 		this.width = p5.width * 0.017
 	}

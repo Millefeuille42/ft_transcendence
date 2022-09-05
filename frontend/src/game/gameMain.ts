@@ -1,111 +1,137 @@
 import P5 from "p5"
-import Font from "p5"
-import {rod} from "./rod"
-import {myVector} from "@/game/vector";
-import {ballClass} from "@/game/ball";
+import {LocalGame} from "@/game/localGame";
+
+class button {
+	selected: boolean = false
+	x: number
+	y: number
+	w: number
+	h: number
+	text_y: number
+	text: string
+	act: LocalGame
+
+	constructor(text: string, y: number, act: LocalGame, p5: P5) {
+		this.w = p5.width / 4
+		this.h = p5.height / 15
+
+		this.x = p5.width / 2 - this.w / 2
+		this.y = y - this.h / 2
+
+		this.text_y = y - this.h / 4
+
+		this.text = text
+
+		this.act = act
+	}
+
+	draw(p5: P5) {
+		if (!this.selected) {
+			p5.fill("black")
+			p5.stroke("white")
+		} else {
+			p5.fill("white")
+			p5.strokeWeight(0)
+			p5.stroke("black")
+		}
+		p5.strokeWeight(5)
+		p5.rect(this.x, this.y, this.w, this.h)
+
+		if (!this.selected) {
+			p5.fill("white")
+			p5.strokeWeight(0)
+			p5.stroke("black")
+		} else {
+			p5.fill("black")
+			p5.stroke("white")
+		}
+		p5.textSize(p5.width / 35)
+		p5.text(this.text, this.x, this.text_y, this.w, this.h)
+	}
+}
 
 export const sketch = (p5: P5) => {
+
 	let c_width = 200
 	let c_height = 200
-
-	let playerOne: rod
-	let oneScore: number = 0
-	let twoScore: number = 0
-	let playerTwo: rod
-
-	let ball: ballClass
-
-	let f: P5.Font
-
-	function autoResize() {
-		let parent = document.getElementById("game")
-		if (parent !== null) {
-			if (c_width !== parent.clientWidth && c_height !== parent.clientHeight) {
-				// TODO put player and ball to new position
-				playerOne = new rod(playerOne.position.x, playerOne.position.y, p5)
-				playerTwo = new rod(playerTwo.position.x, playerTwo.position.y, p5)
-
-
-				c_width = parent.clientWidth
-				c_height = parent.clientHeight
-				p5.resizeCanvas(c_width, c_height, true)
-			}
-		}
-	}
-
-	function drawScene() {
-		p5.background("black")
-		playerOne.draw(p5)
-		playerTwo.draw(p5)
-		ball.draw(p5)
-
-		p5.text(oneScore, p5.width / 3, 100)
-		p5.text(twoScore, (p5.width /3) * 2, 100)
-	}
+	let local: LocalGame = new LocalGame()
+	let loaded = false
+	let buttons: button[] = []
+	let buttonIndex: number = 0
 
 	p5.setup = () => {
 		const parent = document.getElementById("game")
 		if (parent !== null) {
-			console.log(parent)
 			c_width = parent.clientWidth
 			c_height = parent.clientHeight
 		}
 
 		const canvas = p5.createCanvas(c_width, c_height)
 		canvas.parent("game")
-
-		playerOne = new rod(p5.width * 0.01, p5.height * 0.069, p5)
-		playerTwo = new rod(p5.width * 0.99 - p5.width * 0.017, p5.height * 0.069, p5)
-		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
-
-		f = p5.loadFont("Arial")
-
 		p5.frameRate(60)
-		drawScene()
+		p5.background("black")
+		p5.textAlign("center")
+
+		buttons.push(new button("Local", p5.height / 24 * 10, local, p5))
+		buttons.push(new button("Multiplayer", p5.height / 24 * 13, new LocalGame(), p5))
+		buttons.push(new button("Spectate", p5.height / 24 * 16, new LocalGame(), p5))
+
+		buttons[buttonIndex].selected = true
 	}
 
 	p5.draw = () => {
-		autoResize()
-		let goal = ball.move(playerOne, playerTwo, p5)
-		drawScene()
-		if (goal) {
-			if (ball.direction.x > 0) {
-				oneScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
-				if (ball.direction.x < 0) {
-					ball.direction.x *= -1
-				}
-			} else {
-				twoScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
-				if (ball.direction.x > 0) {
-					ball.direction.x *= -1
-				}
+		if (!loaded) {
+			p5.background("black")
+
+			p5.fill("white")
+			p5.stroke("black")
+			p5.textSize(p5.width / 20)
+			p5.text("Pong De Fou", 0, p5.height / 10, p5.width)
+
+			for (let bi in buttons) {
+				buttons[bi].draw(p5)
 			}
-			drawScene()
+		} else {
+			if (local.gameLoop(p5)) {
+				loaded = false
+			}
 		}
 	}
 
 	p5.keyPressed = () => {
-		if (p5.key === "w") {
-			playerOne.goUp = true
-		} else if (p5.key === "s") {
-			playerOne.goDown = true
-		} else if (p5.key === "ArrowUp") {
-			playerTwo.goUp = true
-		} else if (p5.key === "ArrowDown") {
-			playerTwo.goDown = true
+		if (loaded) {
+			local.setKeyPressed(p5)
+			return
 		}
+
+		if (p5.key === "Enter") {
+			if (loaded)
+				return
+			buttons[buttonIndex].act.loadGame(p5)
+			loaded = true
+			return
+		}
+
+		buttons[buttonIndex].selected = false
+		if (p5.key === "ArrowUp") {
+			buttonIndex--
+			if (buttonIndex === -1)
+				buttonIndex = buttons.length - 1
+		} else if (p5.key === "ArrowDown") {
+			buttonIndex = (buttonIndex + 1) % buttons.length
+		}
+		buttons[buttonIndex].selected = true
 	}
 
 	p5.keyReleased = () => {
-		if (p5.key === "w") {
-			playerOne.goUp = false
-		} else if (p5.key === "s") {
-			playerOne.goDown = false
-		} else if (p5.key === "ArrowUp") {
-			playerTwo.goUp = false
-		} else if (p5.key === "ArrowDown") {
-			playerTwo.goDown = false
-		}	}
+		if (loaded)
+			local.setKeyReleased(p5)
+	}
 }
+
+//if (!loaded) {
+//	local.loadGame(p5)
+//	loaded = true
+//	return
+//}
+//local.gameLoop(p5)

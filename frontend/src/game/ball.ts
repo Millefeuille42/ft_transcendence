@@ -11,6 +11,9 @@ export class ballClass {
 		this.position = new myVector(x, y)
 		this.direction = new myVector(dirX, dirY)
 		this.direction.rotate(p5.random(-30, 30))
+		if (p5.random(0, 2) > 1) {
+			this.direction.y *= -1
+		}
 		this.diametre = p5.width * 0.015
 	}
 
@@ -34,7 +37,6 @@ export class ballClass {
 
 	move(one: rod, two:rod, p5: P5): boolean {
 		let goal = false
-		this.position.translate(this.direction)
 
 		if (this.position.x >= p5.width - this.diametre || this.position.x <= this.diametre) {
 			this.bounce(true)
@@ -46,6 +48,7 @@ export class ballClass {
 		this.checkCollisionWithRod(one, true)
 		this.checkCollisionWithRod(two, false)
 
+		this.position.translate(this.direction)
 		return goal
 	}
 
