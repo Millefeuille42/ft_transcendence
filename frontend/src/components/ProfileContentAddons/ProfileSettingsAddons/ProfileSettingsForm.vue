@@ -1,35 +1,33 @@
 <template>
-	<v-form height="100%" width="100%" v-model="valid" lazy-validation ref="form">
-		<v-row>
-			<v-col cols="12">
-				<v-text-field
-					v-model=formUsername
-					:rules=usernameRules
-					:counter=12
-					label="Username"
-					required
-				></v-text-field>
-			</v-col>
-			<v-col cols="12">
-				<v-text-field
-					v-model="formProfilePic"
-					prepend-icon="mdi-camera"
-					label="Profile pic"
-				></v-text-field>
-			</v-col>
-			<v-col cols="12">
-				<v-text-field
-					v-model="formBannerPic"
-					accept="image/png, image/jpeg"
-					prepend-icon="mdi-image-area"
-					label="Banner pic"
-				></v-text-field>
-			</v-col>
-			<v-col cols="12">
-				<v-btn  class="mr-4" @click="formCheck"
-				>submit</v-btn>
-			</v-col>
-		</v-row>
+	<v-form width="100%" class="d-flex flex-column justify-space-between"
+			style="height: 70%"
+			v-model="valid" lazy-validation ref="form">
+		<v-text-field
+			class="mr-auto ml-auto"
+			:style="'width: ' + ($vuetify.breakpoint.mobile ? '80%' : '30%') + ';'"
+			v-model=formUsername
+			:rules=usernameRules
+			:counter=12
+			label="Username"
+			required
+		></v-text-field>
+		<v-text-field
+			class="mr-auto ml-auto"
+			:style="'width: ' + ($vuetify.breakpoint.mobile ? '100%' : '70%' )+ ';'"
+			v-model="formProfilePic"
+			prepend-icon="mdi-camera"
+			label="Profile pic"
+		></v-text-field>
+		<v-text-field
+			class="mr-auto ml-auto"
+			:style="'width: ' + ($vuetify.breakpoint.mobile ? '100%' : '70%') + ';'"
+			v-model="formBannerPic"
+			accept="image/png, image/jpeg"
+			prepend-icon="mdi-image-area"
+			label="Banner pic"
+		></v-text-field>
+		<v-btn class="mr-auto ml-auto" width="10%" @click="formCheck"
+		>submit</v-btn>
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-form>
 </template>

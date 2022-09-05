@@ -2,7 +2,8 @@
 	<v-sheet style="width: 100%; height: 100%" class="d-flex flex-column align-items" color="">
 		<SkeletonProfileFriends v-if="!loaded"></SkeletonProfileFriends>
 		<v-sheet width="100%" height="85%" class="d-flex justify-space-between mb-auto">
-			<v-sheet width="33%" height="100%" class="overflow-y-auto" v-if="loaded && hasFriends">
+			<v-sheet :width="$vuetify.breakpoint.mobile ? '100%' : '33%'"
+					 height="100%" class="overflow-y-auto" v-if="loaded && hasFriends">
 				<v-list>
 					<template v-for="friend in friends">
 							<v-list-item :key="friend.login" class="mr-5 pl-0 ml-2">
@@ -26,7 +27,7 @@
 					</template>
 				</v-list>
 			</v-sheet>
-			<v-sheet width="63%" rounded="xl" height="100%">
+			<v-sheet v-if="!$vuetify.breakpoint.mobile" width="63%" rounded="xl" height="100%">
 				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%" mWidth="100%"/>
 				<v-img height="100%" width="80%" v-else-if="loaded && hasFriends" src="/giphy.gif" style="border-radius: 20px"/>
 			</v-sheet>

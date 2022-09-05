@@ -1,12 +1,17 @@
 <template>
-	<v-card height="100%" elevation="0" :rounded="is_rounded ? 'xl' : 'false'" max-height="40vh">
+	<v-card height="100%" elevation="0" :rounded="is_rounded ? 'xl' : 'false'"
+			class="overflow-hidden"
+			max-height="40vh">
 		<v-card-title>{{  user.username + "'s match history" }}</v-card-title>
 		<v-divider/>
 		<v-card-text v-if="hasHistory" :style="'max-height: ' + max_height + ';'" class="overflow-y-auto">
 			<v-sheet width="100%" class="d-flex flex-column overflow-y-auto" color="transparent">
 				<template v-for="n in 10">
 					<v-sheet v-for="match in stats.history" :key="match.key + n"
-							 width="100%" height="100%" class="d-flex flex-row justify-space-around mt-2 mb-2 text-h6 text-truncate">
+							 width="100%" height="100%"
+							 :class="'d-flex flex-row justify-space-around mt-2 mb-2 text-truncate' +
+							 ($vuetify.breakpoint.mobile ? '' : 'text-h6')
+							">
 						<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"
 								 class="d-flex flex-row" :elevation="userVictory(match) ? 10 : 2">
 							<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'"
@@ -18,7 +23,9 @@
 								{{ match.userPoints}}
 							</v-sheet>
 						</v-sheet>
-						<v-sheet width="10%" height="100%" class="text-center text-h5 pa-2">
+						<v-sheet width="10%" height="100%"
+								 :class="'text-center pa-2' +
+								($vuetify.breakpoint.mobile ? '' : 'text-h5')">
 							VS
 						</v-sheet>
 						<v-sheet :color="!userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"

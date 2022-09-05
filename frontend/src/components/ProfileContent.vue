@@ -1,6 +1,8 @@
 <template>
 	<v-container fill-height class="d-flex flex-column align-center justify-center">
-		<ProfileCard :user=user v-if="loaded" height="30%" mWidth="90%"></ProfileCard>
+		<ProfileCard :user=user v-if="loaded"
+					 :height="$vuetify.breakpoint.mobile ? '20%' : '30%'"
+					 mWidth="90%"></ProfileCard>
 		<SkeletonProfileCard :user=user v-if="!loaded" height="30%"></SkeletonProfileCard>
 		<ProfileDataContainer class="mb-auto mt-8">
 			<component v-if="loaded && !reload" :is="tabs[bottomTab]" :user=user height="100%"></component>

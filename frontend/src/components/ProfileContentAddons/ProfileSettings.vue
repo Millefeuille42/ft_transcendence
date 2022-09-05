@@ -1,10 +1,34 @@
 <template>
-	<v-sheet class="d-flex flex-column justify-center" width="100%" height="90%">
+	<v-sheet class="d-flex flex-column justify-center" width="100%"
+			 :height="$vuetify.breakpoint.mobile ? '100%' : '90%'">
 		<ProfileSettingsForm :loaded="loaded" :user="user"/>
-		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around" width="70%">
-			<v-btn @click="showBlocked = true"> See blocked users </v-btn>
-			<v-btn @click="handleDisconnect"> Disconnect </v-btn>
-			<v-btn @click="sure = true" color="red"> Delete Account </v-btn>
+		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around"
+				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
+			<v-btn @click="showBlocked = true"
+				   :fab="$vuetify.breakpoint.mobile"
+			> {{ $vuetify.breakpoint.mobile ? '' : 'See blocked users' }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-account-cancel
+				</v-icon>
+			</v-btn>
+
+			<v-btn @click="handleDisconnect"
+				   :fab="$vuetify.breakpoint.mobile"
+
+			> {{ $vuetify.breakpoint.mobile ? '' : 'Disconnect' }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-account-off
+				</v-icon>
+			</v-btn>
+
+			<v-btn @click="sure = true" color="red"
+				   :fab="$vuetify.breakpoint.mobile"
+
+			> {{ $vuetify.breakpoint.mobile ? '' : 'Delete Account' }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-account-remove
+				</v-icon>
+			</v-btn>
 		</v-sheet>
 		<v-dialog v-model="showBlocked" width="20%" scrollable dark>
 				<ProfileSettingsBlockedList v-if="showBlocked" :user="user"/>

@@ -33,6 +33,7 @@ import {sketch} from "@/game/gameMain";
 		canvas: Object,
 		stats: {},
 		loaded: false,
+		game: false,
 	}),
 	methods: {
 		loadStats() {
@@ -45,13 +46,16 @@ import {sketch} from "@/game/gameMain";
 		}
 	},
 	mounted() {
-		this.$data.canvas = new P5(sketch);
 		this.loadStats()
-	},
-	created() {
+		setTimeout(() => {
+			this.$data.canvas = new P5(sketch);
+		}, 1000)
 	},
 	destroyed() {
 		delete this.$data.canvas
+	},
+	created() {
+		console.log("proute")
 	}
 })
 export default class HomeContent extends Vue {
