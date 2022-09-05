@@ -47,11 +47,11 @@ export class UserService {
 		const user: EUser = {
 			login: newUser.login,
 			email: newUser.email,
-			username: newUser.username,
+			username: newUser.login,
 			name: newUser.name,
 			avatar: newUser.avatar,
-			banner: newUser.banner,
-			online: newUser.online,
+			banner: "",
+			online: true,
 			friends: new Array<string>(),
 			blocked: new Array<string>(),
 			inventory: await this.itemService.initEquipement(newUser.login),
@@ -148,6 +148,7 @@ export class UserService {
 		//	else
 		//		throw new ConflictException()
 		//}
+		//await this.usersListRepository.save({id: user.id})
 		user.username = change.username;
 		//console.log(change)
 	}

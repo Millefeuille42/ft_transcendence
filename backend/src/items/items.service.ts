@@ -24,21 +24,27 @@ export class ItemsService {
 		return await this.listItems.findOneBy({id: num})
 	}
 
+	async removeItem(id: number) {
+		return await this.listItems.delete(id)
+	}
+
 	async getItemByRarity(rarity: number) {
+
 		let itemsRarity: ItemsInterface[]
 		let itemToAdd: ItemsInterface
 		if (rarity === 42) {
-			itemToAdd = this.tmp_db.listItems.find(items => items.id === 42)
+			itemToAdd = await this.listItems.findOneBy({category: 'rod', rarity: 42})
+			//itemToAdd = this.tmp_db.listItems.find(items => items.id === 42)
 			return (itemToAdd)
 		}
 		else if (rarity <= 50)
-			itemsRarity = this.tmp_db.listItems.filter(items => items.rarity === 1)
+			itemsRarity = await this.listItems.find({where: {rarity: 1}})
 		else if (rarity <= 90)
-			itemsRarity = this.tmp_db.listItems.filter(items => items.rarity === 2)
+			itemsRarity = await this.listItems.find({where: {rarity: 2}})
 		else if (rarity <= 98)
-			itemsRarity = this.tmp_db.listItems.filter(items => items.rarity === 3)
+			itemsRarity = await this.listItems.find({where: {rarity: 3}})
 		else if (rarity <= 100)
-			itemsRarity = this.tmp_db.listItems.filter(items => items.rarity === 4)
+			itemsRarity = await this.listItems.find({where: {rarity: 4}})
 		const item = Math.floor(Math.random() * itemsRarity.length)
 		console.log('index item : ' + item)
 		itemToAdd = itemsRarity[item]
@@ -57,7 +63,7 @@ export class ItemsService {
 		let itemToAdd: ItemsInterface = await this.getItemByRarity(rarity);
 		console.log(itemToAdd)
 
-		this.addItem(login, itemToAdd.category, itemToAdd.name);
+		await this.addItem(login, itemToAdd.category, itemToAdd.name);
 		return (itemToAdd)
 	}
 
@@ -119,9 +125,12 @@ export class ItemsService {
 	}
 
 	async verificationItemInCategory(category: string, item: string) {
-		if (!this.tmp_db.listItems.filter(items => items.category === category).
-		find(items => items.name === item))
+		if (!await this.listItems.findOneBy({category: category, name: item}))
 			throw new HttpException('Item not found', HttpStatus.NOT_FOUND)
+
+		//if (!this.tmp_db.listItems.filter(items => items.category === category).
+		//find(items => items.name === item))
+		//	throw new HttpException('Item not found', HttpStatus.NOT_FOUND)
 	}
 
 	//getICategory -> login + category
@@ -163,10 +172,11 @@ export class ItemsService {
  	async addItem(login: string, category: string, item: string) {
 		const user = await this.userService.getUser(login)
 		await this.verificationCategory(category)
-		await this.verificationItemInCategory(category, item)
+		//await this.verificationItemInCategory(category, item)
 
 		const inventory = user.inventory
-		const itemToAdd = this.tmp_db.listItems.filter(items => items.category === category).find(items => items.name === item)
+		const itemToAdd = await this.listItems.findOneBy({category: category, name: item})
+		//const itemToAdd = this.tmp_db.listItems.filter(items => items.category === category).find(items => items.name === item)
 		if (category === 'rod')
 			inventory.rod = [...inventory.rod, itemToAdd]
 		if (category === 'ball')

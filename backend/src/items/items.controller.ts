@@ -1,4 +1,4 @@
-import {All, Body, Controller, Get, Param, Post, Req} from '@nestjs/common';
+import {All, Body, Controller, Delete, Get, Param, Post, Req} from '@nestjs/common';
 import {Request} from 'express'
 import {ItemsService} from "./items.service";
 import {Items} from "./items.entity";
@@ -15,6 +15,11 @@ export class ItemsController {
 	@Post()
 	async create(@Body() item: Items) : Promise<Items> {
 		return await this.itemsService.createOneItem(item)
+	}
+
+	@Delete(':id')
+	async deleteItem(@Param('id') id: string) {
+		return await this.itemsService.removeItem(+id)
 	}
 
 	/**

@@ -58,17 +58,9 @@ export class AuthService {
 			.then(function (res) {
 				userData = {
 					login: res.data.login,
-					username: res.data.login,
 					email: res.data.email,
 					name: res.data.usual_full_name,
 					avatar: res.data.image_url,
-					banner: "",
-					online: true,
-					//friends: new Array<string>(),
-					//blocked: new Array<string>(),
-					//inventory: that.itemsService.initEquipement(),
-					//equipped: that.itemsService.initEquipped(),
-					//stats: that.gameService.initStats(),
 				}
 				//const otherLogin = that.userService.isUsernameExist(userData.login)
 				//if (otherLogin.userExist) {

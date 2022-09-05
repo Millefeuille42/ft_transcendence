@@ -1,6 +1,7 @@
 import {Column, Entity, PrimaryColumn} from "typeorm";
 
 export interface history {
+	login: string,
 	rival: string,
 	userPoints: number,
 	rivalPoints: number,

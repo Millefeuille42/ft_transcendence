@@ -1,7 +1,7 @@
 import {forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {UserService} from "../user/user.service";
-import {EHistory, EStats, stats} from "./stats.interface";
+import {EHistory, EStats, history, stats} from "./stats.interface";
 
 @Injectable()
 export class GameService {
@@ -28,15 +28,15 @@ export class GameService {
 			looses: 0,
 			points: 5,
 			lastRival: 'No one :(',
-			history: [] as EHistory[],
+			history: [{}] as EHistory[]
 		} as EStats
-		stats.history.push({
-			login: login,
-			rival: 'tester',
-			userPoints: 5,
-			rivalPoints: 2,
-			gameMode: 'normal',
-		} as EHistory)
+		//stats.history.push({
+		//	login: login,
+		//	rival: 'tester',
+		//	userPoints: 5,
+		//	rivalPoints: 2,
+		//	gameMode: 'normal',
+		//} as EHistory)
 		return(stats);
 	}
 
@@ -94,8 +94,12 @@ export class GameService {
 			userPoints: points,
 			rivalPoints: rivalPoints,
 			gameMode: mode,
-		}
-		user.stats.history = [game, ...user.stats.history]
+		} as EHistory
+		//user.stats.history = [game, ...user.stats.history]
+		console.log(user)
+		//let result: history[] = user.stats.history
+		//result = [...result, game]
+		user.stats.history.push(game)
 		return (this.addStats(login, points >= 5, rival))
 	}
 
