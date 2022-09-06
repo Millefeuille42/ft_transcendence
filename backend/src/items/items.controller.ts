@@ -95,8 +95,6 @@ export class ItemsController {
 			return (await this.itemsService.isItem(login, category, item))
 		if (req.method === 'POST')
 			return (await this.itemsService.addItem(login, await this.itemsService.getItemByNameAndCategory(item, category)))
-		if (req.method === 'DELETE')
-			return (await this.itemsService.deleteItem(login, category, item))
 	}
 
 	/**

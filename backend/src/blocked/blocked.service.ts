@@ -1,16 +1,14 @@
 import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {UserService} from "../user/user.service";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {FriendsService} from "../friends/friends.service";
 import {InjectRepository} from "@nestjs/typeorm";
-import {EBlocked} from "../user/user.interface";
 import {Repository} from "typeorm";
 import {RelationsEntity} from "../entities/relations.entity";
 
 @Injectable()
 export class BlockedService {
-	constructor(private readonly userService: UserService,
-				private readonly tmp_db: TmpDbService,
+	constructor(@Inject(forwardRef(() => UserService))
+				private userService: UserService,
 				@Inject(forwardRef(() => FriendsService))
 				private friendService: FriendsService,
 				@InjectRepository(RelationsEntity) private relationsRepository: Repository<RelationsEntity>) {}

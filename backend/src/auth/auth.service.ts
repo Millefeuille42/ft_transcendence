@@ -2,12 +2,7 @@ import {HttpException, Injectable} from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import {UserService} from "../user/user.service";
 import axios from "axios";
-import {User} from "../user/user.interface";
-import {ItemsService} from "../items/items.service";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {CreateUser, CreateUserDto} from "../user/create-user.dto";
-import {GameService} from "../game/game.service";
-import {UsersList} from "../entities/users.entity";
 
 @Injectable()
 export class AuthService {
@@ -86,7 +81,6 @@ export class AuthService {
 		}
 
 		await this.userService.initUser(userData)
-		this.userService.changeOnlineInDB({login: userData.login, online: true})
 		return userData.login;
 	}
 

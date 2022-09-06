@@ -1,8 +1,5 @@
 import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
-import {EInventory, equipped, inventory} from "./inventory.interface";
 import {UserService} from "../user/user.service";
-import {EItems, ItemsInterface} from "./items.interface";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Items} from "../entities/items.entity";
@@ -13,7 +10,6 @@ import {GameService} from "../game/game.service";
 export class ItemsService {
 	constructor(@Inject(forwardRef(() => UserService))
 				private userService: UserService,
-				private tmp_db: TmpDbService,
 				private gameService: GameService,
 				@InjectRepository(Items) private listItems: Repository<Items>,
 				@InjectRepository(InventoryEntity) private inventoryRepository: Repository<InventoryEntity>,
@@ -43,7 +39,6 @@ export class ItemsService {
 		let itemToAdd: Items
 		if (rarity === 42) {
 			itemToAdd = await this.listItems.findOneBy({category: 'rod', rarity: 42})
-			//itemToAdd = this.tmp_db.listItems.find(items => items.id === 42)
 			return (itemToAdd)
 		}
 		else if (rarity <= 50)
@@ -194,27 +189,6 @@ export class ItemsService {
 		if (item.category === 'sound')
 			inventory.sound.push(item.id)
 		await this.inventoryRepository.save(inventory)
- 	}
-
-// 	//deleteItem -> login + category + item
- 	async deleteItem(login: string, category: string, item: string) {
-//		const user = await this.userService.getUser(login)
-//		await this.verificationCategory(category)
-//		if (item === 'default')
-//			throw new BadRequestException("Can't delete default items")
-//		await this.verificationItemInCategory(category, item)
-//		if (!(await this.isItem(login, category, item)))
-//			throw new BadRequestException("User don't have this item")
-//
-//		const inventory = user.inventory
-//		if (await this.isEquipped(login, category, item))
-//			await this.unequipItem(login, category, item)
-//		if (category === 'rod')
-//			inventory.rod = [...inventory.rod.filter(i => i.name !== item)]
-//		if (category === 'ball')
-//			inventory.ball = [...inventory.ball.filter(i => i.name !== item)]
-//		if (category === 'sound')
-//			inventory.sound = [...inventory.sound.filter(i => i.name !== item)]
  	}
 
 	//getEquipment -> login

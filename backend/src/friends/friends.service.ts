@@ -1,17 +1,17 @@
 import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {UserService} from "../user/user.service";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {BlockedService} from "../blocked/blocked.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {RelationsEntity} from "../entities/relations.entity";
+import {GameService} from "../game/game.service";
 
 @Injectable()
 export class FriendsService {
-	constructor(private readonly userService: UserService,
-				private readonly tmp_db: TmpDbService,
-				@Inject(forwardRef(() => BlockedService))
+	constructor(@Inject(forwardRef(() => BlockedService))
 				private blockedService: BlockedService,
+				@Inject(forwardRef(() => UserService))
+				private userService: UserService,
 				@InjectRepository(RelationsEntity) private relationsRepository: Repository<RelationsEntity>) {}
 
 	async verificationUsers(login: string, friend?: string) {

@@ -6,12 +6,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {UsersList} from "../entities/users.entity";
 import {FriendsModule} from "../friends/friends.module";
 import {BlockedModule} from "../blocked/blocked.module";
-import {EBlocked, EFriend} from "./user.interface";
 import {ItemsModule} from "../items/items.module";
 import {GameModule} from "../game/game.module";
 
 @Module({
-  imports: [TmpDbModule, TypeOrmModule.forFeature([UsersList, EBlocked, EFriend]),
+  imports: [TmpDbModule, TypeOrmModule.forFeature([UsersList]),
     forwardRef(() => FriendsModule), forwardRef(() => BlockedModule),
     forwardRef(() => ItemsModule), forwardRef(() => GameModule)],
   controllers: [UserController],
