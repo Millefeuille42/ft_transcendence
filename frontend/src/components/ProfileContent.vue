@@ -1,10 +1,12 @@
 <template>
 	<v-container fill-height class="d-flex flex-column align-center justify-center">
-		<ProfileCard :user=user v-if="loaded" height="30%"></ProfileCard>
+		<ProfileCard :user=user v-if="loaded"
+					 :height="$vuetify.breakpoint.mobile ? '20%' : '30%'"
+					 mWidth="90%"></ProfileCard>
 		<SkeletonProfileCard :user=user v-if="!loaded" height="30%"></SkeletonProfileCard>
 		<ProfileDataContainer class="mb-auto mt-8">
-			<component v-if="loaded" :is="tabs[bottomTab]" :user=user height="100%"></component>
-			<SkeletonProfileComponent v-if="!loaded" height="100%"/>
+			<component v-if="loaded && !reload" :is="tabs[bottomTab]" :user=user height="100%"></component>
+			<SkeletonProfileComponent v-else height="100%"/>
 		</ProfileDataContainer>
 		<ProfileBottomDrawer/>
 	</v-container>
@@ -13,7 +15,7 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
-import ProfileForm from "@/components/ProfileContentAddons/ProfileForm.vue";
+import ProfileStats from "@/components/ProfileContentAddons/ProfileStats.vue";
 import ProfileFriends from "@/components/ProfileContentAddons/ProfileFriends.vue";
 import ProfileCustomize from "@/components/ProfileContentAddons/ProfileCustomize.vue";
 import ProfileDataContainer from "@/components/ProfileContentAddons/ProfileDataContainer.vue";
@@ -21,19 +23,22 @@ import ProfileBottomDrawer from "@/components/ProfileContentAddons/ProfileBottom
 import {EventBus} from "@/main";
 import SkeletonProfileCard from "@/components/SkeletonComponents/SkeletonProfileCard.vue";
 import SkeletonProfileComponent from "@/components/SkeletonComponents/SkeletonProfileComponent.vue";
+import ProfileSettings from "@/components/ProfileContentAddons/ProfileSettings.vue";
 
 @Component({
 	components: {
 		SkeletonProfileComponent,
-		ProfileBottomDrawer, ProfileDataContainer, ProfileCustomize, ProfileForm, ProfileFriends, ProfileCard, SkeletonProfileCard},
+		ProfileStats,
+		ProfileBottomDrawer, ProfileDataContainer, ProfileCustomize, ProfileSettings, ProfileFriends, ProfileCard, SkeletonProfileCard},
 	data: () => ({
 		bottomTab: 0,
 		tabs: [
-			"ProfileForm",
+			"ProfileStats",
 			"ProfileCustomize",
 			"ProfileFriends",
-			"ProfileForm"
-		]
+			"ProfileSettings"
+		],
+		reload: false
 	}),
 	props: {
 		user: Object,
@@ -42,6 +47,13 @@ import SkeletonProfileComponent from "@/components/SkeletonComponents/SkeletonPr
 	created() {
 		EventBus.$on("bottomTabChanged", (id: number) => {
 			this.$data.bottomTab = id
+		})
+
+		EventBus.$on("updateFriendList", () => {
+			this.$data.reload = true
+			setTimeout(() => {
+				this.$data.reload = false
+			}, 200)
 		})
 	}
 	// TODO Add stats

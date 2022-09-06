@@ -42,11 +42,17 @@ import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 		snackColor: "green"
 	}),
 	methods: {
+		showSnack(text: string, color: string) {
+			this.$data.snackColor = color
+			this.$data.snackText = text
+			this.$data.snackShow = true
+		},
 		sortItems() {
 			this.$data.rows = []
-			let row = []
+			let row: inventoryItem[] = []
 			for (let index in this.$data.inventory) {
-				row.push(this.$data.inventory[index])
+				if (!(row.find(i => i.name === this.$data.inventory[index].name)))
+					row.push(this.$data.inventory[index])
 			}
 			this.$data.rows.push(row)
 			this.$data.inventoryLoaded = true
@@ -60,10 +66,7 @@ import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 					that.sortItems()
 				})
 				.catch(() => {
-					this.$data.snackShow = false
-					this.$data.snackColor = "red"
-					this.$data.snackText = "Failed to load " + this.$props.category + "s"
-					this.$data.snackShow = true
+					this.showSnack("Failed to load " + this.$props.category + "s", "red")
 				})
 		},
 
@@ -74,10 +77,7 @@ import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 					that.$data.currentItem = inv
 				})
 				.catch(() => {
-					this.$data.snackShow = false
-					this.$data.snackColor = "red"
-					this.$data.snackText = "Failed to load equipped " + this.$props.category
-					this.$data.snackShow = true
+					this.showSnack("Failed to load equipped " + this.$props.category, "red")
 				})
 		},
 	},

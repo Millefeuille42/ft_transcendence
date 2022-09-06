@@ -1,5 +1,6 @@
 <template>
-	<v-sheet width="30%" height="80%" color="transparent" class="mt-4">
+	<v-sheet :width="$vuetify.breakpoint.mobile ? '100%' : '30%'"
+			 height="80%" color="transparent" class="mt-4">
 		<v-img :alt="item.name" :title="item.name" contain width="100%" height="100%"
 			   :src="loadImage()">
 			<v-btn color="transparent" width="100%" height="100%" @click="handleClick">

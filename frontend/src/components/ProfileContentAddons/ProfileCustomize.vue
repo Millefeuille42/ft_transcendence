@@ -39,6 +39,11 @@ interface selectedComponent {
 		snackColor: "green"
 	}),
 	methods: {
+		showSnack(text: string, color: string) {
+			this.$data.snackColor = color
+			this.$data.snackText = text
+			this.$data.snackShow = true
+		},
 		async saveItem() {
 			this.$data.loadingButton = true
 			try {
@@ -50,18 +55,11 @@ interface selectedComponent {
 				}
 			}
 			catch {
-				this.$data.snackShow = false
-				this.$data.snackColor = "red"
-				this.$data.snackText = "Failed to save loadout"
-				this.$data.snackShow = true
+				this.showSnack("Failed to save loadout", "red")
 				return
 			}
-
+			this.showSnack("Loadout successfully saved", "green")
 			this.$data.loadingButton = false
-			this.$data.snackShow = false
-			this.$data.snackColor = "green"
-			this.$data.snackText = "Loadout successfully saved"
-			this.$data.snackShow = true
 		},
 	},
 	created() {

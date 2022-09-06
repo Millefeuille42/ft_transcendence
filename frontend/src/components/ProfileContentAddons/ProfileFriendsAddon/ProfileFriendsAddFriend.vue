@@ -1,5 +1,5 @@
 <template>
-	<v-sheet width="33%" height="15%" class="ml-auto mr-auto mt-4 d-flex justify-center align-center">
+	<v-sheet :width="$vuetify.breakpoint.mobile ? '100%' : '33%'" height="15%" class="ml-auto mr-auto mt-4 d-flex justify-center align-center">
 		<v-text-field
 			v-model=formFriend
 			label="Add a friend"

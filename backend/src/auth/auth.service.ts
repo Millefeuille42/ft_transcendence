@@ -77,6 +77,10 @@ export class AuthService {
 				return ('');
 			})
 			.catch(async (err) => {
+				if (err.response == undefined) {
+					console.log(err)
+					throw new HttpException("Error", 429)
+				}
 				if (err.response.status == 429) {
 					await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
 					return this.addSomeone(access_token);

@@ -1,5 +1,7 @@
 <template>
-	<v-bottom-navigation width="50%" v-model="bottomTab" dark shift class="mb-10">
+	<v-bottom-navigation v-model="bottomTab" dark shift
+						 :absolute="$vuetify.breakpoint.mobile"
+						 :width="$vuetify.breakpoint.mobile ? '100%' : '50%'">
 		<v-btn>
 			<span>Stats</span>
 			<v-icon>mdi-chart-box</v-icon>
