@@ -35,6 +35,13 @@
 		<v-img v-if="loaded && !hasFriends" src="@/assets/curly.png" height="80%" />
 		<ProfileFriendsAddFriend v-if="loaded" :user="user" @input="addFriendFromForm" />
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
+
+		<v-dialog v-if="$vuetify.breakpoint.mobile" v-model="hasFriendSelected" width="70%" dark
+				  fullscreen
+				  transition="dialog-bottom-transition"
+		>
+			<ProfileCard v-if="hasFriendSelected" height="100%" :user="selectedFriend" mWidth="100%" rounded="false"/>
+		</v-dialog>
 	</v-sheet>
 </template>
 
@@ -146,6 +153,10 @@ import {EventBus} from "@/main";
 		for (let friend in friendList.listOfFriends) {
 			this.loadFriendData(friendList.listOfFriends[friend]).then()
 		}
+
+		EventBus.$on("unloadCard", () => {
+			this.$data.hasFriendSelected = false
+		})
 	},
 
 	//TODO add block friend
