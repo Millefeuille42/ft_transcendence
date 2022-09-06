@@ -51,8 +51,8 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCardStats from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardStats.vue";
-import {inventoryItem, statsIn, userDataIn} from "@/queriesData";
-import {dropItem, getUserData, getUserStats} from "@/queries";
+import {inventoryItem, match, statsIn, userDataIn} from "@/queriesData";
+import {dropItem, getHistory, getUserStats} from "@/queries";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
 import ProfileCardMatchHistoryDialog
@@ -96,6 +96,20 @@ import ProfileCardMatchHistoryDialog
 			await getUserStats(this.$props.user.login)
 				.then((stats: statsIn) => {
 					this.$data.stats = stats
+				})
+				.catch((e) => {
+					console.log(e)
+				})
+		},
+		async loadUserHistory() {
+			this.$data.hasMatch = false
+			await getHistory(this.$props.user.login)
+				.then((history: match[]) => {
+					console.log(history.length)
+					if (history.length > 0) {
+						this.$data.hasMatch = true
+						this.$data.stats.history = history
+					}
 					this.$data.loaded = true
 				})
 				.catch((e) => {
@@ -108,16 +122,9 @@ import ProfileCardMatchHistoryDialog
 		this.$data.loadedRival = false
 
 		await this.loadUserStats()
-		this.$data.hasMatch = (this.$data.stats.history != undefined && this.$data.stats.history.length > 0)
-		console.log(this.$data.hasMatch)
+		await this.loadUserHistory()
 		if (!this.$data.loaded || this.$data.stats.lastRival === "No one :(")
 			return
-		getUserData(this.$data.stats.lastRival).then((data: userDataIn) => {
-			if (!data.banner)
-				data.banner = "https://picsum.photos/1920/1080?random";
-			this.$data.rivalData = data
-			this.$data.loadedRival = true
-		})
 	}
 })
 export default class ProfileStats extends Vue {

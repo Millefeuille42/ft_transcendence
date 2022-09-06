@@ -1,5 +1,14 @@
 import axios from "axios";
-import {userDataIn, friendListIn, inventoryItem, statsIn, formDataOut, onlineDataIn, blockedListIn} from "@/queriesData"
+import {
+    userDataIn,
+    friendListIn,
+    inventoryItem,
+    statsIn,
+    formDataOut,
+    onlineDataIn,
+    blockedListIn,
+    match
+} from "@/queriesData"
 
 export async function RedirectToFTAuth() {
     try {
@@ -237,4 +246,18 @@ export async function removeBlock(login: string, block: string) {
     } catch (e) {
         throw e
     }
+}
+
+export async function getHistory(login: string): Promise<Array<match>> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/game/"
+    target += login + "/history"
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
 }

@@ -134,6 +134,7 @@ import {EventBus} from "@/main";
 			this.$data.loaded = false
 			getOnlineList(this.$props.user.login)
 				.then((onlineList: onlineDataIn[]) => {
+					console.log(onlineList)
 					for (let index in onlineList) {
 						onlineList[index].friendLoading = false
 						onlineList[index].blockLoading = false
