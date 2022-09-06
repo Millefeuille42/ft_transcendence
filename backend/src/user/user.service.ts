@@ -6,34 +6,37 @@ import {
 	HttpStatus, Inject,
 	Injectable
 } from '@nestjs/common';
-import {UserGlobal, User, EFriend, EBlocked, EUser} from "./user.interface";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
+import { User } from "./user.interface";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {OnlineDto} from "./online.dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {UsersList} from "../entities/users.entity";
 import {Repository} from "typeorm";
-import {FriendsService} from "../friends/friends.service";
 import {ItemsService} from "../items/items.service";
-import {EStats} from "../game/stats.interface";
 import {GameService} from "../game/game.service";
+import {FriendsService} from "../friends/friends.service";
+import {BlockedService} from "../blocked/blocked.service";
+import {UserGlobal} from "./user.interface";
 
 @Injectable()
 export class UserService {
-	constructor(private tmp_db: TmpDbService,
-				@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>,
-				@InjectRepository(EFriend) private friendListRepository: Repository<EFriend>,
-				@InjectRepository(EBlocked) private blockedListRepository: Repository<EBlocked>,
+
+	constructor(@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>,
 				@Inject(forwardRef(() => ItemsService))
 				private itemService: ItemsService,
 				@Inject(forwardRef(() => GameService))
-				private gameService: GameService) {}
+				private gameService: GameService,
+				@Inject(forwardRef(() => FriendsService))
+				private friendService: FriendsService,
+				@Inject(forwardRef(() => BlockedService))
+				private blockedService: BlockedService) {}
 
 	connectSession = new Map<string, string>([]);
+	onlinePeople: OnlineDto[] = []
+
 
 	async verificationUser(login: string) {
 		const user = (await this.usersListRepository.findOneBy({login: login}))
-		//console.log(user)
 		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		return (user)
@@ -62,6 +65,7 @@ export class UserService {
 		await this.itemService.initInventory(user.login)
 		await this.itemService.initEquipment(user.login)
 		await this.gameService.initStats(user.login)
+		this.changeOnlineInDB({login: user.login, online: true})
 	}
 
 
@@ -168,11 +172,11 @@ export class UserService {
 	}
 
 	changeOnlineInDB(online: OnlineDto) {
-		const user = this.tmp_db.onlinePeople.find(u => u.login === online.login)
+		const user = this.onlinePeople.find(u => u.login === online.login)
 		if (user)
 			user.online = online.online
 		else
-			this.tmp_db.onlinePeople = [...this.tmp_db.onlinePeople, online];
+			this.onlinePeople = [...this.onlinePeople, online];
 	}
 
 	async changeOnline(login: string, change: User) {
@@ -197,35 +201,25 @@ export class UserService {
 	}
 
 	async isBlocked(login: string, other: string) {
-		//let user = await this.getUser(other)
-		//if (user.blocked.find(u => u === login))
-		//	return true
-		//user = await this.getUser(login)
-		//if (user.blocked.find(u => u === other))
-		//	return true
-		//return false
-	}
-
-	async isFriend(login: string, other: string) {
-		//const user = await this.getUser(login)
-		//if (user.friends.find(f => f === other))
-		//	return true
-		//return false
+		if (await this.blockedService.isBlocked(login, other) || await this.blockedService.isBlocked(other, login))
+			return true
+		return false
 	}
 
 	async listOfOnlinePeople(login: string) {
-		//await this.verificationUser(login)
-		//let users: {
-		//	info: UserGlobal;
-		//	friend: boolean
-		//}[] = []
-		//for (const u of this.tmp_db.onlinePeople) {
-		//	if (u.login !== login && u.online === true && (!await this.isBlocked(login, u.login))) {
-		//		const {username, avatar, login: ulogin, banner} = await this.getUser(u.login)
-		//		const friend = await this.isFriend(login, u.login)
-		//		users = [...users, {info: {login: ulogin, username, avatar, banner, stats }, friend}]
-		//	}
-		//}
-		//return (users);
+		await this.verificationUser(login)
+		let users: {
+			info: UserGlobal;
+			friend: boolean
+		}[] = []
+		for (const u of this.onlinePeople) {
+			if (u.login !== login && u.online === true && (!await this.isBlocked(login, u.login))) {
+				const {username, avatar, login: ulogin, banner} = await this.getUser(u.login)
+				const friend = await this.friendService.isFriend(login, u.login)
+				const stats = await this.gameService.getStats(u.login)
+				users.push({info: {login: ulogin, username, avatar, banner, stats }, friend})
+			}
+		}
+		return (users);
 	}
 }
