@@ -39,6 +39,9 @@
 				<v-skeleton-loader v-if="!loaded" type="paragraph, text@3"/>
 				<ProfileCardStats v-else :stats="stats" :user="user"/>
 			</TransparentCard>
+			<v-btn v-if="height === '100%' && $vuetify.breakpoint.mobile" class="mt-12" @click="handleClick"
+				style="backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px)"
+			> Close </v-btn>
 		</v-img>
 	</v-sheet>
 </template>
@@ -67,6 +70,11 @@ import {EventBus} from "@/main";
 		loaded: false,
 		loadedCard: true,
 	}),
+	methods: {
+		handleClick() {
+			EventBus.$emit("unloadCard", "")
+		}
+	},
 	mounted() {
 		if (this.$props.height != "100%") {
 			return

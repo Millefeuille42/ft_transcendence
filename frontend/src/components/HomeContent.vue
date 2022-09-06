@@ -8,10 +8,12 @@
 				</div>
 			</v-sheet>
 		<v-sheet height="30%" width="100%" class="d-flex mt-auto flex-row">
-			<v-sheet height="100%" width="67%" elevation="6" class="mt-auto" rounded="bl-xl">
+			<v-sheet v-if="!$vuetify.breakpoint.mobile" height="100%" width="67%" elevation="6" class="mt-auto" rounded="bl-xl">
 				<ProfileCardMatchHistoryDialog v-if="loaded" :max_height="'80%'" :user="user" :stats="stats" />
 			</v-sheet>
-			<v-sheet elevation="6" height="100%" width="30%" class="ml-auto" rounded="br-xl">
+			<v-sheet elevation="6" height="100%"
+					 :width="$vuetify.breakpoint.mobile ? '100%' : '30%'"
+					 class="ml-auto" rounded="br-xl">
 				<HomeContentOnlineList :user="user"/>
 			</v-sheet>
 		</v-sheet>
