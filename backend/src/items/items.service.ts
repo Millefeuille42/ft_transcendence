@@ -92,8 +92,8 @@ export class ItemsService {
 		const equipment = {
 			id: user.id,
 			rod: (await this.listItems.findOneBy({name: 'default', category: 'rod'})).id,
-			ball: (await this.listItems.findOneBy({name: 'default', category: 'rod'})).id,
-			sound: (await this.listItems.findOneBy({name: 'default', category: 'rod'})).id
+			ball: (await this.listItems.findOneBy({name: 'default', category: 'ball'})).id,
+			sound: (await this.listItems.findOneBy({name: 'default', category: 'sound'})).id
 		}
 		await this.equipmentRepository.save(equipment)
 	}
@@ -134,36 +134,46 @@ export class ItemsService {
 
 	//getICategory -> login + category
  	async getICategory(login: string, category: string) {
-		//const user = await this.userService.getUser(login)
-		//await this.verificationCategory(category)
-//
-		//const inventory = user.inventory
-		//if (category === 'rod')
-		//	return inventory.rod
-		//if (category === 'ball')
-		//	return inventory.ball
-		//if (category === 'sound')
-		//	return inventory.sound
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+
+		let retCategory: Items[] = []
+		const inventory = await this.inventoryRepository.findOneBy({id: user.id})
+		if (category === 'rod') {
+			await Promise.all(inventory.rod.map(async (id) => {
+				retCategory.push(await this.listItems.findOneBy({id: id}))
+			}))
+		}
+		if (category === 'ball') {
+			await Promise.all(inventory.ball.map(async (id) => {
+				retCategory.push(await this.listItems.findOneBy({id: id}))
+			}))
+		}
+		if (category === 'sound') {
+			await Promise.all(inventory.sound.map(async (id) => {
+				retCategory.push(await this.listItems.findOneBy({id: id}))
+			}))
+		}
+		return retCategory
  	}
 
 // 	//isItem -> login + category + item
  	async isItem(login: string, category: string, item: string) {
-		//const user = await this.userService.getUser(login)
-		//await this.verificationCategory(category)
-		//await this.verificationItemInCategory(category, item)
-//
-		//const inventory = user.inventory
-		//let hasItem;
-		//if (category === 'rod')
-		//	hasItem = inventory.rod.find(items => items.name === item);
-		//else if (category === 'ball')
-		//	hasItem = inventory.ball.find(items => items.name === item);
-		//else if (category === 'sound')
-		//	hasItem = inventory.sound.find(items => items.name === item);
-//
-		//if (!hasItem)
-		//	return false;
-		//return true;
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+		await this.verificationItemInCategory(category, item)
+
+		let inventory: number[]
+		if (category === 'rod')
+			inventory = (await this.inventoryRepository.findOneBy({id: user.id})).rod
+		if (category === 'ball')
+			inventory = (await this.inventoryRepository.findOneBy({id: user.id})).ball
+		if (category === 'sound')
+			inventory = (await this.inventoryRepository.findOneBy({id: user.id})).sound
+		const itemToSearch = await this.listItems.findOneBy({name: item, category: category})
+		if (inventory.find(i => i === itemToSearch.id))
+			return true;
+		return false;
 
  	}
 
@@ -206,78 +216,86 @@ export class ItemsService {
 
 	//getEquipment -> login
 	async getEquipment(login: string) {
-//		const user = await this.userService.getUser(login)
-//
-//		const equipment = user.equipped
-//		return (equipment);
+		const user = await this.userService.getUser(login)
+
+		const equipment = await this.equipmentRepository.findOneBy({id: user.id})
+		const rod = await this.listItems.findOneBy({id: equipment.rod})
+		const ball = await this.listItems.findOneBy({id: equipment.ball})
+		const sound = await this.listItems.findOneBy({id: equipment.sound})
+		return {
+			rod: rod,
+			ball: ball,
+			sound: sound,
+		};
 	}
 
 	//getECategory -> login + category
 	async getECategory(login: string, category: string) {
-//		const user = await this.userService.getUser(login)
-//		await this.verificationCategory(category)
-//
-//		const equipment = user.equipped
-//		if (category === 'rod')
-//			return equipment.rod
-//		if (category === 'ball')
-//			return equipment.ball
-//		if (category === 'sound')
-//			return equipment.sound
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+
+		const equipment = await this.equipmentRepository.findOneBy({id: user.id})
+		if (category === 'rod')
+			return await this.listItems.findOneBy({id: equipment.rod})
+		if (category === 'ball')
+			return await this.listItems.findOneBy({id: equipment.ball})
+		if (category === 'sound')
+			return await this.listItems.findOneBy({id: equipment.sound})
 	}
-//
+
 //	//isEquipped -> login + category + item
 	async isEquipped(login: string, category: string, item: string) {
-//		const user = await this.userService.getUser(login)
-//		await this.verificationCategory(category)
-//		if (item !== 'default')
-//			await this.verificationItemInCategory(category, item)
-//
-//		const equipment = user.equipped
-//		if (category === 'rod')
-//			return (equipment.rod.name === item)
-//		if (category === 'ball')
-//			return (equipment.ball.name === item)
-//		if (category === 'sound')
-//			return (equipment.sound.name === item)
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+		await this.verificationItemInCategory(category, item)
+
+		const equipment = await this.equipmentRepository.findOneBy({id: user.id})
+		let itemToSearch
+		if (category === 'rod')
+			itemToSearch = await this.listItems.findOneBy({id: equipment.rod})
+		if (category === 'ball')
+			itemToSearch = await this.listItems.findOneBy({id: equipment.ball})
+		if (category === 'sound')
+			itemToSearch = await this.listItems.findOneBy({id: equipment.sound})
+		return (itemToSearch.name === item)
 	}
 
 //	//equipItem -> login + category + item
 	async equipItem(login: string, category: string, item: string) {
-//		const user = await this.userService.getUser(login)
-//		await this.verificationCategory(category)
-//		if (item !== 'default')
-//			await this.verificationItemInCategory(category, item)
-//
-//		const equipment = user.equipped
-//		const itemToEquip = this.tmp_db.listItems.find(items => items.name === item)
-//
-//		if (!(await this.isItem(login, category, item)))
-//			throw new BadRequestException("User don't have this item")
-//
-//		if (category === 'rod')
-//			return (equipment.rod = itemToEquip)
-//		if (category === 'ball')
-//			return (equipment.ball = itemToEquip)
-//		if (category === 'sound')
-//			return (equipment.sound = itemToEquip)
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+		await this.verificationItemInCategory(category, item)
+
+		const equipment = await this.equipmentRepository.findOneBy({id: user.id})
+		const itemToEquip = await this.listItems.findOneBy({category: category, name: item})
+
+		if (!(await this.isItem(login, category, item)))
+			throw new BadRequestException("User don't have this item")
+
+		if (category === 'rod')
+			equipment.rod = itemToEquip.id
+		if (category === 'ball')
+			equipment.ball = itemToEquip.id
+		if (category === 'sound')
+			equipment.sound = itemToEquip.id
+		return await this.equipmentRepository.save(equipment)
 	}
 
 //	//unequipItem -> login + category  -> Change Item to default
 	async unequipItem(login: string, category: string, item: string) {
-//		const user = await this.userService.getUser(login)
-//		await this.verificationCategory(category)
-//		if (item !== 'default')
-//			await this.verificationItemInCategory(category, item)
-//
-//		const equipment = user.equipped
-//		if (!(await this.isEquipped(login, category, item)))
-//			throw new BadRequestException("Equipment is not equipped")
-//		if (category === 'rod')
-//			return (equipment.rod = this.tmp_db.defaultRod)
-//		if (category === 'ball')
-//			return (equipment.ball = this.tmp_db.defaultBall)
-//		if (category === 'sound')
-//			return (equipment.sound = this.tmp_db.defaultSound)
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(category)
+		await this.verificationItemInCategory(category, item)
+
+		const equipment = await this.equipmentRepository.findOneBy({id: user.id})
+		if (!(await this.isEquipped(login, category, item)))
+			throw new BadRequestException("Equipment is not equipped")
+		if (category === 'rod')
+			equipment.rod = (await this.listItems.findOneBy({category: 'rod', name: 'default'})).id
+		if (category === 'ball')
+			equipment.ball = (await this.listItems.findOneBy({category: 'ball', name: 'default'})).id
+		if (category === 'sound')
+			equipment.sound = (await this.listItems.findOneBy({category: 'sound', name: 'default'})).id
+		return await this.equipmentRepository.save(equipment)
 	}
 }
