@@ -1,7 +1,7 @@
 import {All, Body, Controller, Delete, Get, Param, Post, Req} from '@nestjs/common';
 import {Request} from 'express'
 import {ItemsService} from "./items.service";
-import {Items} from "./items.entity";
+import {Items} from "../entities/items.entity";
 
 @Controller('items')
 export class ItemsController {
@@ -94,7 +94,7 @@ export class ItemsController {
 		if (req.method === 'GET')
 			return (await this.itemsService.isItem(login, category, item))
 		if (req.method === 'POST')
-			return (await this.itemsService.addItem(login, category, item))
+			return (await this.itemsService.addItem(login, await this.itemsService.getItemByNameAndCategory(item, category)))
 		if (req.method === 'DELETE')
 			return (await this.itemsService.deleteItem(login, category, item))
 	}

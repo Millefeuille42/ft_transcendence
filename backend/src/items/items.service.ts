@@ -5,17 +5,24 @@ import {EItems, ItemsInterface} from "./items.interface";
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {Items} from "./items.entity";
+import {Items} from "../entities/items.entity";
+import {EquipmentEntity, InventoryEntity} from "../entities/inventory.entity";
 
 @Injectable()
 export class ItemsService {
 	constructor(@Inject(forwardRef(() => UserService))
 				private userService: UserService,
 				private tmp_db: TmpDbService,
-				@InjectRepository(Items) private listItems: Repository<Items> ) {}
+				@InjectRepository(Items) private listItems: Repository<Items>,
+				@InjectRepository(InventoryEntity) private inventoryRepository: Repository<InventoryEntity>,
+				@InjectRepository(EquipmentEntity) private equipmentRepository: Repository<EquipmentEntity>) {}
 
 	async getAll(): Promise<Items[]> {
 		return await this.listItems.find()
+	}
+
+	async getItemByNameAndCategory(name: string, category: string) {
+		return await this.listItems.findOneBy({name: name, category: category})
 	}
 
 	async createOneItem(item: Items) {
@@ -29,73 +36,90 @@ export class ItemsService {
 	}
 
 	async getItemByRarity(rarity: number) {
-//
-//		let itemsRarity: ItemsInterface[]
-//		let itemToAdd: ItemsInterface
-//		if (rarity === 42) {
-//			itemToAdd = await this.listItems.findOneBy({category: 'rod', rarity: 42})
-//			//itemToAdd = this.tmp_db.listItems.find(items => items.id === 42)
-//			return (itemToAdd)
-//		}
-//		else if (rarity <= 50)
-//			itemsRarity = await this.listItems.find({where: {rarity: 1}})
-//		else if (rarity <= 90)
-//			itemsRarity = await this.listItems.find({where: {rarity: 2}})
-//		else if (rarity <= 98)
-//			itemsRarity = await this.listItems.find({where: {rarity: 3}})
-//		else if (rarity <= 100)
-//			itemsRarity = await this.listItems.find({where: {rarity: 4}})
-//		const item = Math.floor(Math.random() * itemsRarity.length)
-//		console.log('index item : ' + item)
-//		itemToAdd = itemsRarity[item]
-//		return (itemToAdd);
+
+		let itemsRarity: Items[]
+		let itemToAdd: Items
+		if (rarity === 42) {
+			itemToAdd = await this.listItems.findOneBy({category: 'rod', rarity: 42})
+			//itemToAdd = this.tmp_db.listItems.find(items => items.id === 42)
+			return (itemToAdd)
+		}
+		else if (rarity <= 50)
+			itemsRarity = await this.listItems.find({where: {rarity: 1}})
+		else if (rarity <= 90)
+			itemsRarity = await this.listItems.find({where: {rarity: 2}})
+		else if (rarity <= 98)
+			itemsRarity = await this.listItems.find({where: {rarity: 3}})
+		else if (rarity <= 100)
+			itemsRarity = await this.listItems.find({where: {rarity: 4}})
+		const item = Math.floor(Math.random() * itemsRarity.length)
+		console.log('index item : ' + item)
+		itemToAdd = itemsRarity[item]
+		return (itemToAdd);
 	}
 
 	async dropItem(login: string) {
-//		const user = await this.userService.getUser(login)
+		const user = await this.userService.getUser(login)
 //		if (user.stats.points <= 0)
 //			throw new HttpException('User have not enough points', HttpStatus.FORBIDDEN)
 //		user.stats.points--
-//
-//		const rarity = Math.floor(Math.random() * 100) + 1
-//		console.log('rarity : ' + rarity)
-//
-//		let itemToAdd: ItemsInterface = await this.getItemByRarity(rarity);
-//		console.log(itemToAdd)
-//
-//		await this.addItem(login, itemToAdd.category, itemToAdd.name);
-//		return (itemToAdd)
+
+		const rarity = Math.floor(Math.random() * 100) + 1
+		console.log('rarity : ' + rarity)
+
+		let itemToAdd: Items = await this.getItemByRarity(rarity);
+		console.log(itemToAdd)
+
+		await this.addItem(login, itemToAdd);
+		return (itemToAdd)
 	}
 
-	async initEquipement(login: string) {
-		let inventory: EInventory = {
-			login: login,
-			rod: [] as EItems[],
-			ball: [] as EItems[],
-			sound: [] as EItems[],
-		} as EInventory
-		return (inventory);
+	async initInventory(login: string) {
+		const user = await this.userService.getUser(login)
+		const inventory = {
+			id: user.id,
+			rod: [(await this.listItems.findOneBy({name: 'default', category: 'rod'})).id],
+			ball: [(await this.listItems.findOneBy({name: 'default', category: 'ball'})).id],
+			sound: [(await this.listItems.findOneBy({name: 'default', category: 'sound'})).id],
+		}
+		await this.inventoryRepository.save(inventory)
 	}
 
 
-	async initEquipped(login: string) {
-		//return {
-		//	login: login,
-		//	rod: this.tmp_db.defaultRod,
-		//	ball: this.tmp_db.defaultBall,
-		//	sound: this.tmp_db.defaultSound,
-		//}
+	async initEquipment(login: string) {
+		const user = await this.userService.getUser(login)
+
+		const equipment = {
+			id: user.id,
+			rod: (await this.listItems.findOneBy({name: 'default', category: 'rod'})).id,
+			ball: (await this.listItems.findOneBy({name: 'default', category: 'rod'})).id,
+			sound: (await this.listItems.findOneBy({name: 'default', category: 'rod'})).id
+		}
+		await this.equipmentRepository.save(equipment)
 	}
 
 	//getInventory -> login
 	async getInventory(login: string) {
-		//const user = await this.userService.getUser(login)
-		//const inventory = user.inventory
-		//return {
-		//	rod: inventory.rod,
-		//	ball: inventory.ball,
-		//	sound: inventory.sound,
-		//};
+		const user = await this.userService.getUser(login)
+		const inventory = await this.inventoryRepository.findOneBy({id: user.id})
+		console.log(inventory)
+		let rod: Items[] = []
+		let ball: Items[] = []
+		let sound: Items[] = []
+		await Promise.all(inventory.rod.map(async (id) => {
+			rod.push(await this.listItems.findOneBy({id: id}))
+		}))
+		await Promise.all(inventory.ball.map(async (id) => {
+			ball.push(await this.listItems.findOneBy({id: id}))
+		}))
+		await Promise.all(inventory.sound.map(async (id) => {
+			sound.push(await this.listItems.findOneBy({id: id}))
+		}))
+		return {
+			rod: rod,
+			ball: ball,
+			sound: sound,
+		};
 	}
 
 	async verificationCategory(category: string) {
@@ -144,20 +168,19 @@ export class ItemsService {
  	}
 
 // 	//addItem -> login + category + item
- 	async addItem(login: string, category: string, item: string) {
-//		const user = await this.userService.getUser(login)
-//		await this.verificationCategory(category)
-//		//await this.verificationItemInCategory(category, item)
-//
-//		const inventory = user.inventory
-//		const itemToAdd = await this.listItems.findOneBy({category: category, name: item})
-//		//const itemToAdd = this.tmp_db.listItems.filter(items => items.category === category).find(items => items.name === item)
-//		if (category === 'rod')
-//			inventory.rod = [...inventory.rod, itemToAdd]
-//		if (category === 'ball')
-//			inventory.ball = [...inventory.ball, itemToAdd]
-//		if (category === 'sound')
-//			inventory.sound = [...inventory.sound, itemToAdd]
+ 	async addItem(login: string, item: Items) {
+		const user = await this.userService.getUser(login)
+		await this.verificationCategory(item.category)
+		await this.verificationItemInCategory(item.category, item.name)
+
+		const inventory = await this.inventoryRepository.findOneBy({id: user.id})
+		if (item.category === 'rod')
+			inventory.rod.push(item.id)
+		if (item.category === 'ball')
+			inventory.ball.push(item.id)
+		if (item.category === 'sound')
+			inventory.sound.push(item.id)
+		await this.inventoryRepository.save(inventory)
  	}
 
 // 	//deleteItem -> login + category + item

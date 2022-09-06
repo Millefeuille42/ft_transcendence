@@ -59,6 +59,8 @@ export class UserService {
 			await this.changeUsername(otherLogin.login, otherUser)
 		}
 		await this.usersListRepository.save(user)
+		await this.itemService.initInventory(user.login)
+		await this.itemService.initEquipment(user.login)
 	}
 
 
@@ -69,6 +71,10 @@ export class UserService {
 
 	async getUser(login: string) {
 		return await this.verificationUser(login) ;
+	}
+
+	async userExist(login: string) {
+		return await this.usersListRepository.findOneBy({login: login})
 	}
 
 	async getName(login: string) {
