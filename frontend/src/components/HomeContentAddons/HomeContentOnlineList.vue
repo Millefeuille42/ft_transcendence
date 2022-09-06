@@ -32,7 +32,9 @@
 			</v-list-item>
 		</v-sheet>
 		<v-sheet v-else class="d-flex justify-center" width="100%" height="80%">
-			<v-progress-circular class="mt-auto mb-auto" size="128" indeterminate></v-progress-circular>
+			<v-progress-circular class="mt-auto mb-auto"
+								 :size="$vuetify.breakpoint.mobile ? '64' : '128'"
+								 indeterminate></v-progress-circular>
 		</v-sheet>
 		<v-dialog v-model="hasUserSelected" width="70%" dark
 				  :fullscreen="$vuetify.breakpoint.mobile"
