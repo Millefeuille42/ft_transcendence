@@ -20,8 +20,8 @@ export class FriendsController {
 	 * @apiError NotFoundException User (<code>login</code>) not found
 	 */
 	@Get(':login')
-	friendList(@Param('login') login: string) {
-		return (this.friendsService.friendList(login));
+	async friendList(@Param('login') login: string) {
+		return (await this.friendsService.friendList(login));
 	}
 
 	/**
@@ -37,8 +37,8 @@ export class FriendsController {
 	 * @apiError NotFoundException User (<code>login</code>) or friend (<code>friend</code>) not found
 	 */
 	@Get(':login/:friend')
-	isFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		return (this.friendsService.isFriend(login, friend));
+	async isFriend(@Param('login') login: string, @Param('friend') friend: string) {
+		return (await this.friendsService.isFriend(login, friend));
 	}
 
 	/**
@@ -53,8 +53,8 @@ export class FriendsController {
 	 * @apiError BadRequestException <code>friend</code> is already in the list of friends or is the same then <code>login</code>
 	 */
 	@Post(':login/:friend')
-	addFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		this.friendsService.addFriend(login, friend);
+	async addFriend(@Param('login') login: string, @Param('friend') friend: string) {
+		return await this.friendsService.addFriend(login, friend);
 	}
 
 	/**
@@ -69,8 +69,8 @@ export class FriendsController {
 	 * @apiError BadRequestException <code>friend</code> is not in the list of friends or is the same then <code>login</code>
 	 */
 	@Delete(':login/:friend')
-	deleteFriend(@Param('login') login: string, @Param('friend') friend: string) {
-		this.friendsService.deleteFriend(login, friend);
+	async deleteFriend(@Param('login') login: string, @Param('friend') friend: string) {
+		return await this.friendsService.deleteFriend(login, friend);
 	}
 
 	/**
@@ -87,10 +87,10 @@ export class FriendsController {
 	 * @apiError BadRequestException <code>friend</code> is not in the list of friends
 	 */
 	@Get(':login/:friend/online')
-	isFriendOnline(@Param('login') login: string, @Param('friend') friend: string) {
-		this.friendsService.verificationUsers(login, friend)
-		if (this.friendsService.isFriend(login, friend) == false)
+	async isFriendOnline(@Param('login') login: string, @Param('friend') friend: string) {
+		await this.friendsService.verificationUsers(login, friend)
+		if (await this.friendsService.isFriend(login, friend) == false)
 			throw new BadRequestException()
-		return (this.userService.isOnline(friend));
+		return (await this.userService.isOnline(friend));
 	}
 }

@@ -2,19 +2,12 @@ import {HttpException, Injectable} from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import {UserService} from "../user/user.service";
 import axios from "axios";
-import {User} from "../user/user.interface";
-import {ItemsService} from "../items/items.service";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
-import {CreateUserDto} from "../user/create-user.dto";
-import {GameService} from "../game/game.service";
+import {CreateUser, CreateUserDto} from "../user/create-user.dto";
 
 @Injectable()
 export class AuthService {
 	constructor(public configService: ConfigService,
-				private userService: UserService,
-				private itemsService: ItemsService,
-				private tmp_db: TmpDbService,
-				private gameService: GameService) { }
+				private userService: UserService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -34,17 +27,17 @@ export class AuthService {
 				"content-type": "application/json",
 			},
 		})
-			.then(function (res) { // Une fois que la requete est faite et a reussi, il faut donner une fonction a call
-				ret = res.data.access_token; // Et en gros tu la definis la, la dite fonction
+			.then(function (res) {
+				ret = res.data.access_token;
 		})
 			.catch((err) => {
 				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
-			}); // Si la requete echoue
+			});
 		return ret;
 	}
 
 	async addSomeone(access_token: string) {
-		let userData: User;
+		let userData: CreateUser;
 		let that = this;
 		const login: string = await axios({
 			method: "GET",
@@ -54,25 +47,17 @@ export class AuthService {
 				"content-type": "application/json",
 			},
 		})
-			.then(function (res) {
+			.then(async function (res) {
 				userData = {
 					login: res.data.login,
-					username: res.data.login,
 					email: res.data.email,
 					name: res.data.usual_full_name,
 					avatar: res.data.image_url,
-					banner: "",
-					online: true,
-					friends: new Array<string>(),
-					blocked: new Array<string>(),
-					inventory: that.itemsService.initEquipement(),
-					equipped: that.itemsService.initEquipped(),
-					stats: that.gameService.initStats(),
 				}
-				const otherLogin = that.userService.isUsernameExist(userData.login)
+				const otherLogin = await that.userService.isUsernameExist(userData.login)
 				if (otherLogin.userExist) {
 					const otherUser: CreateUserDto = {username: otherLogin.login}
-					that.userService.changeUsername(otherLogin.login, otherUser)
+					await that.userService.changeUsername(otherLogin.login, otherUser)
 				}
 				return ('');
 			})
@@ -90,14 +75,16 @@ export class AuthService {
 		if (login !== '')
 			return login;
 		this.userService.connectSession.set(userData.login, access_token);
-		if (this.tmp_db.users.find(users => users.login === userData.login)) {
+		const us = await this.userService.userExist(userData.login)
+		console.log(us)
+		if (us) {
 			console.log("User already exist")
-			this.userService.changeOnline(userData.login, {online: true})
+			//2fa
+			await this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}
-		this.tmp_db.users = [...this.tmp_db.users, userData];
-		this.userService.changeOnlineInDB({login: userData.login, online: true})
-		//console.log(this.userService.onlinePeople.has('tester'))
+
+		await this.userService.initUser(userData)
 		return userData.login;
 	}
 

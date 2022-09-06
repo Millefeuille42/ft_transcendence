@@ -1,6 +1,6 @@
-import {Body, Controller, Get, Param, Patch, Res} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Res} from '@nestjs/common';
 import {UserService} from "./user.service";
-import {CreateUserDto} from "./create-user.dto";
+import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {Response} from "express";
 
 @Controller('user')
@@ -8,8 +8,18 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Get('online/:login')
-	getOnlineList(@Param('login') login: string) {
-		return (this.userService.listOfOnlinePeople(login))
+	async getOnlineList(@Param('login') login: string) {
+		return (await this.userService.listOfOnlinePeople(login))
+	}
+
+	@Post()
+	async createNewUser(@Body() user: CreateUser) {
+		await this.userService.initUser(user)
+	}
+
+	@Get()
+	async getUsers() {
+		return await this.userService.getAllUsers()
 	}
 
 	/**
@@ -22,10 +32,10 @@ export class UserController {
 	 * @apiSuccess {Json} userExist Boolean set to false if username doesn't exist
 	 * @apiSuccess {Json} login if <code>userExist</code> is true, the login of the user
 	 */
-	@Get('username/:username')
-	isUsernameExist(@Param('username') username: string) {
-		return (this.userService.isUsernameExist(username))
-	}
+	//@Get('username/:username')
+	//isUsernameExist(@Param('username') username: string) {
+	//	return (this.userService.isUsernameExist(username))
+	//}
 
 	/**
 	 * @api {get} /user/:login/:resource Request information about a User
@@ -44,22 +54,22 @@ export class UserController {
 	 * @apiSuccess {Boolean} online True if <code>login</code> is online
 	 */
 	@Get('/:login/:resource')
-	getUser(@Param('login') login: string,
+	async getUser(@Param('login') login: string,
 			@Param('resource') resource: string) {
 		if (resource === 'profile')
-			return (this.userService.getUser(login));
+			return (await this.userService.getUser(login));
 		if (resource === 'name')
-			return (this.userService.getName(login));
+			return (await this.userService.getName(login));
 		if (resource === 'email')
-			return (this.userService.getMail(login));
+			return (await this.userService.getMail(login));
 		if (resource === 'avatar')
-			return (this.userService.getAvatar(login));
+			return (await this.userService.getAvatar(login));
 		if (resource === 'banner')
-			return (this.userService.getBanner(login));
+			return (await this.userService.getBanner(login));
 		if (resource === 'username')
-			return (this.userService.getUsername(login));
+			return (await this.userService.getUsername(login));
 		if (resource === 'online')
-			return (this.userService.isOnline(login));
+			return (await this.userService.isOnline(login));
 	}
 
 	/**
@@ -77,11 +87,11 @@ export class UserController {
 	 * @apiSuccess {Json} changes New informations about <code>login</code>
 	 */
 	@Patch(':login/')
-	changeUser(@Param('login') login: string,
+	async changeUser(@Param('login') login: string,
 			   @Body() change: CreateUserDto,
 			   @Res() res: Response) {
 
-		let user = this.userService.getUser(login)
+		let user = await this.userService.getUser(login)
 		let newChange = {
 			online: user.online,
 			avatar: user.avatar,
@@ -89,19 +99,19 @@ export class UserController {
 			username: user.username
 		}
 		if (change.hasOwnProperty('online')) {
-			this.userService.changeOnline(login, change)
+			await this.userService.changeOnline(login, change)
 			newChange.online = change.online
 		}
 		if (change.avatar) {
-			this.userService.changeAvatar(login, change)
+			await this.userService.changeAvatar(login, change)
 			newChange.avatar = change.avatar
 		}
 		if (change.banner) {
-			this.userService.changeBanner(login, change)
+			await this.userService.changeBanner(login, change)
 			newChange.banner = change.banner
 		}
 		if (change.username) {
-			this.userService.changeUsername(login, change)
+			await this.userService.changeUsername(login, change)
 			newChange.username = change.username
 		}
 		res.send(newChange)

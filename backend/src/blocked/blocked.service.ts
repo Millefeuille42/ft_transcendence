@@ -1,64 +1,97 @@
 import {BadRequestException, forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {UserService} from "../user/user.service";
-import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {FriendsService} from "../friends/friends.service";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+import {RelationsEntity} from "../entities/relations.entity";
 
 @Injectable()
 export class BlockedService {
-	constructor(private readonly userService: UserService,
-				private readonly tmp_db: TmpDbService,
+	constructor(@Inject(forwardRef(() => UserService))
+				private userService: UserService,
 				@Inject(forwardRef(() => FriendsService))
-				private friendService: FriendsService) {}
+				private friendService: FriendsService,
+				@InjectRepository(RelationsEntity) private relationsRepository: Repository<RelationsEntity>) {}
 
-	verificationUsers(login: string, block?: string) {
-		if (!(this.tmp_db.users.find(user => user.login === login)))
+	async verificationUsers(login: string, block?: string) {
+		let user = await this.userService.getUser(login)
+		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		if (!block)
 			return ;
-		if (!(this.tmp_db.users.find(user => user.login === block)))
+		user = await this.userService.getUser(block)
+		if (!user)
 			throw new HttpException('User to block not found', HttpStatus.NOT_FOUND)
 	}
 
-	blockedList(login: string) {
-		this.verificationUsers(login)
+	async blockedList(login: string) {
+		await this.verificationUsers(login)
+		const user = await this.userService.getUser(login)
 
-		const blocks = this.tmp_db.users.find(users => users.login === login).blocked
+		const blocks = await this.relationsRepository.find({
+			where: {
+				id: user.id,
+				blocked: true
+			}
+		})
 		if (blocks.length === 0)
 			return { thereIsBlocked: false}
+		let listOfBlocked = new Array<String>()
+		blocks.forEach(f => {
+			listOfBlocked.push(f.otherLogin)
+		})
 		return {
 			thereIsBlocked: true,
-			listOfBlocked: blocks,
+			listOfBlocked: listOfBlocked,
 		};
 	}
 
-	addBlock(login: string, block: string) {
-		this.verificationUsers(login, block)
+	async addBlock(login: string, block: string) {
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
 
-		const blocks = this.tmp_db.users.find(users => users.login === login).blocked
-		if (blocks.find(b => b === block) || block === login)
-			throw new BadRequestException()
-		blocks.push(block)
-		if (this.friendService.isFriend(block, login))
-			this.friendService.deleteFriend(block, login);
-		if (this.friendService.isFriend(login, block))
-			this.friendService.deleteFriend(login, block)
+		if (block === login)
+			throw new BadRequestException("Login and blocked can't be the same")
+		let relation
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
+		if (alreadyRelation && alreadyRelation.blocked === true)
+			throw new HttpException("Already blocked", HttpStatus.FORBIDDEN)
+		if (await this.friendService.isFriend(login, block))
+			await this.friendService.deleteFriend(login, block)
+		if (await this.friendService.isFriend(block, login))
+			await this.friendService.deleteFriend(block, login)
+		if (alreadyRelation)
+			relation = await this.relationsRepository.preload({id: user.id, otherLogin: block, blocked: true})
+		else
+			relation = {
+				id: user.id,
+				otherLogin: block,
+				friend: false,
+				blocked: true
+			}
+		return await this.relationsRepository.save(relation)
 	}
 
-	deleteBlock(login: string, block: string) {
-		this.verificationUsers(login, block)
+	async deleteBlock(login: string, block: string) {
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
 
-		const us = this.tmp_db.users.find(users => users.login === login)
-		const blocks = us.blocked
-		if (!(blocks.find(b => b === block)) || block === login)
+		if (block === login)
+			throw new BadRequestException("Login and blocked can't be the same")
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
+		if (!alreadyRelation || (alreadyRelation && alreadyRelation.blocked === false))
 			throw new BadRequestException()
-		us.blocked = blocks.filter(b => b !== block);
+		let relation = await this.relationsRepository.preload({id: user.id, otherLogin: block, blocked: false})
+		return await this.relationsRepository.save(relation)
 	}
 
-	isBlocked(login: string, block: string) {
-		this.verificationUsers(login, block)
+	async isBlocked(login: string, block: string) {
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
 
-		const blocks = this.tmp_db.users.find(users => users.login === login).blocked
-		if (blocks.find(b => b === block))
+		const alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
+		console.log(alreadyRelation)
+		if (alreadyRelation && alreadyRelation.blocked === true)
 			return true
 		return false
 	}

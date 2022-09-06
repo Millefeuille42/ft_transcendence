@@ -1,5 +1,4 @@
-import {equipped, inventory} from "../items/inventory.interface";
-import {stats} from "../game/stats.interface"
+import {StatsEntity} from "../entities/stats.entity";
 
 export interface User {
 	email?: string;
@@ -9,11 +8,6 @@ export interface User {
 	avatar?: string;
 	banner?: string;
 	online?: boolean;
-	friends?: Array<string>;
-	blocked?: Array<string>;
-	inventory?: inventory;
-	equipped?: equipped;
-	stats?: stats;
 }
 
 export interface UserGlobal {
@@ -21,5 +15,5 @@ export interface UserGlobal {
 	username: string;
 	avatar: string;
 	banner: string;
-	stats: stats;
+	stats: StatsEntity;
 }
