@@ -16,6 +16,9 @@ let goalLastTick: boolean
 let sleeping: boolean
 let end: boolean
 
+let rod_image: P5.Image
+let ball_image: P5.Image
+
 function autoResize(p5: P5) {
 	let parent = document.getElementById("app")
 	if (parent !== null) {
@@ -23,8 +26,8 @@ function autoResize(p5: P5) {
 			// TODO put player and ball to new position
 
 			setTimeout(() => {
-				playerOne = new rod(playerOne.position.x, playerOne.position.y, p5)
-				playerTwo = new rod(playerTwo.position.x, playerTwo.position.y, p5)
+				playerOne = new rod(playerOne.position.x, playerOne.position.y, p5, rod_image)
+				playerTwo = new rod(playerTwo.position.x, playerTwo.position.y, p5, rod_image)
 				ball = new ballClass(ball.position.x, ball.position.y, ball.direction.x, ball.direction.y, p5)
 			}, 200)
 
@@ -59,13 +62,14 @@ function drawScene(p5: P5) {
 }
 
 export class LocalGame {
-	private gamePreload() {
-
+	private gamePreload(p5: P5) {
+		ball_image = p5.loadImage("http://localhost:8080/balls/ball_chrome.png")
+		rod_image = p5.loadImage("http://localhost:8080/rod/rod_github.png")
 	}
 
 	private gameSetup(p5: P5) {
-		playerOne = new rod(p5.width * 0.01, p5.height / 2 - (p5.height * 0.15 / 2), p5)
-		playerTwo = new rod(p5.width * 0.99 - p5.width * 0.017, p5.height / 2 - (p5.height * 0.15 / 2), p5)
+		playerOne = new rod(p5.width * 0.01, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image)
+		playerTwo = new rod(p5.width * 0.99 - p5.width * 0.017, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image)
 		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
 
 		goalLastTick = true
@@ -137,6 +141,7 @@ export class LocalGame {
 	}
 
 	loadGame(p5: P5) {
+		this.gamePreload(p5)
 		this.gameSetup(p5)
 	}
 
