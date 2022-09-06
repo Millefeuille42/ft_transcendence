@@ -10,7 +10,7 @@
 					<v-sheet v-for="match in stats.history" :key="match.key + n"
 							 width="100%" height="100%"
 							 :class="'d-flex flex-row justify-space-around mt-2 mb-2 text-truncate' +
-							 ($vuetify.breakpoint.mobile ? '' : 'text-h6')
+							 ($vuetify.breakpoint.mobile ? '' : ' text-h6')
 							">
 						<v-sheet :color="userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"
 								 class="d-flex flex-row" :elevation="userVictory(match) ? 10 : 2">
@@ -25,7 +25,7 @@
 						</v-sheet>
 						<v-sheet width="10%" height="100%"
 								 :class="'text-center pa-2' +
-								($vuetify.breakpoint.mobile ? '' : 'text-h5')">
+								($vuetify.breakpoint.mobile ? '' : ' text-h5')">
 							VS
 						</v-sheet>
 						<v-sheet :color="!userVictory(match) ? 'grey darken-3' : 'grey darken-4'" width="40%" height="100%"

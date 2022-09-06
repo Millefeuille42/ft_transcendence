@@ -1,5 +1,5 @@
 import P5 from "p5";
-import {myVector} from "@/game/vector";
+import {myVector} from "./vector";
 
 export class rod {
 	position: myVector
@@ -7,11 +7,13 @@ export class rod {
 	width: number
 	goUp: boolean = false
 	goDown: boolean = false
+	texture: P5.Image
 
-	constructor(x: number, y: number, p5: P5) {
+	constructor(x: number, y: number, p5: P5, texture: P5.Image) {
 		this.position = new myVector(x, y)
 		this.height = p5.height * 0.15
 		this.width = p5.width * 0.017
+		this.texture = texture
 	}
 
 	draw(p5: P5) {

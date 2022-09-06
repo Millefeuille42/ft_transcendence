@@ -1,7 +1,11 @@
 <template>
 	<v-sheet class="" height="100%" rounded="xl">
-		<v-sheet class="text-h6 mb-4 pt-3" height="10%"> Online users </v-sheet>
-		<v-sheet v-if="loaded" height="80%" class="overflow-y-auto">
+		<v-sheet
+			class="text-h6 mb-4 pt-3"
+			height="10%"> Online users </v-sheet>
+		<v-sheet v-if="loaded"
+				 :class="$vuetify.breakpoint.mobile ? 'mt-6' : '' "
+				 height="80%" class="overflow-y-auto">
 			<v-list-item v-for="online in onlineList" :key="online.info.login" class="d-flex flex-row justify-space-between">
 				<v-btn width="70%" height="20%" rounded :key="'btn-' + online.info.login"
 					   @click="selectedUser = online; handleUserClick()"
@@ -28,9 +32,14 @@
 			</v-list-item>
 		</v-sheet>
 		<v-sheet v-else class="d-flex justify-center" width="100%" height="80%">
-			<v-progress-circular class="mt-auto mb-auto" size="128" indeterminate></v-progress-circular>
+			<v-progress-circular class="mt-auto mb-auto"
+								 :size="$vuetify.breakpoint.mobile ? '64' : '128'"
+								 indeterminate></v-progress-circular>
 		</v-sheet>
-		<v-dialog v-model="hasUserSelected" width="70%" height="100%" dark>
+		<v-dialog v-model="hasUserSelected" width="70%" dark
+				  :fullscreen="$vuetify.breakpoint.mobile"
+				  :transition="$vuetify.breakpoint.mobile ? 'dialog-bottom-transition' : 'scale-transition'"
+		>
 			<ProfileCard v-if="hasUserSelected" height="100%" :user="selectedUser.info" mWidth="100%" rounded="false"/>
 		</v-dialog>
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
@@ -142,6 +151,11 @@ import {EventBus} from "@/main";
 		EventBus.$on("updateOnlineList", () => {
 			this.loadList()
 		})
+
+		EventBus.$on("unloadCard", () => {
+			this.$data.hasUserSelected = false
+		})
+
 	}
 })
 export default class HomeContentOnlineList extends Vue {

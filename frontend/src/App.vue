@@ -89,10 +89,7 @@ import LoginPage from "@/components/LoginPage.vue";
 			})
 		},
 		changeTab() {
-
-			if (window.location.hash == '#Home') {
-				window.location.reload()
-			}
+			this.$data.displayGame = window.location.hash == '#Home'
 
 			if (window.location.hash == "#" + this.$data.currentTab)
 				return

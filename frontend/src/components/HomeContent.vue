@@ -1,13 +1,19 @@
 <template>
 	<v-container fill-height class="d-flex flex-column pa-6">
-			<v-sheet color="white" height="67%" width="100%" rounded="t-xl" class="d-flex flex-row justify-center">
-				<div id="game" style="width: 98%; height: 98%; margin-top: auto; margin-bottom: auto"></div>
+			<v-sheet color="black" height="67%" width="100%" rounded="t-xl" class="d-flex flex-row justify-center">
+				<div id="game" style="width: 98%; height: 98%; margin-top: auto; margin-bottom: auto">
+					<iframe width="100%" height="100%"
+							style="border: 0"
+							src="http://localhost:1234/" > Browser not compatible </iframe>
+				</div>
 			</v-sheet>
 		<v-sheet height="30%" width="100%" class="d-flex mt-auto flex-row">
-			<v-sheet height="100%" width="67%" elevation="6" class="mt-auto" rounded="bl-xl">
+			<v-sheet v-if="!$vuetify.breakpoint.mobile" height="100%" width="67%" elevation="6" class="mt-auto" rounded="bl-xl">
 				<ProfileCardMatchHistoryDialog v-if="loaded" :max_height="'80%'" :user="user" :stats="stats" />
 			</v-sheet>
-			<v-sheet elevation="6" height="100%" width="30%" class="ml-auto" rounded="br-xl">
+			<v-sheet elevation="6" height="100%"
+					 :width="$vuetify.breakpoint.mobile ? '100%' : '30%'"
+					 class="ml-auto" rounded="br-xl">
 				<HomeContentOnlineList :user="user"/>
 			</v-sheet>
 		</v-sheet>
@@ -21,8 +27,6 @@ import ProfileCardMatchHistoryDialog
 	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
 import {getUserStats} from "@/queries";
 import {statsIn} from "@/queriesData";
-import P5 from "p5";
-import {sketch} from "@/game/gameMain";
 
 @Component({
 	components: {ProfileCardMatchHistoryDialog, HomeContentOnlineList},
@@ -33,7 +37,6 @@ import {sketch} from "@/game/gameMain";
 		canvas: Object,
 		stats: {},
 		loaded: false,
-		game: false,
 	}),
 	methods: {
 		loadStats() {
@@ -47,15 +50,6 @@ import {sketch} from "@/game/gameMain";
 	},
 	mounted() {
 		this.loadStats()
-		setTimeout(() => {
-			this.$data.canvas = new P5(sketch);
-		}, 1000)
-	},
-	destroyed() {
-		delete this.$data.canvas
-	},
-	created() {
-		console.log("proute")
 	}
 })
 export default class HomeContent extends Vue {
