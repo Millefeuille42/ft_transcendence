@@ -12,10 +12,7 @@ import {UsersList} from "../entities/users.entity";
 @Injectable()
 export class AuthService {
 	constructor(public configService: ConfigService,
-				private userService: UserService,
-				private itemsService: ItemsService,
-				private tmp_db: TmpDbService,
-				private gameService: GameService) { }
+				private userService: UserService) { }
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -35,12 +32,12 @@ export class AuthService {
 				"content-type": "application/json",
 			},
 		})
-			.then(function (res) { // Une fois que la requete est faite et a reussi, il faut donner une fonction a call
-				ret = res.data.access_token; // Et en gros tu la definis la, la dite fonction
+			.then(function (res) {
+				ret = res.data.access_token;
 		})
 			.catch((err) => {
 				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
-			}); // Si la requete echoue
+			});
 		return ret;
 	}
 
@@ -79,7 +76,8 @@ export class AuthService {
 		if (login !== '')
 			return login;
 		this.userService.connectSession.set(userData.login, access_token);
-		const us = await this.userService.getUser(userData.login)
+		const us = await this.userService.userExist(userData.login)
+		console.log(us)
 		if (us) {
 			console.log("User already exist")
 			//2fa
@@ -88,10 +86,7 @@ export class AuthService {
 		}
 
 		await this.userService.initUser(userData)
-
-		//this.tmp_db.users = [...this.tmp_db.users, userData];
 		this.userService.changeOnlineInDB({login: userData.login, online: true})
-		//console.log(this.userService.onlinePeople.has('tester'))
 		return userData.login;
 	}
 

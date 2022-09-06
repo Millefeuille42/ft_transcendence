@@ -38,6 +38,7 @@ export class IsAuthMiddleware implements NestMiddleware {
       next();
       return ;
     }
+    //TODO vérfier Session -> UUID et Login -> login (2 cookies)
     console.log(login)
     if (!login) {
       console.log("No login")
