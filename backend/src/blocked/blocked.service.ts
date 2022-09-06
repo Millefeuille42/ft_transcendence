@@ -5,6 +5,7 @@ import {FriendsService} from "../friends/friends.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EBlocked} from "../user/user.interface";
 import {Repository} from "typeorm";
+import {RelationsEntity} from "../entities/relations.entity";
 
 @Injectable()
 export class BlockedService {
@@ -12,7 +13,7 @@ export class BlockedService {
 				private readonly tmp_db: TmpDbService,
 				@Inject(forwardRef(() => FriendsService))
 				private friendService: FriendsService,
-				@InjectRepository(EBlocked) private blockedListRepository: Repository<EBlocked>) {}
+				@InjectRepository(RelationsEntity) private relationsRepository: Repository<RelationsEntity>) {}
 
 	async verificationUsers(login: string, block?: string) {
 		let user = await this.userService.getUser(login)
@@ -26,48 +27,74 @@ export class BlockedService {
 	}
 
 	async blockedList(login: string) {
-//		const user = await this.userService.getUser(login)
-//
-//		const blocks = user.blocked
-//		if (blocks.length === 0)
-//			return { thereIsBlocked: false}
-//		return {
-//			thereIsBlocked: true,
-//			listOfBlocked: blocks,
-//		};
+		await this.verificationUsers(login)
+		const user = await this.userService.getUser(login)
+
+		const blocks = await this.relationsRepository.find({
+			where: {
+				id: user.id,
+				blocked: true
+			}
+		})
+		if (blocks.length === 0)
+			return { thereIsBlocked: false}
+		let listOfBlocked = new Array<String>()
+		blocks.forEach(f => {
+			listOfBlocked.push(f.otherLogin)
+		})
+		return {
+			thereIsBlocked: true,
+			listOfBlocked: listOfBlocked,
+		};
 	}
 
 	async addBlock(login: string, block: string) {
-//		await this.verificationUsers(login, block)
-//		const user = await this.userService.getUser(login)
-//
-//		const blocks = user.blocked
-//		if (blocks.find(b => b === block) || block === login)
-//			throw new BadRequestException()
-//		blocks.push(block)
-//		if (await this.friendService.isFriend(block, login))
-//			await this.friendService.deleteFriend(block, login);
-//		if (await this.friendService.isFriend(login, block))
-//			await this.friendService.deleteFriend(login, block)
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
+
+		if (block === login)
+			throw new BadRequestException("Login and blocked can't be the same")
+		let relation
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
+		if (alreadyRelation && alreadyRelation.blocked === true)
+			throw new HttpException("Already blocked", HttpStatus.FORBIDDEN)
+		if (await this.friendService.isFriend(login, block))
+			await this.friendService.deleteFriend(login, block)
+		if (await this.friendService.isFriend(block, login))
+			await this.friendService.deleteFriend(block, login)
+		if (alreadyRelation)
+			relation = await this.relationsRepository.preload({id: user.id, otherLogin: block, blocked: true})
+		else
+			relation = {
+				id: user.id,
+				otherLogin: block,
+				friend: false,
+				blocked: true
+			}
+		return await this.relationsRepository.save(relation)
 	}
 
 	async deleteBlock(login: string, block: string) {
-//		await this.verificationUsers(login, block)
-//		const user = await this.userService.getUser(login)
-//
-//		const blocks = user.blocked
-//		if (!(blocks.find(b => b === block)) || block === login)
-//			throw new BadRequestException()
-//		user.blocked = blocks.filter(b => b !== block);
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
+
+		if (block === login)
+			throw new BadRequestException("Login and blocked can't be the same")
+		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
+		if (!alreadyRelation || (alreadyRelation && alreadyRelation.blocked === false))
+			throw new BadRequestException()
+		let relation = await this.relationsRepository.preload({id: user.id, otherLogin: block, blocked: false})
+		return await this.relationsRepository.save(relation)
 	}
 
 	async isBlocked(login: string, block: string) {
-//		await this.verificationUsers(login, block)
-//		const user = await this.userService.getUser(login)
-//
-//		const blocks = user.blocked
-//		if (blocks.find(b => b === block))
-//			return true
-//		return false
+		await this.verificationUsers(login, block)
+		const user = await this.userService.getUser(login)
+
+		const alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
+		console.log(alreadyRelation)
+		if (alreadyRelation && alreadyRelation.blocked === true)
+			return true
+		return false
 	}
 }

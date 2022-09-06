@@ -33,7 +33,7 @@ export class UserService {
 
 	async verificationUser(login: string) {
 		const user = (await this.usersListRepository.findOneBy({login: login}))
-		console.log(user)
+		//console.log(user)
 		if (!user)
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		return (user)

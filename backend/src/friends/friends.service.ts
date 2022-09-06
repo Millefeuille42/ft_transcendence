@@ -58,6 +58,8 @@ export class FriendsService {
 		if (alreadyRelation && alreadyRelation.friend === true)
 			throw new HttpException("Already friends", HttpStatus.FORBIDDEN)
 		if (alreadyRelation && alreadyRelation.blocked === true)
+			throw new HttpException("User blocked Friend", HttpStatus.FORBIDDEN)
+		if (await this.blockedService.isBlocked(friend, login))
 			throw new HttpException("Friend blocked User", HttpStatus.FORBIDDEN)
 		if (alreadyRelation)
 			relation = await this.relationsRepository.preload({id: user.id, otherLogin: friend, friend: true})
