@@ -17,6 +17,7 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
+    "allowJs": true,
     "types": [
       "webpack-env"
     ],
@@ -26,6 +27,7 @@
       ]
     },
     "lib": [
+      "es6",
       "esnext",
       "dom",
       "dom.iterable",

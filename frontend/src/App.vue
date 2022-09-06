@@ -8,18 +8,19 @@
 					<v-container>
 							<v-tabs-items v-model="curTab" style="background-color: transparent" dark>
 								<v-tab-item>
-									<DisplayContainer cols="12" sm="8" height="90vh" min_height="800" min-width="100%" width="100%">
-										<HomeContent/>
+									<DisplayContainer cols="12" sm="8" height="88vh" min_height="" min-width="100%" width="100%">
+										<HomeContent v-if="logged_in && loaded && displayGame" :user="user"/>
+										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 								<v-tab-item>
-									<DisplayContainer cols="12" sm="8" height="90vh" min_height="800">
+									<DisplayContainer cols="12" sm="8" height="88vh" min_height="">
 										<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
 										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
 								</v-tab-item>
 								<v-tab-item>
-									<DisplayContainer cols="12" sm="8" height="90vh" min_height="50px"  min-width="100%" width="100%">
+									<DisplayContainer cols="12" sm="8" height="88vh" min_height="50px"  min-width="100%" width="100%">
 										<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
 										<LoginPage v-if="!logged_in"/>
 									</DisplayContainer>
@@ -55,6 +56,7 @@ import LoginPage from "@/components/LoginPage.vue";
 		currentTab: "Home",
 		loaded: false,
 		logged_in: false,
+		displayGame: true,
 		links: [
 			{text: 'Home', icon:"mdi-home", component:"HomeContent"},
 			{text: 'Chat', icon:"mdi-forum", component:"ChatContent"},
@@ -87,10 +89,11 @@ import LoginPage from "@/components/LoginPage.vue";
 			})
 		},
 		changeTab() {
-			if (window.location.hash != "#Home" && !this.$cookies.isKey("Session") && false) {
-				this.$data.loaded = false
-				RedirectToFTAuth()
+
+			if (window.location.hash == '#Home') {
+				window.location.reload()
 			}
+
 			if (window.location.hash == "#" + this.$data.currentTab)
 				return
 			this.$data.currentTab = window.location.hash.slice(1)
@@ -99,7 +102,7 @@ import LoginPage from "@/components/LoginPage.vue";
 				EventBus.$emit("routeTabChanged", tabId)
 		},
 		async queryUserData() {
-			const selfData: userDataIn = await getUserData(this.$cookies.get("Session"))
+			const selfData: userDataIn = await getUserData(this.$cookies.get("Session") as string)
 				.catch(() => {
 					this.$cookies.remove("Session")
 					window.location.reload()
@@ -154,6 +157,10 @@ import LoginPage from "@/components/LoginPage.vue";
 			this.changeTab()
 		})
 
+		EventBus.$on("userChanged", async () => {
+			await this.queryUserData()
+			EventBus.$emit("userChangedDone", "")
+		})
 		this.listenToTabChanged()
 	}
 })

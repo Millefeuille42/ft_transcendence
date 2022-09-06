@@ -1,13 +1,14 @@
 <template>
 	<v-sheet style="width: 100%; height: 100%" class="d-flex flex-column align-items" color="">
 		<SkeletonProfileFriends v-if="!loaded"></SkeletonProfileFriends>
-		<v-sheet width="100%" height="85%" class="d-flex justify-space-between justify-space-between mb-auto">
-			<v-sheet width="33%" height="100%" class="overflow-y-auto" v-if="loaded && hasFriends">
+		<v-sheet width="100%" height="85%" class="d-flex justify-space-between mb-auto">
+			<v-sheet :width="$vuetify.breakpoint.mobile ? '100%' : '33%'"
+					 height="100%" class="overflow-y-auto" v-if="loaded && hasFriends">
 				<v-list>
 					<template v-for="friend in friends">
 							<v-list-item :key="friend.login" class="mr-5 pl-0 ml-2">
 								<v-btn width="100%" height="20%" rounded :key="'btn-' + friend.login"
-									   @click="selectedFriend = friend; hasFriendSelected = true"
+									   @click="handleSelect(friend)"
 									   class="d-flex justify-center mb-2 mt-2 pl-4" color="grey darken-4">
 									<v-list-item-avatar>
 											<v-img :src="friend.avatar"/>
@@ -26,8 +27,9 @@
 					</template>
 				</v-list>
 			</v-sheet>
-			<v-sheet width="63%" rounded="xl" height="100%">
-				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%"/>
+			<v-sheet v-if="!$vuetify.breakpoint.mobile" width="63%" rounded="xl" height="100%">
+				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%" mWidth="100%"/>
+				<v-img height="100%" width="80%" v-else-if="loaded && hasFriends" src="/giphy.gif" style="border-radius: 20px"/>
 			</v-sheet>
 		</v-sheet>
 		<v-img v-if="loaded && !hasFriends" src="@/assets/curly.png" height="80%" />
@@ -43,6 +45,7 @@ import {getFriendsList, getFriendStatus, getUserData, removeFriendFromList} from
 import {friendListIn, userDataIn} from "@/queriesData";
 import SkeletonProfileFriends from "@/components/SkeletonComponents/SkeletonProfileFriends.vue"
 import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFriendsAddon/ProfileFriendsAddFriend.vue";
+import {EventBus} from "@/main";
 
 @Component({
 	components: {ProfileFriendsAddFriend, ProfileCard, SkeletonProfileFriends},
@@ -70,10 +73,11 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 			this.$data.friends.push(friendData)
 			this.$data.hasFriends = true
 			this.showSnack(friendData.username + " added", "green")
+			EventBus.$emit("updateOnlineList", "")
 		},
 		async removeFriend(friend: userDataIn) {
 			let that = this
-			removeFriendFromList(this.$props.user.login, friend.login).then(function() {
+			await removeFriendFromList(this.$props.user.login, friend.login).then(function() {
 				const index = that.$data.friends.indexOf(friend, 0);
 				if (index > -1)
 					that.$data.friends.splice(index, 1);
@@ -83,6 +87,7 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 					that.$data.selectedFriend = Object as () => userDataIn
 					that.$data.hasFriendSelected = false
 				}
+				EventBus.$emit("updateOnlineList", "")
 			}).catch(() => {
 				this.showSnack("Failed to remove " + friend.username, "red")
 			})
@@ -101,16 +106,15 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 				})
 		},
 		async loadFriendData(friend: string) {
-			let that = this
 			getUserData(friend)
 				.then((friendData: userDataIn) => {
 					friendData.status = "not loaded"
 					if (!friendData.banner)
 						friendData.banner = "https://picsum.photos/1920/1080?random";
-					that.$data.friends.push(friendData)
-					that.loadFriendStatus(friend)
+					this.$data.friends.push(friendData)
+					this.loadFriendStatus(friend)
 				}).catch(() => {
-					that.showSnack("Failed to get " + friend + " data", "red")
+					this.showSnack("Failed to get " + friend + " data", "red")
 				})
 		},
 		async loadFriends(): Promise<friendListIn> {
@@ -126,6 +130,13 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 					return {thereIsFriend: false, listOfFriends: []} as friendListIn
 				})
 		},
+		handleSelect(friend: userDataIn) {
+			this.$data.hasFriendSelected = false
+			setTimeout(() => {
+				this.$data.hasFriendSelected = true
+			}, 100)
+			this.$data.selectedFriend = friend
+		}
 	},
 	async mounted() {
 		let friendList: friendListIn = await this.loadFriends()
@@ -133,7 +144,7 @@ import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFr
 		if (!this.$data.hasFriends)
 			return
 		for (let friend in friendList.listOfFriends) {
-			this.loadFriendData(friendList.listOfFriends[friend])
+			this.loadFriendData(friendList.listOfFriends[friend]).then()
 		}
 	},
 
