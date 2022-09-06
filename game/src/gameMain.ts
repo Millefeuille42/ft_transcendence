@@ -1,5 +1,5 @@
 import P5 from "p5"
-import {LocalGame} from "@/game/localGame";
+import {LocalGame} from "./localGame";
 
 class button {
 	selected: boolean = false
@@ -60,14 +60,14 @@ export const sketch = (p5: P5) => {
 	let buttonIndex: number = 0
 
 	p5.setup = () => {
-		const parent = document.getElementById("game")
+		const parent = document.getElementById("app")
 		if (parent !== null) {
 			c_width = parent.clientWidth
 			c_height = parent.clientHeight
 		}
 
 		const canvas = p5.createCanvas(c_width, c_height)
-		canvas.parent("game")
+		canvas.parent("app")
 		p5.frameRate(60)
 		p5.background("black")
 		p5.textAlign("center")
@@ -129,9 +129,4 @@ export const sketch = (p5: P5) => {
 	}
 }
 
-//if (!loaded) {
-//	local.loadGame(p5)
-//	loaded = true
-//	return
-//}
-//local.gameLoop(p5)
+new P5(sketch);

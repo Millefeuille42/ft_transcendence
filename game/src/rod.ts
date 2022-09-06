@@ -1,5 +1,5 @@
 import P5 from "p5";
-import {myVector} from "@/game/vector";
+import {myVector} from "./vector";
 
 export class rod {
 	position: myVector

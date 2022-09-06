@@ -1,6 +1,6 @@
-import {myVector} from "@/game/vector";
+import {myVector} from "./vector";
 import P5 from "p5";
-import {rod} from "@/game/rod";
+import {rod} from "./rod";
 
 export class ballClass {
 	position: myVector

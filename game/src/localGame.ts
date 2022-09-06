@@ -1,5 +1,5 @@
-import {rod} from "@/game/rod";
-import {ballClass} from "@/game/ball";
+import {rod} from "./rod";
+import {ballClass} from "./ball";
 import P5 from "p5";
 
 let c_width = 200
@@ -17,7 +17,7 @@ let sleeping: boolean
 let end: boolean
 
 function autoResize(p5: P5) {
-	let parent = document.getElementById("game")
+	let parent = document.getElementById("app")
 	if (parent !== null) {
 		if (c_width !== parent.clientWidth && c_height !== parent.clientHeight) {
 			// TODO put player and ball to new position
