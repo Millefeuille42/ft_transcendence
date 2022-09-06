@@ -4,6 +4,7 @@
   "description": "A template for a p5.js sketch using Typescript",
   "main": "index.html",
   "scripts": {
+    "init": "cp -r assets dist/assets; echo Done",
     "start": "parcel game.html --open",
     "build": "parcel build index.html"
   },

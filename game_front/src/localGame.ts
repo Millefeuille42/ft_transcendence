@@ -28,7 +28,7 @@ function autoResize(p5: P5) {
 			setTimeout(() => {
 				playerOne = new rod(playerOne.position.x, playerOne.position.y, p5, rod_image)
 				playerTwo = new rod(playerTwo.position.x, playerTwo.position.y, p5, rod_image)
-				ball = new ballClass(ball.position.x, ball.position.y, ball.direction.x, ball.direction.y, p5)
+				ball = new ballClass(ball.position.x, ball.position.y, ball.direction.x, ball.direction.y, p5, ball_image)
 			}, 200)
 
 			c_width = parent.clientWidth
@@ -62,15 +62,15 @@ function drawScene(p5: P5) {
 }
 
 export class LocalGame {
-	private gamePreload(p5: P5) {
-		ball_image = p5.loadImage("http://localhost:8080/balls/ball_chrome.png")
-		rod_image = p5.loadImage("http://localhost:8080/rod/rod_github.png")
+	gamePreload(p5: P5) {
+		ball_image = p5.loadImage("/assets/balls/ball_rich.png")
+		rod_image = p5.loadImage("/assets/rods/rod_cristaquette.png")
 	}
 
 	private gameSetup(p5: P5) {
 		playerOne = new rod(p5.width * 0.01, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image)
 		playerTwo = new rod(p5.width * 0.99 - p5.width * 0.017, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image)
-		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
+		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
 
 		goalLastTick = true
 		sleeping = false
@@ -123,13 +123,13 @@ export class LocalGame {
 		if (goal) {
 			if (ball.direction.x > 0) {
 				twoScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
+				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
 				if (ball.direction.x < 0) {
 					ball.direction.x *= -1
 				}
 			} else {
 				oneScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5)
+				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
 				if (ball.direction.x > 0) {
 					ball.direction.x *= -1
 				}

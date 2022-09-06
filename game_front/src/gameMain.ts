@@ -60,6 +60,7 @@ export const sketch = (p5: P5) => {
 	let buttonIndex: number = 0
 
 	p5.setup = () => {
+		local.gamePreload(p5)
 		const parent = document.getElementById("app")
 		if (parent !== null) {
 			c_width = parent.clientWidth

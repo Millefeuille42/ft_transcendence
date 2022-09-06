@@ -6,50 +6,49 @@ export class ballClass {
 	position: myVector
 	direction: myVector
 	diametre: number
+	texture: P5.Image
+	collision: boolean
 
-	constructor(x: number, y:number, dirX: number, dirY: number, p5: P5) {
+	constructor(x: number, y:number, dirX: number, dirY: number, p5: P5, texture: P5.Image) {
 		this.position = new myVector(x, y)
 		this.direction = new myVector(dirX, dirY)
+		let oldX = this.direction.x
 		this.direction.rotate(p5.random(-30, 30))
 		if (p5.random(0, 2) > 1) {
 			this.direction.y *= -1
 		}
-		this.diametre = p5.width * 0.015
+		this.direction.x = oldX
+		this.diametre = p5.width * 0.030
+		this.texture = texture
+		this.collision = false
 	}
 
-	checkCollisionWithRod(r: rod, left: Boolean) {
-		if (!(this.position.y >= r.position.y && this.position.y <= r.position.y + r.height)) {
-			return ;
-		}
-
-		if (!left && this.direction.x > 0 &&
-			this.position.x + this.diametre >= r.position.x &&
-				this.position.x + this.diametre <= r.position.x + r.width) {
+	checkCollisionWithRod(r: rod) {
+		if (this.position.x < r.position.x + r.width &&
+			this.position.x + this.diametre > r.position.x &&
+			this.position.y < r.position.y + r.height &&
+			this.position.y + this.diametre > r.position.y
+		) {
 			this.bounce(true)
-		}
-
-		if (left && this.direction.x < 0 &&
-			this.position.x - this.diametre >= r.position.x &&
-				this.position.x - this.diametre <= r.position.x + r.width) {
-			this.bounce(true)
+			this.collision = true
 		}
 	}
 
 	move(one: rod, two:rod, p5: P5): boolean {
-		let goal = false
-
-		if (this.position.x >= p5.width - this.diametre || this.position.x <= this.diametre) {
+		if (this.position.x + this.diametre >= two.position.x + two.width / 3 || this.position.x <= one.position.x + one.width - one.width / 3) {
 			this.bounce(true)
-			goal = true
-		} else if (this.position.y >= p5.height - this.diametre || this.position.y <= this.diametre) {
+			this.collision = true
+			return true
+		} else if (this.position.y + this.diametre >= p5.height  || this.position.y <= 0) {
 			this.bounce(false)
+			this.collision = true
 		}
 
-		this.checkCollisionWithRod(one, true)
-		this.checkCollisionWithRod(two, false)
+		this.checkCollisionWithRod(one)
+		this.checkCollisionWithRod(two)
 
 		this.position.translate(this.direction)
-		return goal
+		return false
 	}
 
 	bounce(x: boolean) {
@@ -62,6 +61,15 @@ export class ballClass {
 
 	draw(p5: P5) {
 		p5.noStroke()
-		p5.ellipse(this.position.x, this.position.y, this.diametre, this.diametre)
+		p5.image(this.texture, this.position.x, this.position.y, this.diametre, this.diametre)
+		p5.stroke(this.collision ? "red" : "green")
+		p5.strokeWeight(5)
+		p5.noFill()
+		p5.rect(this.position.x, this.position.y, this.diametre, this.diametre)
+		p5.noStroke()
+		p5.fill("red")
+		p5.rect(this.position.x, this.position.y, 4, 4)
+		p5.fill("white")
+		this.collision = false
 	}
 }
