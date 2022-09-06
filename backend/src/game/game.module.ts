@@ -3,9 +3,12 @@ import { GameController } from './game.controller';
 import { GameService } from './game.service';
 import {UserModule} from "../user/user.module";
 import {TmpDbModule} from "../tmp_db/tmp_db.module";
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {StatsEntity} from "../entities/stats.entity";
 
 @Module({
-  imports: [forwardRef(() => UserModule), TmpDbModule],
+  imports: [forwardRef(() => UserModule), TmpDbModule,
+  TypeOrmModule.forFeature([StatsEntity])],
   controllers: [GameController],
   providers: [GameService],
   exports: [GameService]

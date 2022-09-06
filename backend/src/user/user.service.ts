@@ -61,6 +61,7 @@ export class UserService {
 		await this.usersListRepository.save(user)
 		await this.itemService.initInventory(user.login)
 		await this.itemService.initEquipment(user.login)
+		await this.gameService.initStats(user.login)
 	}
 
 

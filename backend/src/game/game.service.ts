@@ -2,12 +2,16 @@ import {forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs
 import {TmpDbService} from "../tmp_db/tmp_db.service";
 import {UserService} from "../user/user.service";
 import {EHistory, EStats, history, stats} from "./stats.interface";
+import {InjectRepository} from "@nestjs/typeorm";
+import {StatsEntity} from "../entities/stats.entity";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class GameService {
 	constructor(private tmp_db: TmpDbService,
 				@Inject(forwardRef(() => UserService))
-				private userService: UserService) {}
+				private userService: UserService,
+				@InjectRepository(StatsEntity) private statsRepository: Repository<StatsEntity>) {}
 
 	async verificationUsers(login: string, rival: string) {
 		let user = await this.userService.getUser(login)
@@ -21,53 +25,46 @@ export class GameService {
 	}
 
 	async initStats(login: string) {
-		let stats: EStats = {
-			login: login,
+		const user = await this.userService.getUser(login)
+		const stats = {
+			id: user.id,
 			total: 0,
 			wins: 0,
 			looses: 0,
 			points: 5,
-			lastRival: 'No one :(',
-			history: [{}] as EHistory[]
-		} as EStats
-		//stats.history.push({
-		//	login: login,
-		//	rival: 'tester',
-		//	userPoints: 5,
-		//	rivalPoints: 2,
-		//	gameMode: 'normal',
-		//} as EHistory)
-		return(stats);
+			lastRival: "No one :("
+		}
+		await this.statsRepository.save(stats)
 	}
 
 	async getStats(login: string) {
 		const user = await this.userService.getUser(login)
-//		return user.stats
+		return await this.statsRepository.findOneBy({id: user.id})
 	}
 
 	async getWins(login: string) {
 		const user = await this.userService.getUser(login)
-//		return {wins: user.stats.wins}
+		return {wins: (await this.statsRepository.findOneBy({id: user.id})).wins}
 	}
 
 	async getLooses(login: string) {
 		const user = await this.userService.getUser(login)
-//		return {looses: user.stats.looses}
+		return {looses: (await this.statsRepository.findOneBy({id: user.id})).looses}
 	}
 
 	async getTotal(login: string) {
 		const user = await this.userService.getUser(login)
-//		return {total: user.stats.total}
+		return {total: (await this.statsRepository.findOneBy({id: user.id})).total}
 	}
 
 	async getPoints(login: string) {
 		const user = await this.userService.getUser(login)
-//		return {points: user.stats.points}
+		return {points: (await this.statsRepository.findOneBy({id: user.id})).points}
 	}
 
 	async getLastRival(login: string) {
 		const user = await this.userService.getUser(login)
-//		return {lastRival: user.stats.lastRival}
+		return {lastRival: (await this.statsRepository.findOneBy({id: user.id})).lastRival}
 	}
 
 	async getHistory(login: string) {
@@ -79,8 +76,10 @@ export class GameService {
 		const user = await this.userService.getUser(login)
 		if (points < 0)
 			throw new HttpException('User can\'t have less of 0 point', HttpStatus.BAD_REQUEST)
-//		user.stats.points = points
-//		return {points: user.stats.points}
+		const stats = await this.statsRepository.findOneBy({id: user.id})
+		stats.points = points
+		await this.statsRepository.save(stats)
+		return {points: stats.points}
 	}
 
 	async addHistory(login: string, rival: string,
@@ -105,20 +104,20 @@ export class GameService {
 
 	async addStats(login: string, result: boolean, rival: string) {
 		await this.verificationUsers(login, rival)
-		let user = await this.userService.getUser(login);
+		const user = await this.userService.getUser(login);
+		const stats = await this.statsRepository.findOneBy({id: user.id})
 		console.log(result)
 		if (result) {
-//			user.stats.wins++
-//			user.stats.points += 2
+			stats.wins++
+			stats.points += 2
 		}
-		else if (!result) {
-//			user.stats.looses++
-//			user.stats.points++
+		else {
+			stats.looses++
+			stats.points++
 		}
-		else
-			throw new HttpException('Result must be a win or a loose', HttpStatus.BAD_REQUEST)
-//		user.stats.total++
-//		user.stats.lastRival = rival
-//		return user.stats
+		stats.total++
+		stats.lastRival = rival
+
+		return await this.statsRepository.save(stats)
 	}
 }

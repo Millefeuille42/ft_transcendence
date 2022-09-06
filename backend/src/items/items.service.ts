@@ -7,12 +7,14 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Items} from "../entities/items.entity";
 import {EquipmentEntity, InventoryEntity} from "../entities/inventory.entity";
+import {GameService} from "../game/game.service";
 
 @Injectable()
 export class ItemsService {
 	constructor(@Inject(forwardRef(() => UserService))
 				private userService: UserService,
 				private tmp_db: TmpDbService,
+				private gameService: GameService,
 				@InjectRepository(Items) private listItems: Repository<Items>,
 				@InjectRepository(InventoryEntity) private inventoryRepository: Repository<InventoryEntity>,
 				@InjectRepository(EquipmentEntity) private equipmentRepository: Repository<EquipmentEntity>) {}
@@ -59,10 +61,11 @@ export class ItemsService {
 	}
 
 	async dropItem(login: string) {
-		const user = await this.userService.getUser(login)
-//		if (user.stats.points <= 0)
-//			throw new HttpException('User have not enough points', HttpStatus.FORBIDDEN)
-//		user.stats.points--
+		await this.userService.getUser(login)
+		const points = (await this.gameService.getPoints(login)).points
+		if (points <= 0)
+			throw new HttpException('User have not enough points', HttpStatus.FORBIDDEN)
+		await this.gameService.fixPoints(login, points - 1)
 
 		const rarity = Math.floor(Math.random() * 100) + 1
 		console.log('rarity : ' + rarity)

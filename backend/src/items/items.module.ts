@@ -6,9 +6,10 @@ import {TmpDbModule} from "../tmp_db/tmp_db.module";
 import { Items } from "../entities/items.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import {EquipmentEntity, InventoryEntity} from "../entities/inventory.entity";
+import {GameModule} from "../game/game.module";
 
 @Module({
-  imports: [forwardRef(() => UserModule), TmpDbModule,
+  imports: [forwardRef(() => UserModule), TmpDbModule, GameModule,
     TypeOrmModule.forFeature([Items, InventoryEntity, EquipmentEntity])],
   controllers: [ItemsController],
   providers: [ItemsService],
