@@ -2,6 +2,16 @@
 	<v-sheet class="d-flex flex-column justify-center" width="100%"
 			 :height="$vuetify.breakpoint.mobile ? '100%' : '90%'">
 		<ProfileSettingsForm :loaded="loaded" :user="user"/>
+		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around" 
+				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
+			<v-btn @click="twofasecurity = true"
+				:fab="$vuetify.breakpoint.mobile"
+			> {{ $vuetify.breakpoint.mobile ? '' : 'Enable 2FA Security' }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-shield-lock
+				</v-icon>
+			</v-btn>
+		</v-sheet>
 		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around"
 				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
 			<v-btn @click="showBlocked = true"
