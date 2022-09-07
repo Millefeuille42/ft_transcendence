@@ -205,6 +205,7 @@ export class UserService {
 			online: change.online
 		})
 		await this.usersListRepository.save(changeUser);
+		console.log (this.usersListRepository.findOneBy({id: user.id}))
 	}
 
 	//TODO Chercher dans la db
@@ -240,4 +241,13 @@ export class UserService {
 		}
 		return (users);
 	}
+
+	async disconnectUser(login: string) {
+		await this.verificationUser(login)
+		await this.changeOnline(login, {online: false})
+		await this.deleteUuidSession(login)
+		await this.deleteToken(login) //TODO demander si faut vraiment le supp
+		return ("user disconnected")
+	}
+
 }

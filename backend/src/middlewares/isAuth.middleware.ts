@@ -34,12 +34,11 @@ export class IsAuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: () => void) {
     const uuid: string = req.cookies['Session'];
     const login: string = req.cookies['Login'];
-    //if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
-    //  console.log("from localhost")
-    //  next();
-    //  return ;
-    //}
-    //TODO vérfier Session -> UUID et Login -> login (2 cookies)
+    if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
+      console.log("from localhost")
+      next();
+      return ;
+    }
     console.log(login, uuid)
 
     if (!login || !uuid) {

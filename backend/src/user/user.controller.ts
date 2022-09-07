@@ -122,4 +122,9 @@ export class UserController {
 		res.send(newChange)
 		return ;
 	}
+
+	@Patch('disconnect/:login')
+	async disconnectUser(@Param('login') login: string) {
+		return await this.userService.disconnectUser(login)
+	}
 }
