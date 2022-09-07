@@ -17,6 +17,7 @@ import {GameService} from "../game/game.service";
 import {FriendsService} from "../friends/friends.service";
 import {BlockedService} from "../blocked/blocked.service";
 import {UserGlobal} from "./user.interface";
+import {v4 as uuid} from 'uuid'
 
 @Injectable()
 export class UserService {
@@ -32,8 +33,8 @@ export class UserService {
 				private blockedService: BlockedService) {}
 
 	connectSession = new Map<string, string>([]);
+	connectUUID = new Map<string, string>([])
 	onlinePeople: OnlineDto[] = []
-
 
 	async verificationUser(login: string) {
 		const user = (await this.usersListRepository.findOneBy({login: login}))
@@ -61,6 +62,7 @@ export class UserService {
 			const otherUser: CreateUserDto = {username: otherLogin.login}
 			await this.changeUsername(otherLogin.login, otherUser)
 		}
+		await this.itemService.checkItems()
 		await this.usersListRepository.save(user)
 		await this.itemService.initInventory(user.login)
 		await this.itemService.initEquipment(user.login)
@@ -68,10 +70,26 @@ export class UserService {
 		this.changeOnlineInDB({login: user.login, online: true})
 	}
 
-
 	async getUUID(login: string) {
 		const user = await this.verificationUser(login)
 		return (user.id)
+	}
+
+	async getUuidSession(login: string) {
+		return this.connectUUID.get(login)
+	}
+
+	async deleteUuidSession(login: string) {
+		this.connectUUID.delete(login)
+	}
+
+	async initSession(login: string, token: string) {
+		const id: string = uuid()
+		this.connectSession.set(login, token);
+		this.connectUUID.set(login, id)
+		console.log("Login : " + login)
+		console.log("Token : " + this.connectSession.get(login))
+		console.log("uuid : " + this.connectUUID.get(login))
 	}
 
 	async getUser(login: string) {
@@ -123,11 +141,11 @@ export class UserService {
 	}
 
 
-	getToken(login: string) {
+	async getToken(login: string) {
 		return this.connectSession.get(login);
 	}
 
-	deleteToken(login: string) {
+	async deleteToken(login: string) {
 		this.connectSession.delete(login);
 	}
 

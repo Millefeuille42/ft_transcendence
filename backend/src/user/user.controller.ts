@@ -22,6 +22,11 @@ export class UserController {
 		return await this.userService.getAllUsers()
 	}
 
+	@Get('ping')
+	async ping() {
+		return ('pong')
+	}
+
 	/**
 	 * @api {get} user/username/:username Get User if username exist
 	 * @apiName isUsernameExist

@@ -32,33 +32,46 @@ export class IsAuthMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, res: Response, next: () => void) {
-    const login: string = req.cookies['Session'];
-    if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
-      console.log("from localhost")
-      next();
-      return ;
-    }
+    const uuid: string = req.cookies['Session'];
+    const login: string = req.cookies['Login'];
+    //if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
+    //  console.log("from localhost")
+    //  next();
+    //  return ;
+    //}
     //TODO vérfier Session -> UUID et Login -> login (2 cookies)
-    console.log(login)
-    if (!login) {
-      console.log("No login")
+    console.log(login, uuid)
+
+    if (!login || !uuid) {
+      console.log("No cookie")
       res.statusCode = 401
-      throw new HttpException("User not logged", 401) ;
+      throw new HttpException("User don't have cookies", 401) ;
     }
-    const token: string = this.userService.getToken(login);
+    const token: string = await this.userService.getToken(login);
+    const uuidSession = await this.userService.getUuidSession(login)
     if (!token) {
-      console.log('Pas dans la base de donnee')
+      console.log('Pas dans la base de données')
+      if (uuid === uuidSession)
+        await this.userService.deleteUuidSession(login)
       res.statusCode = 401
-      throw new HttpException("User not logged", 401) ;
+      throw new HttpException("User is not in database", 401) ;
     }
+    if (uuidSession !== uuid) {
+      console.log('Pas le même uuid')
+      res.statusCode = 401
+      throw new HttpException("User don't have the good uuid", 401)
+    }
+
     const ret: boolean = await this.meRequest(token);
     if (!ret) {
       console.log(ret)
       console.log('Token qui fonctionne pas')
-      this.userService.deleteToken(login)
-      res.statusCode = 401
-      throw new HttpException("User not logged", 401) ;
+      await this.userService.deleteToken(login)
+      await this.userService.deleteUuidSession(login)
+      res.statusCode = 403
+      throw new HttpException("User is not logged", 403) ;
     }
+    console.log('patate')
     next();
   }
 }

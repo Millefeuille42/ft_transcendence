@@ -37,7 +37,7 @@ export class AuthController {
 		let access_token: string = await this.authService.getAccessToken(code);
 		const login: string = await this.authService.addSomeone(access_token);
 		const uuid = await this.userService.getUUID(login)
-		res.send({ session: login/*uuid*/, /*login: login*/}) //TODO change for UUID
+		res.send({ Session: uuid, Login: login}) //TODO change for UUID
 		return ;
 	}
 
