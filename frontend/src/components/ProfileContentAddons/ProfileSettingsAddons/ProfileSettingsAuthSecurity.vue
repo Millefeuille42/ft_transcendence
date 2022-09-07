@@ -1,8 +1,9 @@
 <template>
-	<v-card>
-		<v-card-title>Enable 2FA</v-card-title>
-			<v-btn width="30%" height="20%" class="d-flex justify-center mb-2 mt-2 pl-4" color="red">
-
-			</v-btn>
+	<v-card rounded="xl" elevation="5" color="rgb(0, 0, 0, 0.7)"
+			class="d-flex flex-column justify-center align-center pa-4">
+		<v-card-title>123qwe123rty</v-card-title>
+		<v-card-subtitle class="mt-2" >Use QR Code or text code to setup 2FA</v-card-subtitle>
+		<v-img v-if="!$vuetify.breakpoint.mobile" src="https://www.dupuis.com/v5/img/visuels_resume/schtroumpfs.jpg">
+		</v-img>
 	</v-card>
 </template>
