@@ -4,7 +4,7 @@ import {
 	forwardRef,
 	HttpException,
 	HttpStatus, Inject,
-	Injectable
+	Injectable, OnModuleInit
 } from '@nestjs/common';
 import { User } from "./user.interface";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
@@ -20,7 +20,7 @@ import {UserGlobal} from "./user.interface";
 import {v4 as uuid} from 'uuid'
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
 
 	constructor(@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>,
 				@Inject(forwardRef(() => ItemsService))
@@ -35,6 +35,18 @@ export class UserService {
 	connectSession = new Map<string, string>([]);
 	connectUUID = new Map<string, string>([])
 	onlinePeople: OnlineDto[] = []
+
+	async onModuleInit(): Promise<void> {
+		if (await this.userExist("tester")) {
+			let user = await this.getUser("tester")
+			await this.changeOnlineInDB({login: "tester", online: user.online})
+		}
+		if (await this.userExist("patate")) {
+			let user = await this.getUser("patate")
+			await this.changeOnlineInDB({login: "patate", online: user.online})
+		}
+		console.log('Patate and Tester are online (or not)')
+	}
 
 	async verificationUser(login: string) {
 		const user = (await this.usersListRepository.findOneBy({login: login}))
