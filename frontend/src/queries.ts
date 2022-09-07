@@ -43,7 +43,6 @@ export async function getUserData(login: string): Promise<userDataIn> {
 export async function postForm(userData: formDataOut, login: string): Promise<formDataOut> {
     let target: string = process.env.VUE_APP_BACK_URL + "/user/"
     target += login
-    console.log(userData)
     try {
         let response = await axios({
             method: 'patch',

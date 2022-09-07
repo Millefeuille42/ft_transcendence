@@ -60,16 +60,6 @@ export class ballClass {
 	}
 
 	draw(p5: P5) {
-		p5.noStroke()
 		p5.image(this.texture, this.position.x, this.position.y, this.diametre, this.diametre)
-		p5.stroke(this.collision ? "red" : "green")
-		p5.strokeWeight(5)
-		p5.noFill()
-		p5.rect(this.position.x, this.position.y, this.diametre, this.diametre)
-		p5.noStroke()
-		p5.fill("red")
-		p5.rect(this.position.x, this.position.y, 4, 4)
-		p5.fill("white")
-		this.collision = false
 	}
 }

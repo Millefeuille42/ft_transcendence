@@ -22,15 +22,6 @@ export class rod {
 		if (this.goDown)
 			this.down(p5)
 		p5.image(this.texture, this.position.x, this.position.y, this.width, this.height)
-		//p5.rect(this.position.x, this.position.y, this.width, this.height)
-
-		p5.stroke("green")
-		p5.strokeWeight(1)
-		p5.noFill()
-		p5.rect(this.position.x, this.position.y - this.height / 24, this.width, this.height / 12)
-		p5.rect(this.position.x, this.position.y + this.height - this.height / 24, this.width, this.height / 12)
-		p5.noStroke()
-		p5.fill("white")
 	}
 
 	up(p5: P5) {
