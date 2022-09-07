@@ -16,6 +16,7 @@
 import {Component, Vue} from "vue-property-decorator";
 import {addFriend, getFriendStatus, getUserData} from "@/queries";
 import {userDataIn} from "@/queriesData";
+import {EventBus} from "@/main";
 
 @Component({
 	props: {
@@ -41,7 +42,7 @@ import {userDataIn} from "@/queriesData";
 					this.$emit('input', friendData)
 					this.$data.addFriendLoading = false
 				} catch (e) {
-					console.log(e)
+					EventBus.$emit("down", "")
 				}
 			} catch (e: any) {
 				if (e.response.status === 404)

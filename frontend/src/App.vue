@@ -1,34 +1,37 @@
 <template>
 	<div id="app">
 		<v-app id="inspire">
-			<AppBar :Links=links :user=user :curTab=curTab />
-			<v-main class="grey darken-3">
-				<!--suppress HtmlDeprecatedAttribute -->
-				<v-sheet color="transparent" align="center" class="d-flex justify-center">
-					<v-container>
-							<v-tabs-items v-model="curTab" style="background-color: transparent" dark>
-								<v-tab-item>
-									<DisplayContainer cols="12" sm="8" height="88vh" min_height="" min-width="100%" width="100%">
-										<HomeContent v-if="logged_in && loaded && displayGame" :user="user"/>
-										<LoginPage v-if="!logged_in"/>
-									</DisplayContainer>
-								</v-tab-item>
-								<v-tab-item>
-									<DisplayContainer cols="12" sm="8" height="88vh" min_height="">
-										<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
-										<LoginPage v-if="!logged_in"/>
-									</DisplayContainer>
-								</v-tab-item>
-								<v-tab-item>
-									<DisplayContainer cols="12" sm="8" height="88vh" min_height="50px"  min-width="100%" width="100%">
-										<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
-										<LoginPage v-if="!logged_in"/>
-									</DisplayContainer>
-								</v-tab-item>
-							</v-tabs-items>
-					</v-container>
-				</v-sheet>
-			</v-main>
+			<template v-if="!down">
+				<AppBar :Links=links :user=user :curTab=curTab />
+				<v-main class="grey darken-3">
+					<!--suppress HtmlDeprecatedAttribute -->
+					<v-sheet color="transparent" align="center" class="d-flex justify-center">
+						<v-container>
+								<v-tabs-items v-model="curTab" style="background-color: transparent" dark>
+									<v-tab-item>
+										<DisplayContainer cols="12" sm="8" height="88vh" min_height="" min-width="100%" width="100%">
+											<HomeContent v-if="logged_in && loaded && displayGame" :user="user"/>
+											<LoginPage v-if="!logged_in"/>
+										</DisplayContainer>
+									</v-tab-item>
+									<v-tab-item>
+										<DisplayContainer cols="12" sm="8" height="88vh" min_height="">
+											<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
+											<LoginPage v-if="!logged_in"/>
+										</DisplayContainer>
+									</v-tab-item>
+									<v-tab-item>
+										<DisplayContainer cols="12" sm="8" height="88vh" min_height="50px"  min-width="100%" width="100%">
+											<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
+											<LoginPage v-if="!logged_in"/>
+										</DisplayContainer>
+									</v-tab-item>
+								</v-tabs-items>
+						</v-container>
+					</v-sheet>
+				</v-main>
+			</template>
+			<DownPage v-else/>
 		</v-app>
 	</div>
 </template>
@@ -47,9 +50,10 @@ import ChatContent from "@/components/ChatContent.vue";
 import {getAuthResponse, RedirectToFTAuth, getUserData} from "@/queries";
 import { userDataIn } from "./queriesData";
 import LoginPage from "@/components/LoginPage.vue";
+import DownPage from "@/components/DownPage.vue";
 
 @Component( {
-	components: {LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
+	components: {DownPage, LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
 	data: () => ({
 		curTab: 0,
 		component: "HomeContent",
@@ -57,6 +61,7 @@ import LoginPage from "@/components/LoginPage.vue";
 		loaded: false,
 		logged_in: false,
 		displayGame: true,
+		down: false,
 		links: [
 			{text: 'Home', icon:"mdi-home", component:"HomeContent"},
 			{text: 'Chat', icon:"mdi-forum", component:"ChatContent"},
@@ -100,9 +105,13 @@ import LoginPage from "@/components/LoginPage.vue";
 		},
 		async queryUserData() {
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Session") as string)
-				.catch(() => {
-					this.$cookies.remove("Session")
-					window.location.reload()
+				.catch((e) => {
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return {} as userDataIn
+					}
+					EventBus.$emit("down", "")
 					return {} as userDataIn
 				})
 			this.$data.user.username = selfData.username
@@ -112,7 +121,7 @@ import LoginPage from "@/components/LoginPage.vue";
 				this.$data.user.avatar = selfData.avatar
 			this.$data.user.login = selfData.login
 			this.$data.loaded = true
-		}
+		},
 	},
 	async mounted () {
 		try {
@@ -133,7 +142,7 @@ import LoginPage from "@/components/LoginPage.vue";
 			}
 
 		} catch (e) {
-			console.log(e)
+			EventBus.$emit("down", "")
 		}
 	},
 	destroyed() {
@@ -157,6 +166,10 @@ import LoginPage from "@/components/LoginPage.vue";
 		EventBus.$on("userChanged", async () => {
 			await this.queryUserData()
 			EventBus.$emit("userChangedDone", "")
+		})
+
+		EventBus.$on("down", () => {
+			this.$data.down = true
 		})
 		this.listenToTabChanged()
 	}

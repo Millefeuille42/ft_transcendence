@@ -49,7 +49,7 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import {onlineDataIn} from "@/queriesData";
-import {addBlock, addFriend, getOnlineList, removeFriendFromList} from "@/queries";
+import {addBlock, addFriend, getOnlineList, RedirectToFTAuth, removeFriendFromList} from "@/queries";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import {EventBus} from "@/main";
 
@@ -76,8 +76,6 @@ import {EventBus} from "@/main";
 			this.$data.snackShow = true
 		},
 		handleUserClick() {
-			console.log(this.$data.selectedUser)
-			console.log(this.$data.selectedUser.info.banner)
 			if (this.$data.selectedUser.info.banner === "") {
 				this.$data.selectedUser.info.banner = "https://picsum.photos/1920/1080?random";
 			}
@@ -134,7 +132,6 @@ import {EventBus} from "@/main";
 			this.$data.loaded = false
 			getOnlineList(this.$props.user.login)
 				.then((onlineList: onlineDataIn[]) => {
-					console.log(onlineList)
 					for (let index in onlineList) {
 						onlineList[index].friendLoading = false
 						onlineList[index].blockLoading = false
@@ -143,7 +140,12 @@ import {EventBus} from "@/main";
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					console.log(e)
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 				})
 		}
 	},

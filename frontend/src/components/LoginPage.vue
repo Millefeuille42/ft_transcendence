@@ -23,11 +23,14 @@
 <script lang="ts">
 import { RedirectToFTAuth } from "@/queries";
 import {Component, Vue} from "vue-property-decorator";
+import {EventBus} from "@/main";
 
 @Component({
 	methods: {
 		handleClick() {
-			RedirectToFTAuth()
+			RedirectToFTAuth().catch(() => {
+				EventBus.$emit("down", "")
+			})
 		}
 	}
 })

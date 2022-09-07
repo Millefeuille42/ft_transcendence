@@ -25,7 +25,6 @@ import {EventBus} from "@/main";
 	}),
 	watch: {
 		selectedTab () {
-			console.log("Selected: ", this.$data.selectedTab)
 			EventBus.$emit("tabChanged", this.$data.selectedTab)
 		}
 	},
@@ -38,7 +37,6 @@ import {EventBus} from "@/main";
 			window.location.href = "#Home"
 		}
 		EventBus.$on("routeTabChanged", (id: number) => {
-			console.log("Got: ", id)
 			this.$data.selectedTab = id
 		})
 	}

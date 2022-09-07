@@ -43,7 +43,7 @@
 		</v-sheet>
 		<v-sheet v-if="!$vuetify.breakpoint.mobile" :width="hasMatch ? '50%' : '45%'" height="100%" color="transparent" elevation="4" rounded="xl">
 			<v-img height="100%" v-if="!hasMatch" src="/gifPanda.gif" style="border-radius: 20px"/>
-			<ProfileCardMatchHistoryDialog :max_height="'98%'" v-else height="100%" :stats="stats" :user="user"/>
+			<ProfileCardMatchHistoryDialog :max_height="'90%'" v-else height="100%" :stats="stats" :user="user"/>
 		</v-sheet>
 	</v-sheet>
 </template>
@@ -52,11 +52,12 @@
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCardStats from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardStats.vue";
 import {inventoryItem, match, statsIn, userDataIn} from "@/queriesData";
-import {dropItem, getHistory, getUserStats} from "@/queries";
+import {dropItem, getHistory, getUserStats, RedirectToFTAuth} from "@/queries";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
 import ProfileCardMatchHistoryDialog
 	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
+import {EventBus} from "@/main";
 
 
 @Component({
@@ -80,16 +81,26 @@ import ProfileCardMatchHistoryDialog
 		getItem() {
 			this.$data.loadedItem = false
 			dropItem(this.$props.user.login)
-				.then((dropped: inventoryItem) => {
+				.then(async (dropped: inventoryItem) => {
 					this.$data.item = dropped
-					setTimeout(() => {
+					setTimeout(async () => {
 						this.$data.loadedItem = true
-						this.loadUserStats()
-						this.loadUserHistory()
+						await this.loadUserStats()
+						await this.loadUserHistory()
 					}, 3000);
 				})
-				.catch(() => {
-
+				.catch((e) => {
+					if (e.response.status === "442") {
+						this.$data.loadedItem = true
+						// TODO show snackbar
+						return
+					}
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 				})
 		},
 		async loadUserStats() {
@@ -99,14 +110,18 @@ import ProfileCardMatchHistoryDialog
 					this.$data.stats = stats
 				})
 				.catch((e) => {
-					console.log(e)
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 				})
 		},
 		async loadUserHistory() {
 			this.$data.hasMatch = false
 			await getHistory(this.$props.user.login)
 				.then((history: match[]) => {
-					console.log(history.length)
 					if (history.length > 0) {
 						this.$data.hasMatch = true
 						this.$data.stats.history = history
@@ -114,7 +129,12 @@ import ProfileCardMatchHistoryDialog
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					console.log(e)
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 				})
 		}
 	},

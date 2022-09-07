@@ -48,7 +48,7 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
-import {getFriendsList, getFriendStatus, getUserData, removeFriendFromList} from "@/queries";
+import {getFriendsList, getFriendStatus, getUserData, RedirectToFTAuth, removeFriendFromList} from "@/queries";
 import {friendListIn, userDataIn} from "@/queriesData";
 import SkeletonProfileFriends from "@/components/SkeletonComponents/SkeletonProfileFriends.vue"
 import ProfileFriendsAddFriend from "@/components/ProfileContentAddons/ProfileFriendsAddon/ProfileFriendsAddFriend.vue";
@@ -108,8 +108,13 @@ import {EventBus} from "@/main";
 					let fFriend: userDataIn = that.$data.friends.find((f: userDataIn) => f.login === friend)
 					if (fFriend)
 						fFriend.status = onlineData
-				}).catch(() => {
-					that.showSnack("Failed to get " + friend + " status", "red")
+				}).catch((e) => {
+				if (e.response.status >= 401 && e.response.status <= 403) {
+					this.$cookies.remove("Session")
+					RedirectToFTAuth()
+					return
+				}
+					EventBus.$emit("down", "")
 				})
 		},
 		async loadFriendData(friend: string) {
@@ -120,8 +125,13 @@ import {EventBus} from "@/main";
 						friendData.banner = "https://picsum.photos/1920/1080?random";
 					this.$data.friends.push(friendData)
 					this.loadFriendStatus(friend)
-				}).catch(() => {
-					this.showSnack("Failed to get " + friend + " data", "red")
+				}).catch((e) => {
+				if (e.response.status >= 401 && e.response.status <= 403) {
+					this.$cookies.remove("Session")
+					RedirectToFTAuth()
+					return
+				}
+					EventBus.$emit("down", "")
 				})
 		},
 		async loadFriends(): Promise<friendListIn> {
@@ -132,8 +142,13 @@ import {EventBus} from "@/main";
 				.then((friendList: friendListIn) => {
 					that.$data.hasFriends = friendList.thereIsFriend
 					return friendList
-				}).catch(() => {
-					that.showSnack("Failed to get friend list", "red")
+				}).catch((e) => {
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return {thereIsFriend: false, listOfFriends: []} as friendListIn
+					}
+					EventBus.$emit("down", "")
 					return {thereIsFriend: false, listOfFriends: []} as friendListIn
 				})
 		},

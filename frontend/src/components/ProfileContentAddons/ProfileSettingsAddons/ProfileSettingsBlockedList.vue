@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import {getBlockedList, removeBlock} from "@/queries";
+import {getBlockedList, RedirectToFTAuth, removeBlock} from "@/queries";
 import {blockedListIn} from "@/queriesData";
 import {EventBus} from "@/main";
 
@@ -51,7 +51,12 @@ import {EventBus} from "@/main";
 					this.$data.blockedList = blockedList
 					this.$data.loaded = true
 				}).catch((e) => {
-					console.log(e)
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 			})
 		},
 		handleUnblock(block: string) {

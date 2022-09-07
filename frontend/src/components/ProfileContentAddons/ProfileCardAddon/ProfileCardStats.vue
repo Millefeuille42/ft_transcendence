@@ -53,8 +53,6 @@ import ProfileCardMatchHistoryDialog
 		showDialog: false
 	}),
 	mounted() {
-		console.log("got")
-		console.log(this.$props.stats.history)
 		if (this.$props.stats.total === 0) {
 			this.$data.wr = 0
 			return

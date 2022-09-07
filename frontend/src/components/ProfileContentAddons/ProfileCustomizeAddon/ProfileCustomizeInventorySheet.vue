@@ -23,7 +23,7 @@ import ProfileCustomizeInventoryRow
 	from "@/components/ProfileContentAddons/ProfileCustomizeAddon/ProfileCustomizeInventoryRow.vue";
 import { EventBus } from "@/main";
 import {inventoryItem} from "@/queriesData";
-import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
+import {getInventoryByCategory, getEquippedByCategory, RedirectToFTAuth} from "@/queries";
 
 @Component({
 	components: {ProfileCustomizeInventoryRow},
@@ -65,8 +65,13 @@ import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 					that.$data.inventory = inv
 					that.sortItems()
 				})
-				.catch(() => {
-					this.showSnack("Failed to load " + this.$props.category + "s", "red")
+				.catch((e) => {
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 				})
 		},
 
@@ -76,8 +81,13 @@ import {getInventoryByCategory, getEquippedByCategory} from "@/queries";
 				.then((inv: inventoryItem) => {
 					that.$data.currentItem = inv
 				})
-				.catch(() => {
-					this.showSnack("Failed to load equipped " + this.$props.category, "red")
+				.catch((e) => {
+					if (e.response.status >= 401 && e.response.status <= 403) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
 				})
 		},
 	},

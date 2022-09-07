@@ -24,9 +24,7 @@ import {EventBus} from "@/main";
 			EventBus.$emit("itemChanged", this.$props.item)
 		},
 		loadImage():string {
-			let address: string = this.$props.category === 'sound' ? '/sound.png' : this.$props.item.description
-			console.log(address)
-			return address
+			return this.$props.category === 'sound' ? '/sound.png' : this.$props.item.description
 		}
 	}
 })
