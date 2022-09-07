@@ -4,7 +4,7 @@
 		<ProfileSettingsForm :loaded="loaded" :user="user"/>
 		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around" 
 				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
-			<v-btn @click="twofasecurity = true"
+			<v-btn 
 				:fab="$vuetify.breakpoint.mobile"
 			> {{ $vuetify.breakpoint.mobile ? '' : 'Enable 2FA Security' }}
 				<v-icon v-if="$vuetify.breakpoint.mobile" >
