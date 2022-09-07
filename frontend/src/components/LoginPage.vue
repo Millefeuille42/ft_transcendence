@@ -4,6 +4,7 @@
 				 style="backdrop-filter: blur(11px); -webkit-backdrop-filter: blur(11px);"
 				 class="d-flex " rounded="xl" color="rgb(0, 0, 0, 0.4)">
 			<v-card rounded="xl" elevation="5" color="rgb(0, 0, 0, 0.7)"
+					min-height="200px"
 					:height="$vuetify.breakpoint.mobile ? '30%' : '15%'"
 					:width="$vuetify.breakpoint.mobile ? '70%' : '50%'"
 					class="d-flex mt-16 flex-column justify-center align-center ml-auto mr-auto pa-4">

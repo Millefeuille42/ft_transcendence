@@ -48,8 +48,8 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import {getUserStats} from "@/queries";
-import {statsIn, userDataIn} from "@/queriesData";
+import {getHistory, getUserStats} from "@/queries";
+import {match, statsIn, userDataIn} from "@/queriesData";
 import ProfileCardStats from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardStats.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
 import {EventBus} from "@/main";
@@ -73,21 +73,36 @@ import {EventBus} from "@/main";
 	methods: {
 		handleClick() {
 			EventBus.$emit("unloadCard", "")
+		},
+		async loadUserHistory() {
+			this.$data.hasMatch = false
+			await getHistory(this.$props.user.login)
+				.then((history: match[]) => {
+					console.log(history.length)
+					if (history.length > 0) {
+						this.$data.hasMatch = true
+						this.$data.stats.history = history
+					}
+					this.$data.loaded = true
+				})
+				.catch((e) => {
+					console.log(e)
+				})
 		}
 	},
-	mounted() {
+	async mounted() {
 		if (this.$props.height != "100%") {
 			return
 		}
 		this.$data.loaded = false
-		getUserStats(this.$props.user.login)
+		await getUserStats(this.$props.user.login)
 			.then((stats: statsIn) => {
 				this.$data.stats = stats
-				this.$data.loaded = true
 			})
 			.catch((e) => {
 				console.log(e)
 			})
+		await this.loadUserHistory()
 	},
 	created() {
 		EventBus.$on("userChangedDone", () => {

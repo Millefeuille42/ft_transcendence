@@ -85,6 +85,7 @@ import ProfileCardMatchHistoryDialog
 					setTimeout(() => {
 						this.$data.loadedItem = true
 						this.loadUserStats()
+						this.loadUserHistory()
 					}, 3000);
 				})
 				.catch(() => {

@@ -6,7 +6,6 @@
 		<v-divider/>
 		<v-card-text v-if="hasHistory" :style="'max-height: ' + max_height + ';'" class="overflow-y-auto">
 			<v-sheet width="100%" class="d-flex flex-column overflow-y-auto" color="transparent">
-				<template v-for="n in 10">
 					<v-sheet v-for="match in stats.history" :key="match.key + n"
 							 width="100%" height="100%"
 							 :class="'d-flex flex-row justify-space-around mt-2 mb-2 text-truncate' +
@@ -40,7 +39,6 @@
 							</v-sheet>
 						</v-sheet>
 					</v-sheet>
-				</template>
 			</v-sheet>
 		</v-card-text>
 		<v-card-text v-else class="mt-4">
