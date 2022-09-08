@@ -7,9 +7,10 @@ import {FriendsModule} from "../friends/friends.module";
 import {BlockedModule} from "../blocked/blocked.module";
 import {ItemsModule} from "../items/items.module";
 import {GameModule} from "../game/game.module";
+import {TwoFAEntity} from "../entities/twoFA.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UsersList]),
+  imports: [TypeOrmModule.forFeature([UsersList, TwoFAEntity]),
     forwardRef(() => FriendsModule), forwardRef(() => BlockedModule),
     forwardRef(() => ItemsModule), forwardRef(() => GameModule)],
   controllers: [UserController],

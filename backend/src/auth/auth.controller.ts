@@ -36,7 +36,8 @@ export class AuthController {
 		let access_token: string = await this.authService.getAccessToken(code);
 		const login: string = await this.authService.addSomeone(access_token);
 		const uuid = await this.userService.getUUID(login)
-		res.send({ Session: uuid, Login: login}) //TODO change for UUID
+		const isTwoFA = await this.userService.isTwoFA(login)
+		res.send({cookie: { Session: uuid, Login: login}, isTwoFA: isTwoFA}) //TODO change for UUID
 		return ;
 	}
 

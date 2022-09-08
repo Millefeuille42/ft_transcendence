@@ -74,7 +74,6 @@ export class AuthService {
 		console.log(us)
 		if (us) {
 			console.log("User already exist")
-			//2fa
 			await this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}

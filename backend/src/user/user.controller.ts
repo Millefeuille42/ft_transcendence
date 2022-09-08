@@ -8,7 +8,7 @@ import {
 	Param,
 	Patch,
 	Post,
-	Res
+	Res, UnauthorizedException
 } from '@nestjs/common';
 import {UserService} from "./user.service";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
@@ -152,5 +152,25 @@ export class UserController {
 	@Patch('disconnect/:login')
 	async disconnectUser(@Param('login') login: string) {
 		return await this.userService.disconnectUser(login)
+	}
+
+	@Post('twofa/:login')
+	async enableTwoFA(@Param('login') login: string) {
+		return await this.userService.generateTwoFA(login)
+	}
+
+	@Patch('twofa/:login/:code')
+	async activateTwoFA(@Param('login') login: string,
+						@Param('code') code: string) {
+		if (!await this.userService.twoFAIsValid(login, code))
+			throw new UnauthorizedException()
+		await this.userService.changeOnline(login, {online: true})
+		return await this.userService.enabledTwoFA(login)
+	}
+
+	@Delete('twofa/:login/:code')
+	async deleteTwoFA(@Param('login') login: string,
+					  @Param('code') code: string) {
+		return await this.userService.deleteTwoFA(login, code)
 	}
 }
