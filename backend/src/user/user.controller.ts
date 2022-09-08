@@ -1,7 +1,7 @@
 import {
 	BadRequestException,
 	Body,
-	Controller,
+	Controller, Delete,
 	Get,
 	HttpException,
 	HttpStatus,
@@ -41,6 +41,11 @@ export class UserController {
 	@Get('ping')
 	async ping() {
 		return ('pong')
+	}
+
+	@Delete(':login')
+	async deleteUser(@Param('login') login: string) {
+		return this.userService.deleteUser(login)
 	}
 
 	/**
