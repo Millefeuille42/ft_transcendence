@@ -4,7 +4,6 @@ import {BlockedService} from "../blocked/blocked.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {RelationsEntity} from "../entities/relations.entity";
-import {GameService} from "../game/game.service";
 
 @Injectable()
 export class FriendsService {

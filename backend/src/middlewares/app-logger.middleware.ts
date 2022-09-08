@@ -1,4 +1,4 @@
-import {Injectable, NestMiddleware, Logger, ForbiddenException, HttpException, HttpStatus} from '@nestjs/common';
+import {Injectable, NestMiddleware, Logger, ForbiddenException, HttpStatus} from '@nestjs/common';
 import { Request, Response } from "express";
 import {ConfigService} from "@nestjs/config";
 
@@ -11,7 +11,6 @@ export class AppLoggerMiddleware implements NestMiddleware {
     const ipHost = this.configService.get('HOST') + ':' + this.configService.get('PORT_FRONT')
 
     const {headers, method, originalUrl: url} = req;
-    //::ffff:10.11.12.1
     console.log(ipHost)
     if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
         req.ip !== "::1") /*Postman*/ {
