@@ -1,4 +1,15 @@
-import {Body, Controller, Get, Param, Patch, Post, Res} from '@nestjs/common';
+import {
+	BadRequestException,
+	Body,
+	Controller,
+	Get,
+	HttpException,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
+	Res
+} from '@nestjs/common';
 import {UserService} from "./user.service";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {Response} from "express";
@@ -14,7 +25,12 @@ export class UserController {
 
 	@Post()
 	async createNewUser(@Body() user: CreateUser) {
-		await this.userService.initUser(user)
+		if (!user.hasOwnProperty('login')
+			|| !user.hasOwnProperty('email')
+			|| !user.hasOwnProperty('name')
+			|| !user.hasOwnProperty('avatar'))
+			throw new BadRequestException("Some fields are missing")
+		return await this.userService.initUser(user)
 	}
 
 	@Get()
@@ -103,6 +119,11 @@ export class UserController {
 			banner: user.banner,
 			username: user.username
 		}
+		if (!change.hasOwnProperty('online')
+			&& !change.hasOwnProperty('avatar')
+			&& !change.hasOwnProperty('banner')
+			&& !change.hasOwnProperty('username'))
+			throw new HttpException("Nothing to change", HttpStatus.BAD_REQUEST)
 		if (change.hasOwnProperty('online')) {
 			await this.userService.changeOnline(login, change)
 			newChange.online = change.online

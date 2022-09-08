@@ -69,6 +69,8 @@ export class UserService implements OnModuleInit {
 			banner: "",
 			online: true,
 		}
+		if (await this.usersListRepository.findOneBy({login: user.login}))
+			throw new ConflictException("Login is already used")
 		const otherLogin = await this.isUsernameExist(user.login)
 		if (otherLogin.userExist) {
 			const otherUser: CreateUserDto = {username: otherLogin.login}
@@ -80,6 +82,7 @@ export class UserService implements OnModuleInit {
 		await this.itemService.initEquipment(user.login)
 		await this.gameService.initStats(user.login)
 		this.changeOnlineInDB({login: user.login, online: true})
+		return await this.usersListRepository.findOneBy({login: user.login})
 	}
 
 	async getUUID(login: string) {

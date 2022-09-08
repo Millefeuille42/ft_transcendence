@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {BadRequestException, Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {GameService} from "./game.service";
 import {AddStatsDto} from "./add-stats.dto";
 
@@ -28,14 +28,20 @@ export class GameController {
 	@Patch('points/:login')
 	async fixPoints(@Param('login') login: string,
 			  @Query() points: {points: number}) {
-		console.log(points)
+		console.log('points :', points)
+		if (!points.points)
+			throw new BadRequestException("Points need to be set")
 		return await this.gameService.fixPoints(login, points.points)
 	}
 
 	@Post(':login')
 	async addStats(@Param('login') login: string,
 			 @Body() stats: AddStatsDto) {
-		console.log(stats)
+		if (!stats.hasOwnProperty('rival')
+			|| !stats.hasOwnProperty('points')
+			|| !stats.hasOwnProperty('rPoints')
+			|| !stats.hasOwnProperty('mode'))
+			throw new BadRequestException("Some fields are missing")
 		return (await this.gameService.addHistory(login, stats.rival, stats.points, stats.rPoints, stats.mode))
 	}
 }
