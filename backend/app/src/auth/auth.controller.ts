@@ -1,7 +1,6 @@
-import {Body, Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
+import {Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
 import {Request, Response} from 'express'
 import {AuthService} from "./auth.service";
-import {UsersList} from "../entities/users.entity";
 import {UserService} from "../user/user.service";
 
 @Controller('auth')
@@ -39,7 +38,8 @@ export class AuthController {
 		const login: string = await this.authService.addSomeone(access_token);
 		console.log(login)
 		const uuid = await this.userService.getUUID(login)
-		res.send({ session: login/*uuid*/, /*login: login*/}) //TODO change for UUID
+		const isTwoFA = await this.userService.isTwoFA(login)
+		res.send({cookie: { Session: uuid, Login: login}, isTwoFA: isTwoFA}) //TODO change for UUID
 		return ;
 	}
 

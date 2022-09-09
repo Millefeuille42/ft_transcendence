@@ -1,4 +1,15 @@
-import {Body, Controller, Get, Param, Patch, Post, Res} from '@nestjs/common';
+import {
+	BadRequestException,
+	Body,
+	Controller, Delete,
+	Get,
+	HttpException,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
+	Res, UnauthorizedException
+} from '@nestjs/common';
 import {UserService} from "./user.service";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
 import {Response} from "express";
@@ -14,12 +25,27 @@ export class UserController {
 
 	@Post()
 	async createNewUser(@Body() user: CreateUser) {
-		await this.userService.initUser(user)
+		if (!user.hasOwnProperty('login')
+			|| !user.hasOwnProperty('email')
+			|| !user.hasOwnProperty('name')
+			|| !user.hasOwnProperty('avatar'))
+			throw new BadRequestException("Some fields are missing")
+		return await this.userService.initUser(user)
 	}
 
 	@Get()
 	async getUsers() {
 		return await this.userService.getAllUsers()
+	}
+
+	@Get('ping')
+	async ping() {
+		return ('pong')
+	}
+
+	@Delete(':login')
+	async deleteUser(@Param('login') login: string) {
+		return this.userService.deleteUser(login)
 	}
 
 	/**
@@ -98,6 +124,11 @@ export class UserController {
 			banner: user.banner,
 			username: user.username
 		}
+		if (!change.hasOwnProperty('online')
+			&& !change.hasOwnProperty('avatar')
+			&& !change.hasOwnProperty('banner')
+			&& !change.hasOwnProperty('username'))
+			throw new HttpException("Nothing to change", HttpStatus.BAD_REQUEST)
 		if (change.hasOwnProperty('online')) {
 			await this.userService.changeOnline(login, change)
 			newChange.online = change.online
@@ -116,5 +147,30 @@ export class UserController {
 		}
 		res.send(newChange)
 		return ;
+	}
+
+	@Patch('disconnect/:login')
+	async disconnectUser(@Param('login') login: string) {
+		return await this.userService.disconnectUser(login)
+	}
+
+	@Post('twofa/:login')
+	async enableTwoFA(@Param('login') login: string) {
+		return await this.userService.generateTwoFA(login)
+	}
+
+	@Patch('twofa/:login/:code')
+	async activateTwoFA(@Param('login') login: string,
+						@Param('code') code: string) {
+		if (!await this.userService.twoFAIsValid(login, code))
+			throw new UnauthorizedException()
+		await this.userService.changeOnline(login, {online: true})
+		return await this.userService.enabledTwoFA(login)
+	}
+
+	@Delete('twofa/:login/:code')
+	async deleteTwoFA(@Param('login') login: string,
+					  @Param('code') code: string) {
+		return await this.userService.deleteTwoFA(login, code)
 	}
 }

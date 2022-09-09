@@ -61,7 +61,7 @@ export class BlockedService {
 		if (await this.friendService.isFriend(block, login))
 			await this.friendService.deleteFriend(block, login)
 		if (alreadyRelation)
-			relation = await this.relationsRepository.preload({id: user.id, otherLogin: block, blocked: true})
+			relation = await this.relationsRepository.preload({relationId: alreadyRelation.relationId, blocked: true})
 		else
 			relation = {
 				id: user.id,
@@ -81,7 +81,7 @@ export class BlockedService {
 		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
 		if (!alreadyRelation || (alreadyRelation && alreadyRelation.blocked === false))
 			throw new BadRequestException()
-		let relation = await this.relationsRepository.preload({id: user.id, otherLogin: block, blocked: false})
+		let relation = await this.relationsRepository.preload({relationId: alreadyRelation.relationId, blocked: false})
 		return await this.relationsRepository.save(relation)
 	}
 

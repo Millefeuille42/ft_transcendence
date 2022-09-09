@@ -59,7 +59,7 @@ export class ItemsService {
 		await this.userService.getUser(login)
 		const points = (await this.gameService.getPoints(login)).points
 		if (points <= 0)
-			throw new HttpException('User have not enough points', HttpStatus.FORBIDDEN)
+			throw new HttpException('User have not enough points', 442)
 		await this.gameService.fixPoints(login, points - 1)
 
 		const rarity = Math.floor(Math.random() * 100) + 1
@@ -72,8 +72,15 @@ export class ItemsService {
 		return (itemToAdd)
 	}
 
+	async checkItems() {
+		if (!await this.listItems.findOneBy({id: 1}))
+			throw new HttpException("There is no items in db", 444)
+	}
+
 	async initInventory(login: string) {
 		const user = await this.userService.getUser(login)
+		if ((await this.listItems.find({where: {name: 'default'}})).length !== 3)
+			throw new HttpException("Problem with default items", 443)
 		const inventory = {
 			id: user.id,
 			rod: [(await this.listItems.findOneBy({name: 'default', category: 'rod'})).id],

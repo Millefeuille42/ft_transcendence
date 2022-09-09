@@ -4,7 +4,7 @@ import {
 	forwardRef,
 	HttpException,
 	HttpStatus, Inject,
-	Injectable
+	Injectable, OnModuleInit, UnauthorizedException
 } from '@nestjs/common';
 import { User } from "./user.interface";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
@@ -17,9 +17,13 @@ import {GameService} from "../game/game.service";
 import {FriendsService} from "../friends/friends.service";
 import {BlockedService} from "../blocked/blocked.service";
 import {UserGlobal} from "./user.interface";
+import {v4 as uuid} from 'uuid'
+import {TwoFAEntity} from "../entities/twoFA.entity";
+import {authenticator} from "otplib";
+import { toDataURL } from 'qrcode'
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
 
 	constructor(@InjectRepository(UsersList) private usersListRepository: Repository<UsersList>,
 				@Inject(forwardRef(() => ItemsService))
@@ -29,11 +33,24 @@ export class UserService {
 				@Inject(forwardRef(() => FriendsService))
 				private friendService: FriendsService,
 				@Inject(forwardRef(() => BlockedService))
-				private blockedService: BlockedService) {}
+				private blockedService: BlockedService,
+				@InjectRepository(TwoFAEntity) private twoFARepository: Repository<TwoFAEntity>) {}
 
 	connectSession = new Map<string, string>([]);
+	connectUUID = new Map<string, string>([])
 	onlinePeople: OnlineDto[] = []
 
+	async onModuleInit(): Promise<void> {
+		if (await this.userExist("tester")) {
+			let user = await this.getUser("tester")
+			await this.changeOnlineInDB({login: "tester", online: user.online})
+		}
+		if (await this.userExist("patate")) {
+			let user = await this.getUser("patate")
+			await this.changeOnlineInDB({login: "patate", online: user.online})
+		}
+		console.log('Patate and Tester are online (or not)')
+	}
 
 	async verificationUser(login: string) {
 		const user = (await this.usersListRepository.findOneBy({login: login}))
@@ -56,22 +73,53 @@ export class UserService {
 			banner: "",
 			online: true,
 		}
+		if (await this.usersListRepository.findOneBy({login: user.login})) {
+			if (await this.isTwoFA(user.login)) {
+				return("2FA Activated, need a code")
+			}
+
+			await this.changeOnlineInDB({login: user.login, online: true})
+			return("User connected gg")
+		}
 		const otherLogin = await this.isUsernameExist(user.login)
 		if (otherLogin.userExist) {
 			const otherUser: CreateUserDto = {username: otherLogin.login}
 			await this.changeUsername(otherLogin.login, otherUser)
 		}
+		await this.itemService.checkItems()
 		await this.usersListRepository.save(user)
 		await this.itemService.initInventory(user.login)
 		await this.itemService.initEquipment(user.login)
 		await this.gameService.initStats(user.login)
-		this.changeOnlineInDB({login: user.login, online: true})
+		await this.changeOnlineInDB({login: user.login, online: true})
+		return await this.usersListRepository.findOneBy({login: user.login})
 	}
 
+	async deleteUser(login: string) {
+		const user = await this.getUser(login)
+		return await this.usersListRepository.delete(user.id)
+	}
 
 	async getUUID(login: string) {
 		const user = await this.verificationUser(login)
 		return (user.id)
+	}
+
+	async getUuidSession(login: string) {
+		return this.connectUUID.get(login)
+	}
+
+	async deleteUuidSession(login: string) {
+		this.connectUUID.delete(login)
+	}
+
+	async initSession(login: string, token: string) {
+		const id: string = uuid()
+		this.connectSession.set(login, token);
+		this.connectUUID.set(login, id)
+		console.log("Login : " + login)
+		console.log("Token : " + this.connectSession.get(login))
+		console.log("uuid : " + this.connectUUID.get(login))
 	}
 
 	async getUser(login: string) {
@@ -123,11 +171,11 @@ export class UserService {
 	}
 
 
-	getToken(login: string) {
+	async getToken(login: string) {
 		return this.connectSession.get(login);
 	}
 
-	deleteToken(login: string) {
+	async deleteToken(login: string) {
 		this.connectSession.delete(login);
 	}
 
@@ -222,4 +270,60 @@ export class UserService {
 		}
 		return (users);
 	}
+
+	async disconnectUser(login: string) {
+		await this.verificationUser(login)
+		await this.changeOnline(login, {online: false})
+		await this.deleteUuidSession(login)
+		await this.deleteToken(login) //TODO demander si faut vraiment le supp
+		return ("user disconnected")
+	}
+
+	async generateTwoFA(login: string) {
+		const user = await this.getUser(login)
+		const secret = authenticator.generateSecret();
+
+		const otpauthUrl = authenticator.keyuri(user.email, 'FT_Transcendence', secret)
+		const newTwoFA = {
+			id: user.id,
+			twoFASecret: secret,
+			isEnabled: false
+		}
+		await this.twoFARepository.save(newTwoFA)
+		return toDataURL(otpauthUrl)
+	}
+
+	async deleteTwoFA(login: string, code: string) {
+		const user = await this.getUser(login)
+		if (!await this.twoFAIsValid(login, code))
+			throw new UnauthorizedException()
+		return await this.twoFARepository.delete(user.id)
+	}
+
+	async twoFAIsValid(login: string, code: string) {
+		const user = await this.getUser(login)
+		const userTwoFA = await this.twoFARepository.findOneBy({id: user.id})
+		if (!userTwoFA)
+			throw new BadRequestException()
+		const isValid = authenticator.verify({
+			token: code,
+			secret: userTwoFA.twoFASecret
+		})
+		return (isValid)
+	}
+
+	async isTwoFA(login: string) {
+		const user = await this.getUser(login)
+		const userTwoFA = await this.twoFARepository.findOneBy({id: user.id})
+		if (!userTwoFA || userTwoFA.isEnabled === false)
+			return false
+		return true
+	}
+
+	async enabledTwoFA(login: string) {
+		const user = await this.getUser(login)
+		const userTwoFA = await this.twoFARepository.preload({id: user.id, isEnabled: true})
+		return await this.twoFARepository.save(userTwoFA)
+	}
+
 }

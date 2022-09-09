@@ -17,8 +17,6 @@ export class AuthService {
 			code: code,
 			redirect_uri: this.configService.get<string>('API_REDIR'),
 		};
-		console.log(payload)
-		// TOKEN qui commence par fb = non authentifié
 		let ret: string;
 		await axios({
 			method: "post",
@@ -32,7 +30,6 @@ export class AuthService {
 				ret = res.data.access_token;
 		})
 			.catch((err) => {
-				console.log("error token")
 				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
 			});
 		return ret;
@@ -76,12 +73,11 @@ export class AuthService {
 			});
 		if (login !== '')
 			return login;
-		this.userService.connectSession.set(userData.login, access_token);
+		await this.userService.initSession(userData.login, access_token)
 		const us = await this.userService.userExist(userData.login)
 		console.log(us)
 		if (us) {
 			console.log("User already exist")
-			//2fa
 			await this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}

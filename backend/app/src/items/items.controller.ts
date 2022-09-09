@@ -1,4 +1,4 @@
-import {All, Body, Controller, Delete, Get, Param, Post, Req} from '@nestjs/common';
+import {All, BadRequestException, Body, Controller, Delete, Get, Param, Post, Req} from '@nestjs/common';
 import {Request} from 'express'
 import {ItemsService} from "./items.service";
 import {Items} from "../entities/items.entity";
@@ -14,6 +14,11 @@ export class ItemsController {
 
 	@Post()
 	async create(@Body() item: Items) : Promise<Items> {
+		if (!item.hasOwnProperty('rarity')
+			|| !item.hasOwnProperty('name')
+			|| !item.hasOwnProperty('category')
+			|| !item.hasOwnProperty('description'))
+			throw new BadRequestException("Some fields are missing")
 		return await this.itemsService.createOneItem(item)
 	}
 

@@ -1,8 +1,11 @@
-import {Column, Entity, PrimaryColumn} from "typeorm";
+import {Column, Entity, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity()
 export class RelationsEntity {
-	@PrimaryColumn('uuid')
+	@PrimaryGeneratedColumn()
+	relationId: number
+
+	@Column('uuid')
 	id: number
 
 	@Column()

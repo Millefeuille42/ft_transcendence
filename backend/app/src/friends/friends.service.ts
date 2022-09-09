@@ -4,7 +4,6 @@ import {BlockedService} from "../blocked/blocked.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {RelationsEntity} from "../entities/relations.entity";
-import {GameService} from "../game/game.service";
 
 @Injectable()
 export class FriendsService {
@@ -62,7 +61,7 @@ export class FriendsService {
 		if (await this.blockedService.isBlocked(friend, login))
 			throw new HttpException("Friend blocked User", HttpStatus.FORBIDDEN)
 		if (alreadyRelation)
-			relation = await this.relationsRepository.preload({id: user.id, otherLogin: friend, friend: true})
+			relation = await this.relationsRepository.preload({relationId: alreadyRelation.relationId, friend: true})
 		else
 			relation = {
 				id: user.id,
@@ -82,7 +81,7 @@ export class FriendsService {
 		let alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: friend})
 		if (!alreadyRelation || (alreadyRelation && alreadyRelation.friend === false))
 			throw new BadRequestException()
-		let relation = await this.relationsRepository.preload({id: user.id, otherLogin: friend, friend: false})
+		let relation = await this.relationsRepository.preload({relationId: alreadyRelation.relationId, friend: false})
 		return await this.relationsRepository.save(relation)
 	}
 
