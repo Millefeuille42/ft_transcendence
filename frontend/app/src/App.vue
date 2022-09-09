@@ -106,6 +106,8 @@ import DownPage from "@/components/DownPage.vue";
 		async queryUserData() {
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Session") as string)
 				.catch((e) => {
+					console.log(e.response.status)
+					console.log("here")
 					if (e.response.status >= 401 && e.response.status <= 403) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
@@ -124,15 +126,14 @@ import DownPage from "@/components/DownPage.vue";
 		},
 	},
 	async mounted () {
+		console.log(process.env.VUE_APP_BACK_URL)
 		try {
 			if (this.$cookies.isKey("Session")) {
 				this.$data.logged_in = true
 				await this.queryUserData()
 			}
 
-			if (window.location.pathname === "/auth") {
-				await RedirectToFTAuth()
-			} else if (window.location.pathname === "/auth/response") {
+			if ((new URL(window.location.toString())).searchParams.has("code")) {
 				let session = await getAuthResponse()
 				this.$cookies.set("Session", session)
 				window.history.pushState('home', 'Home', "/")

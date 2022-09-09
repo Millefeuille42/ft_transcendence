@@ -4,7 +4,7 @@
 				<div id="game" style="width: 98%; height: 98%; margin-top: auto; margin-bottom: auto">
 					<iframe width="100%" height="100%"
 							style="border: 0"
-							src="http://localhost:1234/" > Browser not compatible </iframe>
+							src="/game.html" > Browser not compatible </iframe>
 				</div>
 			</v-sheet>
 		<v-sheet height="30%" width="100%" class="d-flex mt-auto flex-row">
