@@ -4,6 +4,16 @@
 		<ProfileSettingsForm :loaded="loaded" :user="user"/>
 		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around"
 				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
+			<v-btn @click="faButton = true"
+				:fab="$vuetify.breakpoint.mobile"
+			> {{ $vuetify.breakpoint.mobile ? '' : 'Enable 2FA Security' }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-shield-lock
+				</v-icon>
+			</v-btn>
+		</v-sheet>
+		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around"
+				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
 			<v-btn @click="showBlocked = true"
 				   :fab="$vuetify.breakpoint.mobile"
 			> {{ $vuetify.breakpoint.mobile ? '' : 'See blocked users' }}
@@ -30,6 +40,9 @@
 				</v-icon>
 			</v-btn>
 		</v-sheet>
+		<v-dialog v-model="faButton" width="40%" dark>
+				<ProfileSettingsAuthSecurity />
+		</v-dialog>
 		<v-dialog v-model="showBlocked" width="20%" scrollable dark>
 				<ProfileSettingsBlockedList v-if="showBlocked" :user="user"/>
 		</v-dialog>
@@ -46,18 +59,21 @@ import ProfileSettingsBlockedList
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsBlockedList.vue";
 import ProfileSettingsTrollDialog
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsTrollDialog.vue";
+import ProfileSettingsAuthSecurity
+	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsAuthSecurity.vue";
 import {deleteUser, RedirectToFTAuth} from "@/queries";
 import {friendListIn} from "@/queriesData";
 import {EventBus} from "@/main";
 
 @Component({
-	components: {ProfileSettingsTrollDialog, ProfileSettingsBlockedList, ProfileSettingsForm},
+	components: {ProfileSettingsTrollDialog, ProfileSettingsBlockedList, ProfileSettingsForm, ProfileSettingsAuthSecurity},
 	data: () => ({
 		snackShow: false,
 		snackText: "",
 		snackColor: "green",
 		showBlocked: false,
 		sure: false,
+		faButton: false,
 	}),
 	props: {
 		loaded: Boolean,
