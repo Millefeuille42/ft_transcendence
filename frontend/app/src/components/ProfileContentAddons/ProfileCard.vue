@@ -85,7 +85,7 @@ import {EventBus} from "@/main";
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -104,7 +104,7 @@ import {EventBus} from "@/main";
 				this.$data.stats = stats
 			})
 			.catch((e) => {
-				if (e.response.status >= 401 && e.response.status <= 403) {
+				if (e.response.status >= 401 && e.response.status <= 404) {
 					this.$cookies.remove("Session")
 					RedirectToFTAuth()
 					return

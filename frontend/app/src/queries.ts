@@ -7,7 +7,7 @@ import {
     formDataOut,
     onlineDataIn,
     blockedListIn,
-    match
+    match, sessionData
 } from "@/queriesData"
 
 export async function RedirectToFTAuth() {
@@ -19,13 +19,13 @@ export async function RedirectToFTAuth() {
     }
 }
 
-export async function getAuthResponse(): Promise<string> {
+export async function getAuthResponse(): Promise<sessionData> {
     let params = (new URL(window.location.toString())).searchParams
     try {
         const response = await axios.post( process.env.VUE_APP_BACK_URL + "/auth/" + params.get('code'))
-        return response.data.session
-    } catch {
-        throw ("Error while registering session")
+        return response.data
+    } catch(e) {
+        throw e
     }
 }
 
@@ -261,4 +261,19 @@ export async function getHistory(login: string): Promise<Array<match>> {
     }).catch((e) => {
         throw e
     })
+}
+
+export async function deleteUser(login: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/"
+    target += login
+    try {
+        await axios( {
+            method: 'delete',
+            url: target,
+            withCredentials: true,
+        })
+        return ;
+    } catch (e) {
+        throw e
+    }
 }

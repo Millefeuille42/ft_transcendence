@@ -104,15 +104,15 @@ import DownPage from "@/components/DownPage.vue";
 				EventBus.$emit("routeTabChanged", tabId)
 		},
 		async queryUserData() {
-			const selfData: userDataIn = await getUserData(this.$cookies.get("Session") as string)
+			const selfData: userDataIn = await getUserData(this.$cookies.get("Login") as string)
 				.catch((e) => {
 					console.log(e.response.status)
-					console.log("here")
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return {} as userDataIn
 					}
+					console.log(this.$cookies.get("Login"))
 					EventBus.$emit("down", "")
 					return {} as userDataIn
 				})
@@ -135,7 +135,8 @@ import DownPage from "@/components/DownPage.vue";
 
 			if ((new URL(window.location.toString())).searchParams.has("code")) {
 				let session = await getAuthResponse()
-				this.$cookies.set("Session", session)
+				this.$cookies.set('Login', session.cookie.Login)
+				this.$cookies.set("Session", session.cookie.Session)
 				window.history.pushState('home', 'Home', "/")
 				this.$data.logged_in = true
 				await this.queryUserData()
@@ -143,6 +144,8 @@ import DownPage from "@/components/DownPage.vue";
 			}
 
 		} catch (e) {
+			console.log("la")
+			console.log(e)
 			EventBus.$emit("down", "")
 		}
 	},

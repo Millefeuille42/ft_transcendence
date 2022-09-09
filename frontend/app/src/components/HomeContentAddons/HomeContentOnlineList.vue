@@ -107,6 +107,8 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch((e) => {
+					console.log("ici")
+					console.log(e)
 					if (e.response.status === 404)
 						this.showSnack(friend.info.login + " not found", "red")
 					else if (e.response.status === 400)
@@ -140,7 +142,9 @@ import {EventBus} from "@/main";
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					console.log("laba")
+					console.log(e)
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return

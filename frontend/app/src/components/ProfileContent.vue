@@ -56,7 +56,6 @@ import ProfileSettings from "@/components/ProfileContentAddons/ProfileSettings.v
 			}, 200)
 		})
 	}
-	// TODO Add stats
 })
 export default class ProfileContent extends Vue {
 }

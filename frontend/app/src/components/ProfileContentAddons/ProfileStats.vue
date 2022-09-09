@@ -45,6 +45,7 @@
 			<v-img height="100%" v-if="!hasMatch" src="/gifPanda.gif" style="border-radius: 20px"/>
 			<ProfileCardMatchHistoryDialog :max_height="'90%'" v-else height="100%" :stats="stats" :user="user"/>
 		</v-sheet>
+		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-sheet>
 </template>
 
@@ -76,8 +77,16 @@ import {EventBus} from "@/main";
 
 		showStats: false,
 		showHistory: false,
+		snackShow: false,
+		snackText: "",
+		snackColor: "green"
 	}),
 	methods: {
+		showSnack(text: string, color: string) {
+			this.$data.snackColor = color
+			this.$data.snackText = text
+			this.$data.snackShow = true
+		},
 		getItem() {
 			this.$data.loadedItem = false
 			dropItem(this.$props.user.login)
@@ -90,12 +99,14 @@ import {EventBus} from "@/main";
 					}, 3000);
 				})
 				.catch((e) => {
-					if (e.response.status === "442") {
+					if (e.response.status == "442") {
 						this.$data.loadedItem = true
-						// TODO show snackbar
+						this.showSnack("You are out of points!", "red")
+						this.loadUserStats()
+						this.loadUserHistory()
 						return
 					}
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -110,7 +121,7 @@ import {EventBus} from "@/main";
 					this.$data.stats = stats
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -129,7 +140,7 @@ import {EventBus} from "@/main";
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return

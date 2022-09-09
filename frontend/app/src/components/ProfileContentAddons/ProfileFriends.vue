@@ -109,7 +109,7 @@ import {EventBus} from "@/main";
 					if (fFriend)
 						fFriend.status = onlineData
 				}).catch((e) => {
-				if (e.response.status >= 401 && e.response.status <= 403) {
+				if (e.response.status >= 401 && e.response.status <= 404) {
 					this.$cookies.remove("Session")
 					RedirectToFTAuth()
 					return
@@ -126,7 +126,7 @@ import {EventBus} from "@/main";
 					this.$data.friends.push(friendData)
 					this.loadFriendStatus(friend)
 				}).catch((e) => {
-				if (e.response.status >= 401 && e.response.status <= 403) {
+				if (e.response.status >= 401 && e.response.status <= 404) {
 					this.$cookies.remove("Session")
 					RedirectToFTAuth()
 					return
@@ -143,7 +143,7 @@ import {EventBus} from "@/main";
 					that.$data.hasFriends = friendList.thereIsFriend
 					return friendList
 				}).catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 403) {
+					if (e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return {thereIsFriend: false, listOfFriends: []} as friendListIn
@@ -173,8 +173,6 @@ import {EventBus} from "@/main";
 			this.$data.hasFriendSelected = false
 		})
 	},
-
-	//TODO add block friend
 })
 export default class ProfileFriends extends Vue {}
 </script>

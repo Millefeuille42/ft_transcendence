@@ -32,12 +32,9 @@ export class AuthController {
 
 	@Post(':code')
 	async addSomeone(@Param('code') code: string, @Req() req: Request, @Res() res: Response) {
-		console.log("got here")
 		let access_token: string = await this.authService.getAccessToken(code);
-		console.log(access_token)
 		const login: string = await this.authService.addSomeone(access_token);
-		console.log(login)
-		const uuid = await this.userService.getUUID(login)
+		const uuid = await this.userService.getUuidSession(login)
 		const isTwoFA = await this.userService.isTwoFA(login)
 		res.send({cookie: { Session: uuid, Login: login}, isTwoFA: isTwoFA}) //TODO change for UUID
 		return ;

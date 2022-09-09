@@ -6,6 +6,14 @@ export interface userDataIn {
     status: string
 }
 
+export interface sessionData {
+    cookie: {
+        Session: string,
+        Login: string
+    }
+    isTwoFA: boolean
+}
+
 export interface friendListIn {
     thereIsFriend: Boolean,
     listOfFriends: Array<string>,

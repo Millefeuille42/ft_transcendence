@@ -46,10 +46,12 @@ import ProfileSettingsBlockedList
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsBlockedList.vue";
 import ProfileSettingsTrollDialog
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsTrollDialog.vue";
+import {deleteUser, RedirectToFTAuth} from "@/queries";
+import {friendListIn} from "@/queriesData";
+import {EventBus} from "@/main";
 
 @Component({
 	components: {ProfileSettingsTrollDialog, ProfileSettingsBlockedList, ProfileSettingsForm},
-	//TODO send user data to api
 	data: () => ({
 		snackShow: false,
 		snackText: "",
@@ -72,10 +74,25 @@ import ProfileSettingsTrollDialog
 			window.location.hash = ""
 			window.location.href = "/"
 		},
-		handleDeletion() {
+		async handleDeletion() {
+			await deleteUser(this.$props.user.login)
+				.then(() => {
+				this.$cookies.remove("Session")
+				window.location.hash = ""
+				window.location.href = "/"
+				this.$data.sure = false
+			})
+				.catch((e) => {
+					if (e.response.status >= 401 && e.response.status <= 404) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
+					EventBus.$emit("down", "")
+				})
+
+
 			// TODO add deletion when endpoint is ready
-			this.$data.sure = false
-			this.handleDisconnect()
 		}
 	},
 	mounted() {

@@ -20,7 +20,6 @@ import SkeletonChatProfileCard from "@/components/SkeletonComponents/SkeletonCha
 
 @Component({
 	components: {SkeletonChatProfileCard, ChatProfileCard},
-	//TODO better profile card
 	props: {
 		user: Object,
 		loaded: Boolean,
