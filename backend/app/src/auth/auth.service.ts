@@ -17,7 +17,8 @@ export class AuthService {
 			code: code,
 			redirect_uri: this.configService.get<string>('API_REDIR'),
 		};
-	// TOKEN qui commence par fb = non authentifié
+		console.log(payload)
+		// TOKEN qui commence par fb = non authentifié
 		let ret: string;
 		await axios({
 			method: "post",
@@ -31,6 +32,7 @@ export class AuthService {
 				ret = res.data.access_token;
 		})
 			.catch((err) => {
+				console.log("error token")
 				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
 			});
 		return ret;
