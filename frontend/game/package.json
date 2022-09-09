@@ -6,7 +6,7 @@
   "scripts": {
     "init": "cp -r assets dist/assets; echo Done",
     "start": "parcel game.html --open",
-    "build": "parcel build index.html"
+    "build": "parcel build game.html"
   },
   "dependencies": {
     "@types/p5": "^1.4.2",

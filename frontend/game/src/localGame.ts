@@ -64,9 +64,9 @@ function drawScene(p5: P5) {
 
 export class LocalGame {
 	gamePreload(p5: P5) {
-		ball_image = p5.loadImage("/assets/balls/ball_bob.png")
-		rod_image = p5.loadImage("/assets/rods/rod_github.png")
-		rod_image2 = p5.loadImage("/assets/rods/rod_millefeuille.png")
+		ball_image = p5.loadImage("/balls/ball_bob.png")
+		rod_image = p5.loadImage("/rods/rod_github.png")
+		rod_image2 = p5.loadImage("/rods/rod_millefeuille.png")
 	}
 
 	private gameSetup(p5: P5) {
