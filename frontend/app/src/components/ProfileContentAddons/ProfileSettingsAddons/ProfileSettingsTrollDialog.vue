@@ -1,5 +1,5 @@
 <template>
-	<v-card>
+	<v-card width="100%">
 		<v-card-title> Are you sure? </v-card-title>
 		<v-card-text> This will result in permanent deletion of your account </v-card-text>
 		<v-card-actions>

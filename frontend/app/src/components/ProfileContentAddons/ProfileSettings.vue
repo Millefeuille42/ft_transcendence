@@ -30,10 +30,10 @@
 				</v-icon>
 			</v-btn>
 		</v-sheet>
-		<v-dialog v-model="showBlocked" width="20%" scrollable dark>
+		<v-dialog v-model="showBlocked" width="70%" max-width="250px" scrollable dark>
 				<ProfileSettingsBlockedList v-if="showBlocked" :user="user"/>
 		</v-dialog>
-		<v-dialog v-model="sure" width="20%" dark>
+		<v-dialog v-model="sure" width="70%" max-width="400px" dark>
 			<ProfileSettingsTrollDialog @no="sure = false" @yes="handleDeletion"/>
 		</v-dialog>
 	</v-sheet>

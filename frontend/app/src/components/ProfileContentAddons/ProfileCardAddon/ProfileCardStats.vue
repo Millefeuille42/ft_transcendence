@@ -3,7 +3,7 @@
 		<v-sheet color="transparent" width="80%" height="30%" class="d-flex flex-row justify-space-around ml-auto mr-auto">
 			<v-col> {{"Wins: " + stats.wins}} </v-col>
 			<v-col> {{"Losses: " + stats.looses}} </v-col>
-			<v-col> {{"Win Rate: " + wr}} </v-col>
+			<v-col> {{"Win Rate: " + wr + "%"}} </v-col>
 		</v-sheet>
 		<v-row>
 			<v-sheet color="transparent" width="80%" class="ml-auto mr-auto">
@@ -58,6 +58,7 @@ import ProfileCardMatchHistoryDialog
 			return
 		}
 		this.$data.wr = this.$props.stats.wins / this.$props.stats.total
+		this.$data.wr = this.$data.wr.toFixed(4) * 100
 	}
 })
 export default class ProfileCardStats extends Vue {

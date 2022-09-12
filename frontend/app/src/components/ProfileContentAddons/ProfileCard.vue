@@ -5,7 +5,7 @@
 		<v-img height="100%" width="100%" :src="user.banner" align="center"
 			   class=""
 			   :style="rounded === 'xl' ? 'border-radius: 20px' : ''">
-			<v-sheet elevation="5" color="rgb(0, 0, 0, 0.2)"
+			<v-sheet v-if="!friend" elevation="5" color="rgb(0, 0, 0, 0.2)"
 					 :max-height="$vuetify.breakpoint.mobile ? '200px' : ''"
 					 style="backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px)"
 					 :class=" ($vuetify.breakpoint.mobile ? 'mt-3 d-flex flex-column justify-center' : 'mt-7')"
@@ -35,7 +35,7 @@
 					</v-avatar>
 				</v-sheet>
 			</v-sheet>
-			<TransparentCard v-if="height === '100%'" class="mt-8">
+			<TransparentCard :cHeight="friend ? '80%' : '45%' " v-if="height === '100%'" class="mt-8">
 				<v-skeleton-loader v-if="!loaded" type="paragraph, text@3"/>
 				<ProfileCardStats v-else :stats="stats" :user="user"/>
 			</TransparentCard>
@@ -63,6 +63,10 @@ import {EventBus} from "@/main";
 		rounded: {
 			type: String,
 			default: "xl"
+		},
+		friend: {
+			type: Boolean,
+			default: false
 		}
 	},
 	data: () => ({

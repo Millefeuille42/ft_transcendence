@@ -28,7 +28,7 @@
 				</v-list>
 			</v-sheet>
 			<v-sheet v-if="!$vuetify.breakpoint.mobile" width="63%" rounded="xl" height="100%">
-				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" height="100%" mWidth="100%"/>
+				<ProfileCard v-if="hasFriendSelected" :user="selectedFriend" :friend="true" height="100%" mWidth="100%"/>
 				<v-img height="100%" width="80%" v-else-if="loaded && hasFriends" src="/giphy.gif" style="border-radius: 20px"/>
 			</v-sheet>
 		</v-sheet>

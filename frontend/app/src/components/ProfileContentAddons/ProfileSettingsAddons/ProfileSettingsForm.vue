@@ -44,7 +44,7 @@
 				</v-icon>
 			</v-btn>
 		</v-sheet>
-		<v-dialog v-if="!reload" v-model="faButton" width="40%" dark>
+		<v-dialog v-if="!reload" v-model="faButton" width="90%" max-width="400px" dark>
 			<ProfileSettingsAuthSecurity @faStatus="changeFa" :user="user" />
 		</v-dialog>
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
