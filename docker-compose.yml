@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     image: rest_back
     env_file:
-      - ./backend/.env
+      - ./backend/app/.env
     ports:
       - '3000:3000'
   front:
@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile
     image: front
     env_file:
-       - ./frontend/.env
+       - ./frontend/app/.env
     ports:
       - '8080:8087'
 volumes:

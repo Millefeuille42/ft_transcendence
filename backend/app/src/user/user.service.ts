@@ -290,7 +290,8 @@ export class UserService implements OnModuleInit {
 			isEnabled: false
 		}
 		await this.twoFARepository.save(newTwoFA)
-		return toDataURL(otpauthUrl)
+		let qrCode = await toDataURL(otpauthUrl)
+		return {qr: qrCode, code: secret}
 	}
 
 	async deleteTwoFA(login: string, code: string) {
