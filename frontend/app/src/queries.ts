@@ -7,15 +7,15 @@ import {
     formDataOut,
     onlineDataIn,
     blockedListIn,
-    match, sessionData
+    match, sessionData, twoFAInit
 } from "@/queriesData"
 
 export async function RedirectToFTAuth() {
     try {
         const response = await axios.get(process.env.VUE_APP_BACK_URL + "/auth")
         window.location.href = response.data.page
-    } catch {
-        throw ("Error while getting auth link")
+    } catch(e) {
+        throw e
     }
 }
 
@@ -276,4 +276,60 @@ export async function deleteUser(login: string) {
     } catch (e) {
         throw e
     }
+}
+
+export async function getTwoFaQR(login: string): Promise<twoFAInit> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/twofa/"
+    target += login
+    return await axios( {
+        method: 'post',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getTwoFAStatus(login: string): Promise<boolean> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/twofa/status/"
+    target += login
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function validateTwoFaActivation(login: string, code: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/twofa/"
+    target += login + "/" + code
+    return await axios( {
+        method: 'patch',
+        url: target,
+        withCredentials: true,
+    }).then(() => {
+        return
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function disableTwoFaActivation(login: string, code: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/twofa/"
+    target += login + "/" + code
+    return await axios( {
+        method: 'delete',
+        url: target,
+        withCredentials: true,
+    }).then(() => {
+        return
+    }).catch((e) => {
+        throw e
+    })
 }

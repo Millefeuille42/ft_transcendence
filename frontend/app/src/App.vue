@@ -11,19 +11,22 @@
 									<v-tab-item>
 										<DisplayContainer cols="12" sm="8" height="88vh" min_height="" min-width="100%" width="100%">
 											<HomeContent v-if="logged_in && loaded && displayGame" :user="user"/>
-											<LoginPage v-if="!logged_in"/>
+											<LoginPage v-if="!fa && !logged_in"/>
+											<TwoFAPage @FaLogin="handleFALogin" :login="login" :session="session" v-if="fa && !logged_in"></TwoFAPage>
 										</DisplayContainer>
 									</v-tab-item>
 									<v-tab-item>
 										<DisplayContainer cols="12" sm="8" height="88vh" min_height="">
 											<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
-											<LoginPage v-if="!logged_in"/>
+											<LoginPage v-if="!fa && !logged_in"/>
+											<TwoFAPage @FaLogin="handleFALogin" :login="login" :session="session" v-if="fa && !logged_in"></TwoFAPage>
 										</DisplayContainer>
 									</v-tab-item>
 									<v-tab-item>
 										<DisplayContainer cols="12" sm="8" height="88vh" min_height="50px"  min-width="100%" width="100%">
 											<ProfileContent v-if="logged_in" :small=false :user=user :loaded="loaded"/>
-											<LoginPage v-if="!logged_in"/>
+											<LoginPage v-if="!fa && !logged_in"/>
+											<TwoFAPage @FaLogin="handleFALogin" :login="login" :session="session" v-if="fa && !logged_in"></TwoFAPage>
 										</DisplayContainer>
 									</v-tab-item>
 								</v-tabs-items>
@@ -51,9 +54,10 @@ import {getAuthResponse, RedirectToFTAuth, getUserData} from "@/queries";
 import { userDataIn } from "./queriesData";
 import LoginPage from "@/components/LoginPage.vue";
 import DownPage from "@/components/DownPage.vue";
+import TwoFAPage from "@/components/TwoFAPage.vue";
 
 @Component( {
-	components: {DownPage, LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
+	components: {TwoFAPage, DownPage, LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
 	data: () => ({
 		curTab: 0,
 		component: "HomeContent",
@@ -62,6 +66,9 @@ import DownPage from "@/components/DownPage.vue";
 		logged_in: false,
 		displayGame: true,
 		down: false,
+		fa: false,
+		session: "",
+		login: "",
 		links: [
 			{text: 'Home', icon:"mdi-home", component:"HomeContent"},
 			{text: 'Chat', icon:"mdi-forum", component:"ChatContent"},
@@ -106,13 +113,11 @@ import DownPage from "@/components/DownPage.vue";
 		async queryUserData() {
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Login") as string)
 				.catch((e) => {
-					console.log(e.response.status)
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response === undefined || e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return {} as userDataIn
 					}
-					console.log(this.$cookies.get("Login"))
 					EventBus.$emit("down", "")
 					return {} as userDataIn
 				})
@@ -122,11 +127,16 @@ import DownPage from "@/components/DownPage.vue";
 			if (selfData.avatar !== "")
 				this.$data.user.avatar = selfData.avatar
 			this.$data.user.login = selfData.login
+			this.$data.user.fa = this.$data.fa
 			this.$data.loaded = true
+		},
+		async handleFALogin() {
+			this.$data.logged_in = true
+			await this.queryUserData()
+			this.resetTabId()
 		},
 	},
 	async mounted () {
-		console.log(process.env.VUE_APP_BACK_URL)
 		try {
 			if (this.$cookies.isKey("Session")) {
 				this.$data.logged_in = true
@@ -135,17 +145,25 @@ import DownPage from "@/components/DownPage.vue";
 
 			if ((new URL(window.location.toString())).searchParams.has("code")) {
 				let session = await getAuthResponse()
-				this.$cookies.set('Login', session.cookie.Login)
-				this.$cookies.set("Session", session.cookie.Session)
 				window.history.pushState('home', 'Home', "/")
-				this.$data.logged_in = true
-				await this.queryUserData()
-				this.resetTabId()
+				this.$data.fa = session.isTwoFA
+				console.log("Fa: ", this.$data.fa)
+
+				if (!session.isTwoFA) {
+					this.$cookies.set('Login', session.cookie.Login)
+					this.$cookies.set("Session", session.cookie.Session)
+					console.log("No Fa")
+					this.$data.logged_in = true
+					await this.queryUserData()
+					this.resetTabId()
+				} else {
+					console.log("Is Fa")
+					this.$data.login = session.cookie.Login
+					this.$data.session = session.cookie.Session
+				}
 			}
 
 		} catch (e) {
-			console.log("la")
-			console.log(e)
 			EventBus.$emit("down", "")
 		}
 	},

@@ -4,6 +4,7 @@ export interface userDataIn {
     banner: string,
     avatar: string,
     status: string
+    fa: boolean
 }
 
 export interface sessionData {
@@ -66,4 +67,9 @@ export interface match {
     rivalPoints: number,
     gameMode: string,
     key: number
+}
+
+export interface twoFAInit {
+    qr: string,
+    code: string
 }

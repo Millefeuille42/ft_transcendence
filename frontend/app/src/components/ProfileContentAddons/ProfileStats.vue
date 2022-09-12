@@ -12,7 +12,7 @@
 					<v-btn @click="showStats = true"> Stats </v-btn>
 					<v-btn @click="showHistory = true" class="mt-6"> Match History </v-btn>
 					<v-dialog dark v-model="showStats">
-						<v-sheet width="100%" height="200px">
+						<v-sheet width="98%" height="200px">
 							<ProfileCardStats :stats="stats" :dialog="false" ></ProfileCardStats>
 						</v-sheet>
 					</v-dialog>

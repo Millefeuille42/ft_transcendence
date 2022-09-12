@@ -26,8 +26,27 @@
 			prepend-icon="mdi-image-area"
 			label="Banner pic"
 		></v-text-field>
-		<v-btn class="mr-auto ml-auto" width="10%" @click="formCheck"
-		>submit</v-btn>
+		<v-sheet class="mr-auto ml-auto d-flex flex-row justify-center"
+				 :width="$vuetify.breakpoint.mobile ? '40%' : '40%'">
+			<v-btn class="mr-4" width="20%" @click="formCheck"
+			> {{ $vuetify.breakpoint.mobile ? '' : 'Submit' }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-receipt-text-check-outline
+				</v-icon>
+			</v-btn>
+			<v-btn @click="faButton = true"
+				   :color="user.fa ? 'green' : ''"
+				   class="ml-4"
+				   width="20%"
+			> {{ $vuetify.breakpoint.mobile ? '' : (user.fa ? 'Disable 2FA' : 'Enable 2FA') }}
+				<v-icon v-if="$vuetify.breakpoint.mobile" >
+					mdi-shield-lock
+				</v-icon>
+			</v-btn>
+		</v-sheet>
+		<v-dialog v-if="!reload" v-model="faButton" width="40%" dark>
+			<ProfileSettingsAuthSecurity @faStatus="changeFa" :user="user" />
+		</v-dialog>
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-form>
 </template>
@@ -37,8 +56,11 @@ import {Component, Vue} from "vue-property-decorator";
 import {postForm} from "@/queries";
 import {formDataOut} from "@/queriesData";
 import {EventBus} from "@/main";
+import ProfileSettingsAuthSecurity
+	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsAuthSecurity.vue";
 
 @Component({
+	components: {ProfileSettingsAuthSecurity},
 	data: () => ({
 		valid: false,
 		formUsername: "",
@@ -49,7 +71,9 @@ import {EventBus} from "@/main";
 		],
 		snackShow: false,
 		snackText: "",
-		snackColor: "green"
+		snackColor: "green",
+		faButton: false,
+		reload: false
 	}),
 	props: {
 		loaded: Boolean,
@@ -80,6 +104,18 @@ import {EventBus} from "@/main";
 					this.showSnack("Failed to update profile", "red")
 				}
 			}
+		},
+		async changeFa(enabled: boolean) {
+			this.$data.reload = true
+			if (enabled)
+				this.showSnack("2FA enabled", "green")
+			else
+				this.showSnack("2FA disabled", "green")
+			this.$props.user.fa = enabled
+			this.$data.faButton = false
+			setTimeout(() => {
+				this.$data.reload = false
+			}, 500)
 		}
 	},
 	mounted() {

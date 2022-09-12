@@ -1,17 +1,7 @@
 <template>
 	<v-sheet class="d-flex flex-column justify-center" width="100%"
 			 :height="$vuetify.breakpoint.mobile ? '100%' : '90%'">
-		<ProfileSettingsForm :loaded="loaded" :user="user"/>
-		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around"
-				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
-			<v-btn @click="faButton = true"
-				:fab="$vuetify.breakpoint.mobile"
-			> {{ $vuetify.breakpoint.mobile ? '' : 'Enable 2FA Security' }}
-				<v-icon v-if="$vuetify.breakpoint.mobile" >
-					mdi-shield-lock
-				</v-icon>
-			</v-btn>
-		</v-sheet>
+		<ProfileSettingsForm v-if="faLoaded" :loaded="loaded" :user="user"/>
 		<v-sheet class="mt-auto mr-auto ml-auto d-flex flex-row justify-space-around"
 				 :width="$vuetify.breakpoint.mobile ? '100%' : '70%'">
 			<v-btn @click="showBlocked = true"
@@ -40,9 +30,6 @@
 				</v-icon>
 			</v-btn>
 		</v-sheet>
-		<v-dialog v-model="faButton" width="40%" dark>
-				<ProfileSettingsAuthSecurity />
-		</v-dialog>
 		<v-dialog v-model="showBlocked" width="20%" scrollable dark>
 				<ProfileSettingsBlockedList v-if="showBlocked" :user="user"/>
 		</v-dialog>
@@ -61,19 +48,19 @@ import ProfileSettingsTrollDialog
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsTrollDialog.vue";
 import ProfileSettingsAuthSecurity
 	from "@/components/ProfileContentAddons/ProfileSettingsAddons/ProfileSettingsAuthSecurity.vue";
-import {deleteUser, RedirectToFTAuth} from "@/queries";
+import {deleteUser, getTwoFAStatus, RedirectToFTAuth} from "@/queries";
 import {friendListIn} from "@/queriesData";
 import {EventBus} from "@/main";
 
 @Component({
-	components: {ProfileSettingsTrollDialog, ProfileSettingsBlockedList, ProfileSettingsForm, ProfileSettingsAuthSecurity},
+	components: {ProfileSettingsTrollDialog, ProfileSettingsBlockedList, ProfileSettingsForm},
 	data: () => ({
 		snackShow: false,
 		snackText: "",
 		snackColor: "green",
 		showBlocked: false,
 		sure: false,
-		faButton: false,
+		faLoaded: false
 	}),
 	props: {
 		loaded: Boolean,
@@ -106,12 +93,20 @@ import {EventBus} from "@/main";
 					}
 					EventBus.$emit("down", "")
 				})
-
-
-			// TODO add deletion when endpoint is ready
+		},
+		async get2FAStatus() {
+			getTwoFAStatus(this.$props.user.login)
+				.then((r: boolean) => {
+					console.log(r)
+					this.$props.user.fa = r
+					this.$data.faLoaded = true
+				})
 		}
 	},
-	mounted() {
+	async mounted() {
+		this.$props.user.fa = false
+		await this.get2FAStatus()
+
 		this.$data.formUsername = this.$props.user.username
 		this.$data.formProfilePic = this.$props.user.avatar
 		this.$data.formBannerPic = this.$props.user.banner
