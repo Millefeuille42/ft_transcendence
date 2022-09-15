@@ -19,6 +19,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
     ConfigModule.forRoot({
       isGlobal:true,
     }),
+      ChatModule,
     UserModule,
     FriendsModule,
     ItemsModule,

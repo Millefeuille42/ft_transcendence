@@ -12,6 +12,6 @@ async function bootstrap() {
 		allowedHeaders: "content-type",
 		methods: ["PATCH, DELETE"]
 	  });
-	await app.listen(3000);
+	await app.listen(process.env.PORT);
 }
 bootstrap();

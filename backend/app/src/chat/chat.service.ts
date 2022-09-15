@@ -1,0 +1,35 @@
+import {BadRequestException, Injectable} from '@nestjs/common';
+import {InjectRepository} from "@nestjs/typeorm";
+import {RealChannelEntity} from "../entities/realChannel.entity";
+import {Repository} from "typeorm";
+import {CreateChannelDto} from "./create-channel.dto";
+import {UserService} from "../user/user.service";
+import * as bcrypt from "bcrypt"
+
+@Injectable()
+export class ChatService {
+	constructor(@InjectRepository(RealChannelEntity)
+				private channelRepository: Repository<RealChannelEntity>,
+				private userService: UserService) {}
+
+	async createChannel(newChannel: CreateChannelDto) {
+		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
+		!newChannel.owner)
+			throw new BadRequestException()
+		const user = await this.userService.getUser(newChannel.owner)
+		let pass = ""
+		if (newChannel.public && newChannel.password) {
+			const salt = await bcrypt.genSalt()
+			pass = await bcrypt.hash(newChannel.password, salt)
+		}
+
+		const channel: RealChannelEntity = {
+			name: newChannel.name,
+			public: newChannel.public,
+			password: pass,
+			ownerId: user.id,
+			adminId: [user.id],
+			users: [user]
+		}
+	}
+}
