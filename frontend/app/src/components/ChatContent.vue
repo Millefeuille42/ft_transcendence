@@ -7,7 +7,7 @@
 				<ChatNavDrawer :loaded="loaded" :user=user></ChatNavDrawer>
 			</v-col>
 			<v-col style="height: 100%">
-				<ChatMainWindow v-if="loaded"></ChatMainWindow>
+				<ChatMainWindow @messageSend="sendMessage" v-if="loaded"></ChatMainWindow>
 				<SkeletonChatMainWindow v-if="!loaded"></SkeletonChatMainWindow>
 			</v-col>
 		</v-row>
@@ -21,7 +21,14 @@ import ChatMainWindow from "@/components/ChatContentAddons/ChatMainWindow.vue";
 import ProfileContent from "@/components/ProfileContent.vue";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import SkeletonChatMainWindow from "@/components/SkeletonComponents/SkeletonChatMainWindow.vue";
+import {EventBus} from "@/main";
 
+interface messageData {
+	message: String,
+	user: String,
+	avatar: String,
+	channel: String
+}
 
 @Component({
 	components: {SkeletonChatMainWindow, ProfileCard, ProfileContent, ChatMainWindow, ChatNavDrawer},
@@ -46,12 +53,17 @@ import SkeletonChatMainWindow from "@/components/SkeletonComponents/SkeletonChat
 		},
 
 		chat(data) {
-			this.$data.socketMessage = data
+			if (data === null)
+				return
+
+			EventBus.$emit("newMessage", JSON.parse(data))
+			console.log(data)
 		}
 	},
 	methods: {
-		pingServer() {
-			this.$socket.emit("ping", "PING!")
+		sendMessage(text: string) {
+			let data: messageData = {message: text, user: this.$props.user.login, avatar: this.$props.user.avatar}
+			this.$socket.emit('chat', JSON.stringify(data))
 		}
 	},
 })

@@ -17,7 +17,7 @@ import {Component, Vue} from "vue-property-decorator";
 
 @Component({
 	props: {
-		objKey: Number,
+		objKey: String,
 		sender: String,
 		content: String,
 		avatar: String

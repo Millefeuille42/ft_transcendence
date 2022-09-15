@@ -2,6 +2,7 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 	SubscribeMessage,
+	ConnectedSocket,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
   } from '@nestjs/websockets';
@@ -14,9 +15,10 @@ import { User } from "../user/user.interface";
 import { ItemsService } from "../items/items.service";
 import { channel } from 'diagnostics_channel';
 
-interface Chiasse {
+interface messageData {
 	message: String,
-	user: String
+	user: String,
+	avatar: String,
 }
 
   @WebSocketGateway({ cors: true })
@@ -28,6 +30,7 @@ interface Chiasse {
 	async handleConnection() {
 	  // A client has connected
 	  this.users++;
+	  console.log("New connection")
 
 	  // Notify connected clients of current users
 	  this.server.emit('users', this.users);
@@ -36,6 +39,7 @@ interface Chiasse {
 	async handleDisconnect() {
 	  // A client has disconnected
 	  this.users--;
+		console.log("Goodbye")
 
 	  // Notify connected clients of current users
 	  this.server.emit('users', this.users);
@@ -43,25 +47,15 @@ interface Chiasse {
 
 	@SubscribeMessage('chat')
 	async onChat(client, message) {
+		console.log(message)
 		try {
-			let messageData: Chiasse = JSON.parse(message);
+			client.emit('chat', message)
 			client.broadcast.emit('chat', message);
 		} catch (e) {
 			console.log(e);
 			return e;
 		}
 	}
-
-	  @SubscribeMessage('ping')
-	  async onPing(client) {
-		  try {
-			  client.broadcast.emit('chat', "pong");
-			  console.log("Pong")
-		  } catch (e) {
-			  console.log(e);
-			  return e;
-		  }
-	  }
 
 	@SubscribeMessage('verify')
 	async onVerify(client: string, message: string) {

@@ -18,6 +18,6 @@ export class myVector {
 		let old: myVector = new myVector(this.x, this.y)
 
 		this.x = old.x * Math.cos(degsToRads(angle)) - old.y * Math.sin(degsToRads(angle))
-		this.x = old.x * Math.sin(degsToRads(angle)) - old.y * Math.cos(degsToRads(angle))
+		this.y = old.x * Math.sin(degsToRads(angle)) + old.y * Math.cos(degsToRads(angle))
 	}
 }
