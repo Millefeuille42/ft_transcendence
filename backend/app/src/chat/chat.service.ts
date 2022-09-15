@@ -23,7 +23,7 @@ export class ChatService {
 			pass = await bcrypt.hash(newChannel.password, salt)
 		}
 
-		const channel: RealChannelEntity = {
+		const channel = {
 			name: newChannel.name,
 			public: newChannel.public,
 			password: pass,
@@ -31,5 +31,6 @@ export class ChatService {
 			adminId: [user.id],
 			users: [user]
 		}
+		return await this.channelRepository.save(channel)
 	}
 }
