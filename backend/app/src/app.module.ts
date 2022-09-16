@@ -9,7 +9,6 @@ import {AppLoggerMiddleware} from "./middlewares/app-logger.middleware";
 import { FriendsModule } from './friends/friends.module';
 import { ItemsModule } from './items/items.module';
 import { ChatModule } from './chat/chat.module';
-import { MultiModule } from './multi/multi.module';
 import { GameModule } from './game/game.module';
 import { BlockedModule } from './blocked/blocked.module';
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -26,7 +25,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 	ChatModule,
     GameModule,
     BlockedModule,
-      MultiModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

@@ -12,21 +12,21 @@ export class AppLoggerMiddleware implements NestMiddleware {
 
     const {headers, method, originalUrl: url} = req;
     console.log(ipHost)
-    if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
-        req.ip !== "::1") /*Postman*/ {
-      res.statusCode = HttpStatus.FORBIDDEN
-    }
+    //if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
+    //    req.ip !== "::1") /*Postman*/ {
+    //  res.statusCode = HttpStatus.FORBIDDEN
+    //}
     res.on('close', () => {
       const {statusCode} = res;
 
       this.logger.log(`${method} ${url} ${statusCode} - ${headers["origin"]}`)
     });
 
-    if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
-        req.ip !== "::1") /*Postman*/ {
-      res.statusCode = HttpStatus.FORBIDDEN
-      throw new ForbiddenException()
-    }
+   // if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
+    //    req.ip !== "::1") /*Postman*/ {
+     // res.statusCode = HttpStatus.FORBIDDEN
+     // throw new ForbiddenException()
+    //}
 
     next();
   }
