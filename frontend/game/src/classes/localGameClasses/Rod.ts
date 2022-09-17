@@ -1,5 +1,5 @@
 import P5 from "p5";
-import MyVector from "./MyVector";
+import MyVector from "../genericClasses/MyVector";
 
 class Rod {
 	width: number

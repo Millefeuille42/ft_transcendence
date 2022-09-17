@@ -1,6 +1,7 @@
-import Rod from "./Rod";
-import Ball from "./Ball";
+import Rod from "../classes/localGameClasses/Rod";
+import Ball from "../classes/localGameClasses/Ball";
 import P5 from "p5";
+import IScreen from "../interfaces/IScreen";
 
 let c_width = 200
 let c_height = 200
@@ -56,14 +57,14 @@ function drawScene(p5: P5) {
 	p5.text(twoScore, (p5.width / 4) * 3, p5.height / 7)
 }
 
-export class LocalGame {
-	gamePreload(p5: P5) {
+class LocalGame implements IScreen {
+	screenPreload(p5: P5) {
 		ball_image = p5.loadImage("/balls/ball_bob.png")
 		rod_image = p5.loadImage("/rods/rod_github.png")
 		rod_image2 = p5.loadImage("/rods/rod_millefeuille.png")
 	}
 
-	private gameSetup(p5: P5) {
+	screenSetup(p5: P5) {
 		playerOne = new Rod(p5, true)
 		playerTwo = new Rod(p5, false)
 		ball = new Ball(p5, p5.random(-1, 1) > 0)
@@ -76,7 +77,7 @@ export class LocalGame {
 		displayGetReady(p5)
 	}
 
-	gameLoop(p5: P5): boolean {
+	screenLoop(p5: P5): boolean {
 		if (end)
 			return true
 
@@ -132,9 +133,9 @@ export class LocalGame {
 		return false
 	}
 
-	loadGame(p5: P5) {
-		this.gamePreload(p5)
-		this.gameSetup(p5)
+	loadScreen(p5: P5) {
+		this.screenPreload(p5)
+		this.screenSetup(p5)
 	}
 
 	setKeyPressed(p5: P5) {
@@ -161,3 +162,5 @@ export class LocalGame {
 		}
 	}
 }
+
+export default LocalGame
