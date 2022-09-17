@@ -14,3 +14,17 @@ export function createPrompt(p5: P5): P5.Element {
 	return input
 }
 
+export function createButton(value: string, p5: P5): P5.Element {
+	let button = p5.createButton(value)
+
+	button.style("width", (p5.width / 7).toString() + 'px')
+	button.style("height", (p5.height / 20).toString() + 'px')
+	button.style('font-size', '30px');
+	button.style('background-color', 'black');
+	button.style('color', 'white')
+	button.style('border', '2px solid white')
+	button.style('border-radius', '12px')
+	button.style('text-align', 'center')
+
+	return button
+}

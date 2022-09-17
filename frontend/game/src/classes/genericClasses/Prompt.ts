@@ -1,20 +1,31 @@
 import IScreen from "../../interfaces/IScreen";
 import P5 from "p5";
 import {getOnlineText} from "../../net";
+import {createButton, createPrompt} from "../../elements";
 
 class Prompt implements IScreen {
 	title: string
 	action: Function
 	input: P5.Element
+	stop: boolean
 	sendButton: P5.Element
 	quitButton: P5.Element
 
 	constructor(title: string, action: Function) {
 		this.title = title
 		this.action = action
+		this.stop = false
 	}
 
 	screenLoop(p5: P5): boolean {
+		if (this.stop) {
+			this.sendButton.remove()
+			this.quitButton.remove()
+			this.input.remove()
+			this.stop = false
+			return true
+		}
+
 		p5.background("black")
 
 		p5.fill("white")
@@ -37,9 +48,14 @@ class Prompt implements IScreen {
 	}
 
 	screenSetup(p5: P5): void {
+		this.input = createPrompt(p5)
 
+		this.sendButton = createButton("SEND", p5)
+		this.sendButton.position(((p5.width / 12) * 7) - p5.width / 14, p5.height - p5.height / 2.5)
 
-		this.quitButton =
+		this.quitButton = createButton("QUIT", p5)
+		this.quitButton.position(((p5.width / 12) * 5) - p5.width / 14, p5.height - p5.height / 2.5)
+		this.quitButton.mousePressed(() => {this.stop = true})
 	}
 
 	setKeyPressed(p5: P5): void {
