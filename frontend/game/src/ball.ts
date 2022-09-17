@@ -1,17 +1,17 @@
-import myVector from "./vector";
+import MyVector from "./MyVector";
 import P5 from "p5";
 import Rod from "./Rod";
 
 export class ballClass {
-	position: myVector
-	direction: myVector
+	position: MyVector
+	direction: MyVector
 	diametre: number
 	texture: P5.Image
 	collision: boolean
 
 	constructor(x: number, y:number, dirX: number, dirY: number, p5: P5, texture: P5.Image) {
-		this.position = new myVector(x, y)
-		this.direction = new myVector(dirX, dirY)
+		this.position = new MyVector(x, y)
+		this.direction = new MyVector(dirX, dirY)
 		let oldX = this.direction.x
 		this.direction.rotate(p5.random(-30, 30))
 		if (p5.random(0, 2) > 1) {

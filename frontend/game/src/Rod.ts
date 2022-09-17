@@ -1,12 +1,12 @@
 import P5 from "p5";
-import myVector from "./vector";
+import MyVector from "./MyVector";
 
 class Rod {
 	width: number
 	height: number
 	speed: number
 
-	position: myVector = new myVector(0, 0)
+	position: MyVector = new MyVector
 
 	goUp: boolean = false
 	goDown: boolean = false
