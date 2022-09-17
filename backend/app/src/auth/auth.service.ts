@@ -1,4 +1,4 @@
-import {HttpException, Injectable} from '@nestjs/common';
+import {HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import {UserService} from "../user/user.service";
 import axios from "axios";
@@ -8,6 +8,27 @@ import {CreateUser, CreateUserDto} from "../user/create-user.dto";
 export class AuthService {
 	constructor(public configService: ConfigService,
 				private userService: UserService) { }
+
+	async meRequest(token: string) {
+		return await axios({
+			method: "GET",
+			url: this.configService.get<string>('API') + "/v2/me",
+			headers: {
+				Authorization: "Bearer " + token,
+				"content-type": "application/json",
+			},
+		})
+			.then(() => {
+				return true;
+			})
+			.catch(async (err) => {
+				if (err.response.status == 429) {
+					await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
+					return this.meRequest(token);
+				}
+				return false
+			});
+	}
 
 	async getAccessToken(code: string): Promise<string> {
 		const payload = {
@@ -30,7 +51,9 @@ export class AuthService {
 				ret = res.data.access_token;
 		})
 			.catch((err) => {
-				throw new HttpException(err.response.statusText + " on token grab", err.response.status);
+				if (err.response && err.response.statusText)
+					throw new HttpException(err.response.statusText + " on token grab", err.response.status);
+				throw new UnauthorizedException()
 			});
 		return ret;
 	}
@@ -61,7 +84,7 @@ export class AuthService {
 				return ('');
 			})
 			.catch(async (err) => {
-				if (err.response == undefined) {
+				if (!err.response && !err.response.statusText) {
 					console.log(err)
 					throw new HttpException("Error", 429)
 				}
@@ -89,6 +112,36 @@ export class AuthService {
 
 	getRedipage() {
 		return this.configService.get<string>('API_RED_URI');
+	}
+
+	async isAuth(login: string, uuid: string) {
+		if (!login || !uuid) {
+			return false ;
+		}
+		const token: string = await this.userService.getToken(login);
+		const uuidSession = await this.userService.getUuidSession(login)
+		console.log(token)
+		console.log(login, uuid)
+
+		if (!token) {
+			console.log('token')
+			if (uuid === uuidSession)
+				await this.userService.deleteUuidSession(login)
+			return false ;
+		}
+		if (uuidSession !== uuid) {
+			console.log('uuid')
+			return false
+		}
+
+		const ret: boolean = await this.meRequest(token);
+		if (!ret) {
+			console.log('me request')
+			await this.userService.deleteToken(login)
+			await this.userService.deleteUuidSession(login)
+			return false
+		}
+		return true;
 	}
 }
 

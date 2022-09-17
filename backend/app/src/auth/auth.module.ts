@@ -10,5 +10,6 @@ import {GameModule} from "../game/game.module";
 	imports:[UserModule, ItemsModule, GameModule],
 	controllers:[AuthController],
 	providers:[AuthService, ConfigService],
+	exports:[AuthService]
 })
 export class AuthModule {}

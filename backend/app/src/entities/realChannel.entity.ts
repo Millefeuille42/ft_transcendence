@@ -18,7 +18,7 @@ export class RealChannelEntity extends ChannelsEntity {
 	ownerId: number
 
 	@Column('uuid', {array: true})
-	adminId: number
+	adminId: number[]
 
 	@OneToMany(() => BanUserEntity, (user) => user.channel, {eager: true})
 	ban: BanUserEntity[]
