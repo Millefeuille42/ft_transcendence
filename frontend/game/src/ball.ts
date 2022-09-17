@@ -1,6 +1,6 @@
-import {myVector} from "./vector";
+import myVector from "./vector";
 import P5 from "p5";
-import {rod} from "./rod";
+import Rod from "./Rod";
 
 export class ballClass {
 	position: myVector
@@ -23,7 +23,7 @@ export class ballClass {
 		this.collision = false
 	}
 
-	checkCollisionWithRod(r: rod) {
+	checkCollisionWithRod(r: Rod) {
 		if (this.position.x < r.position.x + r.width &&
 			this.position.x + this.diametre > r.position.x &&
 			this.position.y < r.position.y + r.height &&
@@ -34,7 +34,7 @@ export class ballClass {
 		}
 	}
 
-	move(one: rod, two:rod, p5: P5): boolean {
+	move(one: Rod, two: Rod, p5: P5): boolean {
 		if (this.position.x + this.diametre >= two.position.x + two.width / 3 || this.position.x <= one.position.x + one.width - one.width / 3) {
 			this.bounce(true)
 			this.collision = true
@@ -61,5 +61,12 @@ export class ballClass {
 
 	draw(p5: P5) {
 		p5.image(this.texture, this.position.x, this.position.y, this.diametre, this.diametre)
+	}
+}
+
+export class Ball {
+	let
+
+	constructor() {
 	}
 }

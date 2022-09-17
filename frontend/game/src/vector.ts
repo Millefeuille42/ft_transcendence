@@ -1,6 +1,6 @@
 const degsToRads = (deg: number) => (deg * Math.PI) / 180.0;
 
-export class myVector {
+class myVector {
 	x: number
 	y: number
 
@@ -21,3 +21,5 @@ export class myVector {
 		this.y = old.x * Math.sin(degsToRads(angle)) + old.y * Math.cos(degsToRads(angle))
 	}
 }
+
+export default myVector

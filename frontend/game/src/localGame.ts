@@ -1,12 +1,12 @@
-import {rod} from "./rod";
+import Rod from "./Rod";
 import {ballClass} from "./ball";
 import P5 from "p5";
 
 let c_width = 200
 let c_height = 200
 
-let playerOne: rod
-let playerTwo: rod
+let playerOne: Rod
+let playerTwo: Rod
 let oneScore: number = 0
 let twoScore: number = 0
 
@@ -25,12 +25,6 @@ function autoResize(p5: P5) {
 	if (parent !== null) {
 		if (c_width !== parent.clientWidth && c_height !== parent.clientHeight) {
 			// TODO put player and ball to new position
-
-			setTimeout(() => {
-				playerOne = new rod(playerOne.position.x, playerOne.position.y, p5, rod_image)
-				playerTwo = new rod(playerTwo.position.x, playerTwo.position.y, p5, rod_image2)
-				ball = new ballClass(ball.position.x, ball.position.y, ball.direction.x, ball.direction.y, p5, ball_image)
-			}, 200)
 
 			c_width = parent.clientWidth
 			c_height = parent.clientHeight
@@ -70,8 +64,8 @@ export class LocalGame {
 	}
 
 	private gameSetup(p5: P5) {
-		playerOne = new rod(p5.width * 0.01, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image)
-		playerTwo = new rod(p5.width * 0.99 - p5.width * 0.017, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image2)
+		playerOne = new Rod(p5, true)
+		playerTwo = new Rod(p5, false)
 		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
 
 		goalLastTick = true
