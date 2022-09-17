@@ -46,8 +46,8 @@ function displayWinner(player: string, p5: P5) {
 function drawScene(p5: P5) {
 	p5.background("black")
 
-	playerOne.draw(p5)
-	playerTwo.draw(p5)
+	playerOne.update(p5)
+	playerTwo.update(p5)
 	if (!goalLastTick)
 		ball.draw(p5)
 

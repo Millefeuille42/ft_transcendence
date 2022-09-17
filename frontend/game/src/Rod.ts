@@ -35,12 +35,20 @@ class Rod {
 			this.position.y = p5.height - this.height
 	}
 
-	draw(p5:P5) {
+	move(p5) {
 		if (this.goUp)
 			this.up()
 		if (this.goDown)
 			this.down(p5)
+	}
+
+	draw(p5:P5) {
 		p5.rect(this.position.x, this.position.y, this.width, this.height)
+	}
+
+	update(p5:P5) {
+		this.move(p5)
+		this.draw(p5)
 	}
 }
 
