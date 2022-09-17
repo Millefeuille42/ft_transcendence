@@ -142,7 +142,7 @@ export class LocalGame {
 	}
 
 	setKeyPressed(p5: P5) {
-		if (p5.key === "w") {
+		if (p5.key === "w" || p5.key == "z") {
 			playerOne.goUp = true
 		} else if (p5.key === "s") {
 			playerOne.goDown = true
@@ -154,7 +154,7 @@ export class LocalGame {
 	}
 
 	setKeyReleased(p5: P5) {
-		if (p5.key === "w") {
+		if (p5.key === "w" || p5.key == "z") {
 			playerOne.goUp = false
 		} else if (p5.key === "s") {
 			playerOne.goDown = false
