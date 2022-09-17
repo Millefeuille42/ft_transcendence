@@ -10,6 +10,7 @@ class Rod {
 
 	goUp: boolean = false
 	goDown: boolean = false
+	left: boolean
 
 	constructor(p5: P5, left: boolean) {
 		this.position.y = p5.height / 2 - (p5.height * 0.15 / 2)
@@ -19,6 +20,7 @@ class Rod {
 		this.width = p5.width * 0.017
 		this.height = p5.height * 0.15
 		this.speed = p5.height * 0.02
+		this.left = left
 	}
 
 	up() {
@@ -48,7 +50,6 @@ class Rod {
 
 	update(p5:P5) {
 		this.move(p5)
-		this.draw(p5)
 	}
 }
 

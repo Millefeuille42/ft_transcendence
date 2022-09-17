@@ -1,5 +1,5 @@
 import Rod from "./Rod";
-import {ballClass} from "./ball";
+import Ball from "./Ball";
 import P5 from "p5";
 
 let c_width = 200
@@ -10,7 +10,7 @@ let playerTwo: Rod
 let oneScore: number = 0
 let twoScore: number = 0
 
-let ball: ballClass
+let ball: Ball
 
 let goalLastTick: boolean
 let sleeping: boolean
@@ -46,8 +46,8 @@ function displayWinner(player: string, p5: P5) {
 function drawScene(p5: P5) {
 	p5.background("black")
 
-	playerOne.update(p5)
-	playerTwo.update(p5)
+	playerOne.draw(p5)
+	playerTwo.draw(p5)
 	if (!goalLastTick)
 		ball.draw(p5)
 
@@ -66,7 +66,7 @@ export class LocalGame {
 	private gameSetup(p5: P5) {
 		playerOne = new Rod(p5, true)
 		playerTwo = new Rod(p5, false)
-		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
+		ball = new Ball(p5, p5.random(-1, 1) > 0)
 
 		goalLastTick = true
 		sleeping = false
@@ -114,21 +114,17 @@ export class LocalGame {
 			return false
 		}
 
-		let goal = ball.move(playerOne, playerTwo, p5)
+		playerOne.update(p5)
+		playerTwo.update(p5)
+		let goal = ball.update(p5, playerOne, playerTwo)
 		drawScene(p5)
 		if (goal) {
 			if (ball.direction.x > 0) {
 				twoScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
-				if (ball.direction.x < 0) {
-					ball.direction.x *= -1
-				}
+				ball = new Ball(p5, true)
 			} else {
 				oneScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
-				if (ball.direction.x > 0) {
-					ball.direction.x *= -1
-				}
+				ball = new Ball(p5, false)
 			}
 			goalLastTick = true
 			drawScene(p5)

@@ -20,6 +20,15 @@ class MyVector {
 		this.x = old.x * Math.cos(degsToRads(angle)) - old.y * Math.sin(degsToRads(angle))
 		this.y = old.x * Math.sin(degsToRads(angle)) + old.y * Math.cos(degsToRads(angle))
 	}
+
+	normalize() {
+		let length = Math.sqrt((this.x * this.x) + (this.x * this.y));
+		if (length !== 0) {
+			length = 1 / length;
+			this.x *= length;
+			this.y *= length;
+		}
+	}
 }
 
 export default MyVector
