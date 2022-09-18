@@ -1,4 +1,10 @@
-import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
+import {
+	BadRequestException,
+	ConflictException,
+	Injectable,
+	NotFoundException,
+	UnauthorizedException
+} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {RealChannelEntity} from "../entities/realChannel.entity";
 import {Repository} from "typeorm";
@@ -16,9 +22,12 @@ export class ChatService {
 		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
 		!newChannel.owner)
 			throw new BadRequestException()
+		if (await this.channelRepository.findOneBy({name: newChannel.name}))
+			throw new ConflictException("Name is already used")
 		const user = await this.userService.getUser(newChannel.owner)
 		let pass = ""
-		if (!newChannel.public && newChannel.password) {
+		if (newChannel.public === false && newChannel.password) {
+			console.log(newChannel.password)
 			const salt = await bcrypt.genSalt()
 			pass = await bcrypt.hash(newChannel.password, salt)
 		}
@@ -50,9 +59,37 @@ export class ChatService {
 		return false
 	}
 
-	async joinChannel(channel: string, login: string, password?: string) {
+	async joinChannel(channel: string, login: string, password: string) {
 		const chan = await this.getChannel(channel)
 		const user = await this.userService.getUser(login)
 
+		if (await this.isInChannel(channel, login))
+			throw new ConflictException('User is already in the channel')
+		if (chan.public === false) {
+			if (chan.password === "")
+				throw new UnauthorizedException("Channel is private")
+			if (!await bcrypt.compare(password, chan.password))
+				throw new BadRequestException("Password ")
+		}
+		chan.users = [...chan.users, user]
+	}
+
+	async isPublic(channel: string) {
+		const chan = await this.getChannel(channel)
+		if (chan.public) {
+			return {
+				isPublic: true,
+				isPass: false
+			}
+		}
+		if (chan.password === "")
+			return {
+				isPublic: false,
+				isPass: false
+			}
+		return {
+			isPublic: false,
+			isPass: true
+		}
 	}
 }

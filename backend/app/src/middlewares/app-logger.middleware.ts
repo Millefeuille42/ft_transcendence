@@ -11,7 +11,6 @@ export class AppLoggerMiddleware implements NestMiddleware {
     const ipHost = this.configService.get('HOST') + ':' + this.configService.get('PORT_FRONT')
 
     const {headers, method, originalUrl: url} = req;
-    console.log(ipHost)
     if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
         req.ip !== "::1") /*Postman*/ {
       res.statusCode = HttpStatus.FORBIDDEN

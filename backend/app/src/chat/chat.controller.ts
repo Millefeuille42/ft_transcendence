@@ -7,14 +7,19 @@ import {BanOrMuteDto} from "./ban-or-mute.dto";
 export class ChatController {
 	constructor(private chatService: ChatService) {}
 
-	@Get('channel')
+	@Get('channels')
 	getAllChannels() {
 
 	}
 
-	@Get('channel/:channel')
+	@Get('channels/:channel')
 	getOneChannel(@Param('channel') channel: string) {
 
+	}
+
+	@Get('channels/:channel/public')
+	async isPublic(@Param('channel') channel: string) {
+		return await this.chatService.isPublic(channel)
 	}
 
 	@Get('channel/:login')

@@ -33,8 +33,7 @@ interface messageData {
 	sockUser = new Map<string, string>([])
 
 	async handleConnection(client: Socket) {
-		console.log("New connection")
-		console.log(client.id)
+		console.log("New connection :", client.id)
 		if (this.sockUser[client.id])
 			this.server.emit('error', "Socket already used")
 		else
@@ -49,16 +48,16 @@ interface messageData {
 			this.sockUser.delete(client.id)
 	}
 
+	//data need token and login
 	@SubscribeMessage('auth')
 	async handleAuth (@MessageBody() data: authData, @ConnectedSocket() client: Socket) {
 		const ret = await this.authService.isAuth(data.login, data.token)
-		console.log(data.login, data.token)
 		this.server.emit('auth', ret)
 		if (ret === true)
 			this.sockUser[client.id] = data.login
-		console.log(client.id, this.sockUser[client.id])
 	}
 
+	//data need channel and message
 	@SubscribeMessage('message')
 	async handleEvent (@MessageBody() data: messageData, @ConnectedSocket() client: Socket) {
 		try {
@@ -67,8 +66,8 @@ interface messageData {
 			if (this.sockUser[client.id] === "")
 				throw new NotFoundException("Socket isn't link with a user")
 			const user = await this.userService.getUser(this.sockUser[client.id])
-			//if (await this.chatService.isInChannel(data.channel, user.login))
-			//	throw new ForbiddenException("User is not in the channel")
+			if (await this.chatService.isInChannel(data.channel, user.login))
+				throw new ForbiddenException("User is not in the channel")
 
 			const payload = {
 				login: user.login,
@@ -77,7 +76,6 @@ interface messageData {
 				username: user.username,
 				channel: data.message
 			}
-			console.log(payload)
 			this.server.emit('message', payload)
 		}
 		catch (e) {
@@ -85,6 +83,7 @@ interface messageData {
 		}
 	}
 
+	// Data new channel and password ("" is
 	@SubscribeMessage('join')
 	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
@@ -92,7 +91,7 @@ interface messageData {
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
 				throw new NotFoundException("Socket isn't link with a user")
-			await this.chatService.joinChannel(data.channel, this.sockUser[client.id])
+			await this.chatService.joinChannel(data.channel, this.sockUser[client.id], data.password)
 			this.server.emit('join', {
 				login: this.sockUser[client.id],
 				channel: data.message
@@ -103,6 +102,3 @@ interface messageData {
 		}
 	}
   }
-
-//   id channel
-//   message

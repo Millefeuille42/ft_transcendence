@@ -85,7 +85,6 @@ export class AuthService {
 			})
 			.catch(async (err) => {
 				if (!err.response && !err.response.statusText) {
-					console.log(err)
 					throw new HttpException("Error", 429)
 				}
 				if (err.response.status == 429) {
@@ -98,9 +97,7 @@ export class AuthService {
 			return login;
 		await this.userService.initSession(userData.login, access_token)
 		const us = await this.userService.userExist(userData.login)
-		console.log(us)
 		if (us) {
-			console.log("User already exist")
 			await this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}
@@ -120,8 +117,6 @@ export class AuthService {
 		}
 		const token: string = await this.userService.getToken(login);
 		const uuidSession = await this.userService.getUuidSession(login)
-		console.log(token)
-		console.log(login, uuid)
 
 		if (!token) {
 			console.log('token')
