@@ -2,6 +2,7 @@ import IScreen from "../interfaces/IScreen";
 import P5 from "p5";
 
 class MultiGame implements IScreen {
+
 	screenPreload(p5: P5): void {
 	}
 

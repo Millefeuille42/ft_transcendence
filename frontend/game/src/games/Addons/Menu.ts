@@ -1,6 +1,6 @@
 import IScreen from "../../interfaces/IScreen";
 import P5 from "p5";
-import Button from "./Button";
+import Button from "../../classes/genericClasses/Button";
 import {getOnlineText} from "../../net";
 
 class Menu implements IScreen {

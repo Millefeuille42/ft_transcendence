@@ -1,13 +1,31 @@
 import {io, Socket} from "socket.io-client";
+import matchmaking from "./games/Addons/Matchmaking";
 
 interface connection {
 	socket: Socket
 	hasError: boolean
+	userLogin: string
+
+	auth: boolean
+	hasMatchUp: boolean
+
+	opponentReady: boolean
+	userReady: boolean
+	match: {
+		login: string
+		id: string
+	}
 }
 
 let net: connection = {
 	socket: io("http://localhost:3000"), // TODO Set to env
-	hasError: false
+	hasError: false,
+	auth: false,
+	opponentReady: false,
+	userReady: false,
+	hasMatchUp: false,
+	userLogin: "",
+	match: {login: "", id: ""}
 }
 
 net.socket.on('connect', () => {
@@ -21,6 +39,23 @@ net.socket.on('disconnect', () => {
 
 net.socket.on('connect_error', () => {
 	console.log("Error while establishing connection")
+})
+
+net.socket.on('multiAuth', (valid: boolean) => {
+	console.log("AUTH")
+	net.auth = valid
+})
+
+net.socket.on('multiMatchUp', (data: {login: string, id: string}) => {
+	console.log("MATCHUP")
+	net.hasMatchUp = true
+	net.match = data
+})
+
+net.socket.on('multiReady', (data: {login: string, ready: boolean}) => {
+	console.log("READY")
+	if (data.login === net.match.login)
+		net.opponentReady = data.ready
 })
 
 export const getOnlineText = () => {

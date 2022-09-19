@@ -121,10 +121,10 @@ class LocalGame implements IScreen {
 		drawScene(p5)
 		if (goal) {
 			if (ball.direction.x > 0) {
-				twoScore++
+				oneScore++
 				ball = new Ball(p5, true)
 			} else {
-				oneScore++
+				twoScore++
 				ball = new Ball(p5, false)
 			}
 			goalLastTick = true
