@@ -156,7 +156,6 @@ export class UserController {
 
 	@Get('twofa/status/:login')
 	async get2FAStatus(@Param('login') login: string) {
-		console.log("suce")
 		return this.userService.isTwoFA(login)
 	}
 
