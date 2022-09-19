@@ -69,6 +69,7 @@ import {EventBus} from "@/main";
 					this.loadBlockedList()
 				})
 				.catch(() => {
+					// TODO handle properly
 					this.showSnack("Error while unblocking " + block, "red")
 					this.$data.loadingBlocking = false
 				})

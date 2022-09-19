@@ -96,6 +96,7 @@ import {EventBus} from "@/main";
 				}
 				EventBus.$emit("updateOnlineList", "")
 			}).catch(() => {
+				// TODO handle properly
 				this.showSnack("Failed to remove " + friend.username, "red")
 			})
 			this.showSnack(friend.username + " removed", "green")

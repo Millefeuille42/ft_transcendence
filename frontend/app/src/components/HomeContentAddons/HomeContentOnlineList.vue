@@ -107,6 +107,7 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch((e) => {
+					// TODO manage error
 					console.log("ici")
 					console.log(e)
 					if (e.response.status === 404)
@@ -126,6 +127,7 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch(() => {
+					// TODO manage error
 					this.showSnack("Failed to remove " + friend.info.login, "red")
 					friend.friendLoading = false
 				})

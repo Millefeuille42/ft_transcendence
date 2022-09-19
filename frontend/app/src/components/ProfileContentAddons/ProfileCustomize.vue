@@ -55,6 +55,7 @@ interface selectedComponent {
 				}
 			}
 			catch {
+				// TODO handle properly
 				this.showSnack("Failed to save loadout", "red")
 				return
 			}
