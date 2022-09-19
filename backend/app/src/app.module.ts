@@ -12,6 +12,7 @@ import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
 import { BlockedModule } from './blocked/blocked.module';
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { MultiModule } from './multi/multi.module';
 
 @Module({
   imports: [AuthModule,
@@ -25,6 +26,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 	ChatModule,
     GameModule,
     BlockedModule,
+    MultiModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
