@@ -34,10 +34,8 @@ export async function getUserData(login: string): Promise<userDataIn> {
     const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
             withCredentials: true,
         })
-        console.log("yay")
         return response.data
     } catch (e) {
-        console.log("nay")
         throw e
     }
 }
