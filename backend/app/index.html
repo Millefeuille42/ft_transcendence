@@ -1,37 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
+
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
-    <script type="text/javascript">
+    <script>
         const socket = io('http://localhost:3000')
+        socket.on('connect', () => console.log('Connected'))
 
-        socket.on("connect", (headers) => {
-            document.cookie = "test=prout"
-            console.log("Connected")
-        })
-
-        socket.on("disconnect", () => console.log("Disconnected"))
-
-        socket.on("message", function (id, data) {
+        socket.on('message', (payload) => {
             const messages = document.getElementById('messages')
-
-            messages.innerHTML += `<p> ${id} : ${data} </p>`
+            console.log(payload)
+            messages.innerHTML += `<p> ${payload.username} : ${payload.message} </p>`
         })
 
-        const sendMessage = () => {
-            const message = document.getElementById('message').value
+        socket.on('error', (e) => {
+            console.log(e)
+        })
 
-            socket.emit('message', message)
+        socket.on('auth', (data) => {
+            console.log(data)
+        })
+
+        function sendAuth() {
+            const payload = {
+                login: "ericard",
+                token: "8b588803-2583-4cf2-85cb-498daf77c664"
+            }
+            socket.emit('auth', payload)
         }
+
+        function sendMessage() {
+            const message = document.getElementById('message').value
+            let test = {
+                channel: "test",
+                message: message
+            }
+            socket.emit('message', test)
+        }
+
     </script>
 </head>
 <body>
-<label for="message"></label><input type="text" id="message"/>
-    <button onclick="sendMessage()">Envoyer</button><br/>
+    <button onclick="sendAuth()">Prout</button></br>
+    <label for="message"></label>
+    <input type="text" id="message"/>
+    <button onclick="sendMessage()">Send</button>
     <div id="messages"></div>
 </body>
 </html>

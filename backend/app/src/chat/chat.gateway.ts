@@ -3,62 +3,102 @@ import {
 	WebSocketServer,
 	SubscribeMessage,
 	ConnectedSocket,
-	OnGatewayConnection,
-	OnGatewayDisconnect,
-	MessageBody,
+	MessageBody
   } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io'
+import { ConfigService } from "@nestjs/config";
+import {Socket} from "socket.io";
 import {UserService} from "../user/user.service";
+import {AuthService} from "../auth/auth.service";
 import {ChatService} from "./chat.service";
-import {Request} from 'express'
+import {ForbiddenException, NotFoundException} from "@nestjs/common";
 
-  @WebSocketGateway({
-	  cors: {
-		  origin: "*"
-	  }
-  })
-  export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+interface authData {
+	token: string,
+	login: string
+}
+
+interface messageData {
+	channel: string,
+	message: string,
+}
+
+  @WebSocketGateway({ cors: true })
+  export class ChatGateway {
 	constructor(private userService: UserService,
-				private chatService: ChatService){}
+				private authService: AuthService,
+				private chatService: ChatService) {}
 
-	  @WebSocketServer()
-	  server: Server;
-	  users: number = 0;
+	@WebSocketServer() server;
+	users: number = 0;
+	sockUser = new Map<string, string>([])
 
-	  //Connection
-	  async handleConnection(client: Socket, req: Request) {
-		  console.log(req)
-		  //let cookies = client.handshake.headers.cookie
-		  //console.log(cookies)
-	  }
+	async handleConnection(client: Socket) {
+		console.log("New connection :", client.id)
+		if (this.sockUser[client.id])
+			this.server.emit('error', "Socket already used")
+		else
+			this.sockUser[client.id] = ""
+	}
 
-	  async handleDisconnect(client: Socket) {
-		  // A client has disconnected
-		  this.users--;
-		  console.log("Goodbye:", client.id)
+	async handleDisconnect(client: Socket) {
+		console.log("Goodbye")
+		if (!this.sockUser[client.id])
+			this.server.emit('error', "Socket isn't use")
+		else
+			this.sockUser.delete(client.id)
+	}
 
-		  // Notify connected clients of current users
-		  //this.server.emit('users', this.users);
-	  }
+	//data need token and login
+	@SubscribeMessage('auth')
+	async handleAuth (@MessageBody() data: authData, @ConnectedSocket() client: Socket) {
+		const ret = await this.authService.isAuth(data.login, data.token)
+		this.server.emit('auth', ret)
+		if (ret === true)
+			this.sockUser[client.id] = data.login
+	}
 
-	  @SubscribeMessage('message')
-	  async handleEvent(@MessageBody() data: string,
-						@ConnectedSocket() client: Socket) {
-		  console.log(data)
-		  this.server.emit('message', client.id, data)
-	  }
+	//data need channel and message
+	@SubscribeMessage('message')
+	async handleEvent (@MessageBody() data: messageData, @ConnectedSocket() client: Socket) {
+		try {
+			if (!this.sockUser[client.id])
+				throw new NotFoundException("Socket doesn't exist")
+			if (this.sockUser[client.id] === "")
+				throw new NotFoundException("Socket isn't link with a user")
+			const user = await this.userService.getUser(this.sockUser[client.id])
+			if (await this.chatService.isInChannel(data.channel, user.login))
+				throw new ForbiddenException("User is not in the channel")
 
+			const payload = {
+				login: user.login,
+				message: data.message,
+				avatar: user.avatar,
+				username: user.username,
+				channel: data.message
+			}
+			this.server.emit('message', payload)
+		}
+		catch (e) {
+			this.server.emit('error', e)
+		}
+	}
 
-	  // async onChat(client, message) {
-		//   console.log(message)
-		//   try {
-		// 	  client.emit('chat', message)
-		// 	  client.broadcast.emit('chat', message);
-		//   } catch (e) {
-		// 	  console.log(e);
-		// 	  return e;
-		//   }
-	  // }
+	// Data new channel and password ("" is
+	@SubscribeMessage('join')
+	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		try {
+			if (!this.sockUser[client.id])
+				throw new NotFoundException("Socket doesn't exist")
+			if (this.sockUser[client.id] === "")
+				throw new NotFoundException("Socket isn't link with a user")
+			await this.chatService.joinChannel(data.channel, this.sockUser[client.id], data.password)
+			this.server.emit('join', {
+				login: this.sockUser[client.id],
+				channel: data.message
+			})
+		}
+		catch (e) {
+			this.server.emit('error', e)
+		}
+	}
   }
-//   id channel
-//   message

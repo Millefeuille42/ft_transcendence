@@ -41,6 +41,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
     consumer.apply(AppLoggerMiddleware).forRoutes('*')
-    consumer.apply(IsAuthMiddleware).forRoutes('user', 'friends', 'items', 'blocked', 'game')
+    consumer.apply(IsAuthMiddleware).forRoutes('user', 'friends', 'items', 'blocked', 'game', 'chat')
   }
 }

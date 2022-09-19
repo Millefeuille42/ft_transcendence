@@ -10,6 +10,7 @@ import {DmChannelEntity} from "../entities/dmChannel.entity";
 import {MessagesEntity} from "../entities/messages.entity";
 import {RealChannelEntity} from "../entities/realChannel.entity";
 import {UserModule} from "../user/user.module";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
 	imports: [
@@ -19,7 +20,8 @@ import {UserModule} from "../user/user.module";
 			DmChannelEntity,
 			MessagesEntity,
 			RealChannelEntity]),
-		UserModule
+		UserModule,
+		AuthModule
 	],
 	providers: [ChatGateway, ConfigService, ChatService],
 	controllers: [ChatController]
