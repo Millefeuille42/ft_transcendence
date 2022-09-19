@@ -15,10 +15,10 @@ export class IsAuthMiddleware implements NestMiddleware {
     const uuid: string = req.cookies['Session'];
     const login: string = req.cookies['Login'];
     if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
-      const token: string = await this.userService.getToken(login);
-      const uuidSession = await this.userService.getUuidSession(login)
-      if (!token || !uuidSession)
-        throw new HttpException("Va chercher un cookie wesh", 401)
+      // const token: string = await this.userService.getToken(login);
+      // const uuidSession = await this.userService.getUuidSession(login)
+      // if (!token || !uuidSession)
+      //   throw new HttpException("Va chercher un cookie wesh", 401)
       console.log("from localhost")
       next();
       return ;

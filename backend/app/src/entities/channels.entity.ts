@@ -1,4 +1,4 @@
-import {Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, TableInheritance} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, TableInheritance} from "typeorm";
 import {UsersList} from "./users.entity";
 import {MessagesEntity} from "./messages.entity";
 
@@ -7,9 +7,8 @@ export abstract class ChannelsEntity {
 	@PrimaryGeneratedColumn()
 	id: number
 
-	@ManyToMany(() => UsersList)
-	@JoinTable()
-	users: UsersList[]
+	@Column("uuid",{array: true})
+	users: number[]
 
 	@ManyToMany(() => MessagesEntity)
 	@JoinTable()

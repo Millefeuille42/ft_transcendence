@@ -7,16 +7,24 @@ import {
 } from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {RealChannelEntity} from "../entities/realChannel.entity";
-import {Repository} from "typeorm";
+import {In, Repository} from "typeorm";
 import {CreateChannelDto} from "./create-channel.dto";
 import {UserService} from "../user/user.service";
 import * as bcrypt from "bcrypt"
+import {DmChannelEntity} from "../entities/dmChannel.entity";
+import {MessagesEntity} from "../entities/messages.entity";
+import {BlockedService} from "../blocked/blocked.service";
 
 @Injectable()
 export class ChatService {
 	constructor(@InjectRepository(RealChannelEntity)
 				private channelRepository: Repository<RealChannelEntity>,
-				private userService: UserService) {}
+				private userService: UserService,
+				@InjectRepository(DmChannelEntity)
+				private dmRepository: Repository<DmChannelEntity>,
+				@InjectRepository(MessagesEntity)
+				private messageRepository: Repository<MessagesEntity>,
+				private blockedService: BlockedService) {}
 
 	async createChannel(newChannel: CreateChannelDto) {
 		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
@@ -38,7 +46,7 @@ export class ChatService {
 			password: pass,
 			ownerId: user.id,
 			adminId: [user.id],
-			users: [user]
+			users: [user.id]
 		}
 		return await this.channelRepository.save(channel)
 	}
@@ -54,7 +62,7 @@ export class ChatService {
 		const chan = await this.getChannel(channel)
 		const user = await this.userService.getUser(login)
 
-		if (chan.users.find((u) => u === user))
+		if (chan.users.find((u) => u === user.id))
 			return true
 		return false
 	}
@@ -71,7 +79,18 @@ export class ChatService {
 			if (!await bcrypt.compare(password, chan.password))
 				throw new BadRequestException("Password ")
 		}
-		chan.users = [...chan.users, user]
+		chan.users.push(user.id)
+		await this.channelRepository.save(chan)
+	}
+
+	async leaveChannel(channel: string, login: string) {
+		const chan = await this.getChannel(channel)
+		const user = await this.userService.getUser(login)
+
+		if (!await this.isInChannel(channel, login))
+			throw new ConflictException('User is not in the channel')
+		chan.users = chan.users.filter((u) => u !== user.id)
+		await this.channelRepository.save(chan)
 	}
 
 	async isPublic(channel: string) {
@@ -91,5 +110,54 @@ export class ChatService {
 			isPublic: false,
 			isPass: true
 		}
+	}
+
+	async createDM(users: number[]) {
+		if (users.length != 2)
+			throw new BadRequestException("Dm need 2 users")
+
+		const test = await this.dmRepository.find()
+		console.log(test)
+		let chan
+		test.forEach((c) => {
+			console.log(c);
+			if ((c.users[0] === users[0] && c.users[1] === users[1])
+			|| (c.users[1] === users[0] && c.users[0] === users[1])) {
+				chan = c
+				return;
+			}
+		})
+		if (chan)
+			return chan
+		chan = {
+			users: users
+		}
+		return await this.dmRepository.save(chan)
+	}
+
+	async sendDM(from: string, to: string, message: string) {
+		if (to === from)
+			throw new ConflictException("You can\'t DM yourself")
+		const uFrom = await this.userService.getUser(from)
+		const uTo = await this.userService.getUser(to)
+		if (await this.blockedService.isBlocked(from, to)
+			|| await this.blockedService.isBlocked(to, from))
+			throw new ConflictException("Someone blocked the other")
+		const chan = await this.createDM([uFrom.id, uTo.id])
+		await this.addMessage(uFrom.id, "dm", message, chan.id)
+	}
+
+	async addMessage(from: number, type: string, message: string, roomId: number) {
+		const mess = {
+			userId: from,
+			type: type,
+			roomId: roomId,
+			content: message
+		}
+		return await this.messageRepository.save(mess)
+	}
+
+	async getAllChannels() {
+		return this.channelRepository.find()
 	}
 }

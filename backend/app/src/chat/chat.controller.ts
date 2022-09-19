@@ -8,57 +8,48 @@ export class ChatController {
 	constructor(private chatService: ChatService) {}
 
 	@Get('channels')
-	getAllChannels() {
-
+	async getAllChannels() {
+		return (await this.chatService.getAllChannels())
 	}
 
-	@Get('channels/:channel')
-	getOneChannel(@Param('channel') channel: string) {
-
+	@Get('channel/:channel')
+	async getOneChannel(@Param('channel') channel: string) {
+		return (await this.chatService.getChannel(channel))
 	}
 
-	@Get('channels/:channel/public')
-	async isPublic(@Param('channel') channel: string) {
-		return await this.chatService.isPublic(channel)
+	@Get('dm/:login/:other')
+	async getDmIntoUsers(@Param('login') login: string,
+				   @Param('other') other: string) {
+		return (await this.chatService.getDm(login, other))
 	}
 
 	@Get('channel/:login')
-	getChannelsOfUser(@Param('login') login: string) {
-
+	async getChannelsOfUser(@Param('login') login: string) {
+		return (await this.chatService.getChannelsOfUser(login))
 	}
 
 	@Get('dm/:login')
-	getDmOfUser(@Param('login') login: string) {
-
+	async getDmOfUser(@Param('login') login: string) {
+		return (await this.chatService.getDmOfUser(login))
 	}
 
 	@Get('channel/ban/:channel')
-	banList(@Param('channel') channel: string) {
-
+	async banList(@Param('channel') channel: string) {
+		return (await this.chatService.getBanList(channel))
 	}
 
 	@Get('channel/mute/:channel')
-	muteList(@Param('channel') channel: string) {
-
+	async muteList(@Param('channel') channel: string) {
+		return (await this.chatService.getMuteList(channel))
 	}
 
 	@Get('channel/admin/:channel')
-	adminList(@Param('channel') channel: string) {
-
+	async adminList(@Param('channel') channel: string) {
+		return (await this.chatService.getAdminList(channel))
 	}
 
 	@Post('channel')
 	createChannel(@Body() newChannel: CreateChannelDto) {
 		return this.chatService.createChannel(newChannel)
-	}
-
-	@Post('channel/ban')
-	banSomeone(@Body() banInfo: BanOrMuteDto) {
-
-	}
-
-	@Post('channel/mute')
-	muteSomeone(@Body() muteInfo: BanOrMuteDto) {
-
 	}
 }

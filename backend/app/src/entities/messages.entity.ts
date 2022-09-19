@@ -9,6 +9,9 @@ export class MessagesEntity {
 	userId: number
 
 	@Column()
+	type: string
+
+	@Column()
 	roomId: number
 
 	@Column()

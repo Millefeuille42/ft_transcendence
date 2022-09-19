@@ -34,8 +34,8 @@ interface messageData {
 
 	async handleConnection(client: Socket) {
 		console.log("New connection :", client.id)
-		if (this.sockUser[client.id])
-			this.server.emit('error', "Socket already used")
+		if (!this.sockUser[client.id])
+			client.emit('error', "Socket already used")
 		else
 			this.sockUser[client.id] = ""
 	}
@@ -43,7 +43,7 @@ interface messageData {
 	async handleDisconnect(client: Socket) {
 		console.log("Goodbye")
 		if (!this.sockUser[client.id])
-			this.server.emit('error', "Socket isn't use")
+			client.emit('error', "Socket isn't use")
 		else
 			this.sockUser.delete(client.id)
 	}
@@ -66,24 +66,27 @@ interface messageData {
 			if (this.sockUser[client.id] === "")
 				throw new NotFoundException("Socket isn't link with a user")
 			const user = await this.userService.getUser(this.sockUser[client.id])
-			if (await this.chatService.isInChannel(data.channel, user.login))
+			if (!await this.chatService.isInChannel(data.channel, user.login))
 				throw new ForbiddenException("User is not in the channel")
+			const channel = await this.chatService.getChannel(data.channel)
+
+			await this.chatService.addMessage(user.id, "channel", data.message, channel.id)
 
 			const payload = {
 				login: user.login,
 				message: data.message,
 				avatar: user.avatar,
 				username: user.username,
-				channel: data.message
+				channel: data.channel
 			}
 			this.server.emit('message', payload)
 		}
 		catch (e) {
-			this.server.emit('error', e)
+			client.emit('error', e)
 		}
 	}
 
-	// Data new channel and password ("" is
+	// Data new channel and password ("" if public or private)
 	@SubscribeMessage('join')
 	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
@@ -94,11 +97,51 @@ interface messageData {
 			await this.chatService.joinChannel(data.channel, this.sockUser[client.id], data.password)
 			this.server.emit('join', {
 				login: this.sockUser[client.id],
-				channel: data.message
+				channel: data.channel
 			})
 		}
 		catch (e) {
-			this.server.emit('error', e)
+			client.emit('error', e)
+		}
+	}
+
+	//data -> channel
+	@SubscribeMessage('leave')
+	  async leaveChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		try {
+			if (!this.sockUser[client.id])
+				throw new NotFoundException("Socket doesn't exist")
+			if (this.sockUser[client.id] === "")
+				throw new NotFoundException("Socket isn't link with a user")
+			await this.chatService.leaveChannel(data.channel, this.sockUser[client.id])
+			this.server.emit('leave', {
+				login: this.sockUser[client.id],
+				channel: data.channel
+			})
+		}
+		catch (e) {
+			client.emit('error', e)
+		}
+	}
+
+	//data -> to, message
+	@SubscribeMessage('dm')
+	  async sendDM(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		try {
+			if (!this.sockUser[client.id])
+				throw new NotFoundException("Socket doesn't exist")
+			if (this.sockUser[client.id] === "")
+				throw new NotFoundException("Socket isn't link with a user")
+			await this.chatService.sendDM(this.sockUser[client.id], data.to, data.message)
+			const payload = {
+				from: this.sockUser[client.id],
+				to: data.to,
+				message: data.message
+			}
+			this.server.emit('dm', payload)
+		}
+		catch (e) {
+			client.emit('error', e)
 		}
 	}
   }
