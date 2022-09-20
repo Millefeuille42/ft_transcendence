@@ -5,6 +5,7 @@ interface connection {
 	socket: Socket
 	hasError: boolean
 	userLogin: string
+	userToken: string
 
 	auth: boolean
 	hasMatchUp: boolean
@@ -18,13 +19,14 @@ interface connection {
 }
 
 let net: connection = {
-	socket: io("http://localhost:3000"), // TODO Set to env
+	socket: io("http://e1r12p3:3000"), // TODO Set to env
 	hasError: false,
 	auth: false,
 	opponentReady: false,
 	userReady: false,
 	hasMatchUp: false,
 	userLogin: "",
+	userToken: "",
 	match: {login: "", id: ""}
 }
 
@@ -56,6 +58,17 @@ net.socket.on('multiReady', (data: {login: string, ready: boolean}) => {
 	console.log("READY")
 	if (data.login === net.match.login)
 		net.opponentReady = data.ready
+})
+
+net.socket.on('multiError', (data: {code: number, text: string}) => {
+	if (data.code === 442) {
+		console.log("ERROR")
+		net.hasMatchUp = false
+		net.auth = false
+		net.opponentReady = false
+		net.userReady = false
+		net.hasError = true
+	}
 })
 
 export const getOnlineText = () => {

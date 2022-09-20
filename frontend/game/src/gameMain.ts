@@ -45,15 +45,18 @@ export const sketch = (p5: P5) => {
 	}
 
 	p5.draw = () => {
-		MainMenu.screenLoop(p5)
+		if (MainMenu !== undefined)
+			MainMenu.screenLoop(p5)
 	}
 
 	p5.keyPressed = () => {
-		MainMenu.setKeyPressed(p5)
+		if (MainMenu !== undefined)
+			MainMenu.setKeyPressed(p5)
 	}
 
 	p5.keyReleased = () => {
-		MainMenu.setKeyReleased(p5)
+		if (MainMenu !== undefined)
+			MainMenu.setKeyReleased(p5)
 	}
 }
 

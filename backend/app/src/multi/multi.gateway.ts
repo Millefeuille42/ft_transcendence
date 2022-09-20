@@ -6,17 +6,12 @@ import Queue from "../utils/Queue";
 import {makePair} from "../utils/Pair";
 import matchUsersInterface, {matchPair} from "./matchUsers.interface";
 import IPair from "../utils/IPair";
-import {MultiService} from "./multi.service";
+import {err, MultiService} from "./multi.service";
 import {v4 as uuid} from 'uuid'
 
 interface authData {
 	token: string,
 	login: string
-}
-
-interface err {
-	code: number
-	text: string
 }
 
 interface socketLoginPair extends IPair<Socket, string> {}
@@ -42,17 +37,16 @@ export class MultiGateway {
 	ERR_NOT_FOUND: err = {code: 404, text: "Error: match not found"}
 
 	async handleDisconnect(client: Socket) {
-		console.log("Disconnected")
-		if (this.users[client.id] === undefined)
+		this.multiService.deleteUser(client.id, this.users, this.matchQ, this.matches)
+	}
+
+	@SubscribeMessage('multiLeave')
+	async handleLeave(@ConnectedSocket() client: Socket) {
+		if (this.users[client.id] === undefined) {
+			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
 			return
-		let userIndex = this.matchQ.getStorage().findIndex((x) => {
-			return x.second === this.users[client.id]
-		})
-		console.log("found in queue")
-		if (userIndex > -1) {
-			this.matchQ.getStorage().splice(userIndex, 1);
-			console.log("deleted")
 		}
+		this.multiService.deleteUser(client.id, this.users, this.matchQ, this.matches)
 	}
 
 	@SubscribeMessage('multiAuth')
@@ -73,24 +67,24 @@ export class MultiGateway {
 			return
 		}
 
-		if (this.matches[data.id] === undefined) {
+		if (this.matches.get(data.id) === undefined) {
 			client.emit('multiError', this.ERR_NOT_FOUND)
 			return
 		}
 
-		if (this.matches[data.id].first.login === this.users[client.id]) {
-			this.matches[data.id].first.ready = data.ready
-			this.matches[data.id].second.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
+		if (this.matches.get(data.id).first.login === this.users[client.id]) {
+			this.matches.get(data.id).first.ready = data.ready
+			this.matches.get(data.id).second.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
 		}
 
-		if (this.matches[data.id].second.login === this.users[client.id]) {
-			this.matches[data.id].second.ready = data.ready
-			this.matches[data.id].first.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
+		if (this.matches.get(data.id).second.login === this.users[client.id]) {
+			this.matches.get(data.id).second.ready = data.ready
+			this.matches.get(data.id).first.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
 		}
 
-		if (this.matches[data.id].first.ready && this.matches[data.id].second.ready) {
-			this.matches[data.id].first.socket.emit('multiReady', {oper: "start"})
-			this.matches[data.id].second.socket.emit('multiReady', {oper: "start"})
+		if (this.matches.get(data.id).first.ready && this.matches.get(data.id).second.ready) {
+			this.matches.get(data.id).first.socket.emit('multiReady', {oper: "start"})
+			this.matches.get(data.id).second.socket.emit('multiReady', {oper: "start"})
 		}
 	}
 
@@ -118,16 +112,18 @@ export class MultiGateway {
 			}
 			this.matchQ.enqueue(makePair(client, this.users[client.id]) as socketLoginPair)
 		}
+		console.log(this.matchQ.getStorage())
 		if (this.matchQ.size() >= 2) {
 			let one = this.matchQ.dequeue()
 			let two = this.matchQ.dequeue()
 			let match_id = uuid()
 			one.first.emit('multiMatchUp', {login: two.second, id: match_id})
 			two.first.emit('multiMatchUp', {login: one.second, id: match_id})
-			this.matches[match_id] = makePair(
+			this.matches.set(match_id, makePair(
 				{socket: one.first, login: one.second, ready: false} as matchUsersInterface,
 				{socket: two.first, login: two.second, ready: false} as matchUsersInterface,
-			) as matchPair
+			) as matchPair)
+			console.log(this.matches)
 		}
 		this.operateQ = false
 	}

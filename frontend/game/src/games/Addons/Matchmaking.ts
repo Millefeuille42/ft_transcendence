@@ -29,6 +29,11 @@ class Matchmaking implements IScreen{
 			net.userReady = false
 			return true
 		}
+		if (net.hasError) {
+			net.hasError = false
+			return true
+		}
+
 		p5.background('black')
 
 		if (net.hasMatchUp) {
@@ -56,11 +61,13 @@ class Matchmaking implements IScreen{
 
 	screenPreload(p5: P5): void {
 		this.title = "Authenticating to server"
+		let u = new URL(window.location.toString())
+		net.userLogin = u.searchParams.get("login")
+		net.userToken = u.searchParams.get("token")
 		net.socket.emit("multiAuth", {
-			token: "pass",
-			login: "mlabouri"
+			token: net.userToken,
+			login: net.userLogin
 		})
-		net.userLogin = "mlabouri"
 	}
 
 	screenSetup(p5: P5): void {
@@ -75,6 +82,11 @@ class Matchmaking implements IScreen{
 	setKeyPressed(p5: P5): void {
 		if (p5.key === "q") {
 			this.stop = true
+			net.hasMatchUp = false
+			net.auth = false
+			net.opponentReady = false
+			net.userReady = false
+			net.socket.emit("multiLeave")
 			return
 		}
 
