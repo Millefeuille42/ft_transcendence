@@ -17,18 +17,13 @@ export class ChatController {
 		return (await this.chatService.getChannel(channel))
 	}
 
-	@Get('dm/:login/:other')
-	async getDmIntoUsers(@Param('login') login: string,
-				   @Param('other') other: string) {
-		return (await this.chatService.getDm(login, other))
-	}
-
-	@Get('channel/:login')
+	@Get('channel/user/:login')
 	async getChannelsOfUser(@Param('login') login: string) {
+		console.log("Got here")
 		return (await this.chatService.getChannelsOfUser(login))
 	}
 
-	@Get('dm/:login')
+	@Get('dm/user/:login')
 	async getDmOfUser(@Param('login') login: string) {
 		return (await this.chatService.getDmOfUser(login))
 	}
@@ -56,5 +51,11 @@ export class ChatController {
 	@Get('channel/public/:channel')
 	async isPublic(@Param('channel') channel: string) {
 		return this.chatService.isPublic(channel)
+	}
+
+	@Get('dm/:login/:other')
+	async getDmIntoUsers(@Param('login') login: string,
+						 @Param('other') other: string) {
+		return (await this.chatService.getDm(login, other))
 	}
 }

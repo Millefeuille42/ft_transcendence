@@ -185,7 +185,7 @@ export class ChatService {
 		const user = await this.userService.getUser(login)
 
 		const channels = await this.channelRepository.find({where: {users: In[user.id]}})
-		if (!channels)
+		if (!channels || channels.length <= 0)
 			return {thereIsChannel: false}
 		return {
 			thereIsChannel: true,
@@ -198,7 +198,7 @@ export class ChatService {
 
 		const dms = await this.dmRepository.find({where: {users: In[user.id]}})
 
-		if (!dms)
+		if (!dms || dms.length <= 0)
 			return {thereIsDm: false}
 		return {
 			thereIsDm: true,

@@ -11,6 +11,7 @@ import {MessagesEntity} from "../entities/messages.entity";
 import {RealChannelEntity} from "../entities/realChannel.entity";
 import {UserModule} from "../user/user.module";
 import {AuthModule} from "../auth/auth.module";
+import {BlockedModule} from "../blocked/blocked.module";
 
 @Module({
 	imports: [
@@ -21,7 +22,8 @@ import {AuthModule} from "../auth/auth.module";
 			MessagesEntity,
 			RealChannelEntity]),
 		UserModule,
-		AuthModule
+		AuthModule,
+		BlockedModule
 	],
 	providers: [ChatGateway, ConfigService, ChatService],
 	controllers: [ChatController]

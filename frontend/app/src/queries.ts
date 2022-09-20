@@ -7,7 +7,7 @@ import {
     formDataOut,
     onlineDataIn,
     blockedListIn,
-    match, sessionData, twoFAInit
+    match, sessionData, twoFAInit, getChannelResp, getDmResp, channelData
 } from "@/queriesData"
 
 export async function RedirectToFTAuth() {
@@ -34,10 +34,8 @@ export async function getUserData(login: string): Promise<userDataIn> {
     const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
             withCredentials: true,
         })
-        console.log("yay")
         return response.data
     } catch (e) {
-        console.log("nay")
         throw e
     }
 }
@@ -329,6 +327,51 @@ export async function disableTwoFaActivation(login: string, code: string) {
         withCredentials: true,
     }).then(() => {
         return
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getChannelsOfUser(login: string): Promise<getChannelResp> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/user/"
+    target += login
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        console.log(response.data)
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getDMsOfUser(login: string): Promise<getDmResp> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/dm/user/"
+    target += login
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        console.log(response.data)
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getChannel(channel: string): Promise<channelData> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/"
+    target += channel
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        console.log(response.data)
+        return response.data
     }).catch((e) => {
         throw e
     })

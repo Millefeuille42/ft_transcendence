@@ -17,7 +17,7 @@
 									</v-tab-item>
 									<v-tab-item>
 										<DisplayContainer cols="12" sm="8" height="88vh" min_height="">
-											<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
+											<ChatContent v-if="logged_in && loaded" :user=user :loaded="loaded"/>
 											<LoginPage v-if="!fa && !logged_in"/>
 											<TwoFAPage @FaLogin="handleFALogin" :login="login" :session="session" v-if="fa && !logged_in"></TwoFAPage>
 										</DisplayContainer>
