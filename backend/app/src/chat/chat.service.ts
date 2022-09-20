@@ -116,10 +116,9 @@ export class ChatService {
 		if (users.length != 2)
 			throw new BadRequestException("Dm need 2 users")
 
-		const test = await this.dmRepository.find()
-		console.log(test)
+		const chans = await this.dmRepository.find() //Tester avec In
 		let chan
-		test.forEach((c) => {
+		chans.forEach((c) => {
 			console.log(c);
 			if ((c.users[0] === users[0] && c.users[1] === users[1])
 			|| (c.users[1] === users[0] && c.users[0] === users[1])) {
@@ -159,5 +158,57 @@ export class ChatService {
 
 	async getAllChannels() {
 		return this.channelRepository.find()
+	}
+
+	async getDm(login: string, other: string) {
+		const user = await this.userService.getUser(login)
+		const userO = await this.userService.getUser(other)
+
+		const chans = await this.dmRepository.find() //Tester avec In
+		let chan
+		chans.forEach((c) => {
+			console.log(c);
+			if ((c.users[0] === user.id && c.users[1] === userO.id)
+				|| (c.users[1] === userO.id && c.users[0] === user.id)) {
+				chan = c
+				return;
+			}
+		})
+
+		if (!chan)
+			throw new NotFoundException("Dm doesn't exist")
+
+		return chan
+	}
+
+	async getChannelsOfUser(login) {
+		const user = await this.userService.getUser(login)
+
+		return await this.channelRepository.find({where: {users: In[user.id]}})
+	}
+
+	async getDmOfUser(login) {
+		const user = await this.userService.getUser(login)
+
+		return await this.dmRepository.find({where: {users: In[user.id]}})
+	}
+
+	async getBanList(channel) {
+
+	}
+
+	async getMuteList(channel) {
+
+	}
+
+	async getAdminList(channel) {
+		const chan = await this.getChannel(channel)
+		const adminsId = chan.adminId
+
+		let admins = []
+		for (const id of adminsId) {
+			admins.push(await this.userService.getUserById(id))
+		}
+		return admins
 	}
 }

@@ -122,6 +122,14 @@ export class UserService implements OnModuleInit {
 		return await this.verificationUser(login) ;
 	}
 
+	async getUserById(id: number) {
+		const user = await this.usersListRepository.findOneBy({id: id})
+
+		if (!user)
+			throw new BadRequestException("User doesn't exist")
+		return user
+	}
+
 	async userExist(login: string) {
 		return await this.usersListRepository.findOneBy({login: login})
 	}
