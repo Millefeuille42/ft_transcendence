@@ -181,7 +181,7 @@ export class ChatService {
 		return chan
 	}
 
-	async getChannelsOfUser(login) {
+	async getChannelsOfUser(login: string) {
 		const user = await this.userService.getUser(login)
 
 		return await this.channelRepository.find({where: {users: In[user.id]}})
@@ -193,15 +193,15 @@ export class ChatService {
 		return await this.dmRepository.find({where: {users: In[user.id]}})
 	}
 
-	async getBanList(channel) {
+	async getBanList(channel: string) {
 
 	}
 
-	async getMuteList(channel) {
+	async getMuteList(channel: string) {
 
 	}
 
-	async getAdminList(channel) {
+	async getAdminList(channel: string) {
 		const chan = await this.getChannel(channel)
 		const adminsId = chan.adminId
 
