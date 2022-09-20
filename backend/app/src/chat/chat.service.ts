@@ -184,13 +184,26 @@ export class ChatService {
 	async getChannelsOfUser(login: string) {
 		const user = await this.userService.getUser(login)
 
-		return await this.channelRepository.find({where: {users: In[user.id]}})
+		const channels = await this.channelRepository.find({where: {users: In[user.id]}})
+		if (!channels)
+			return {thereIsChannel: false}
+		return {
+			thereIsChannel: true,
+			channels: channels
+		}
 	}
 
 	async getDmOfUser(login) {
 		const user = await this.userService.getUser(login)
 
-		return await this.dmRepository.find({where: {users: In[user.id]}})
+		const dms = await this.dmRepository.find({where: {users: In[user.id]}})
+
+		if (!dms)
+			return {thereIsDm: false}
+		return {
+			thereIsDm: true,
+			dms: dms
+		}
 	}
 
 	async getBanList(channel: string) {
