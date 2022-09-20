@@ -52,4 +52,9 @@ export class ChatController {
 	createChannel(@Body() newChannel: CreateChannelDto) {
 		return this.chatService.createChannel(newChannel)
 	}
+
+	@Get('channel/public/:channel')
+	async isPublic(@Param('channel') channel: string) {
+		return this.chatService.isPublic(channel)
+	}
 }
