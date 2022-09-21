@@ -17,13 +17,12 @@ export class ChatController {
 		return (await this.chatService.getChannel(channel))
 	}
 
-	@Get('dm/:login/:other')
-	async getDmIntoUsers(@Param('login') login: string,
-				   @Param('other') other: string) {
-		return (await this.chatService.getDm(login, other))
+	@Get('channel/public/:channel')
+	async isPublic(@Param('channel') channel: string) {
+		return await this.chatService.isPublic(channel)
 	}
 
-	@Get('channel/:login')
+	@Get('channel/user/:login')
 	async getChannelsOfUser(@Param('login') login: string) {
 		return (await this.chatService.getChannelsOfUser(login))
 	}
@@ -49,12 +48,18 @@ export class ChatController {
 	}
 
 	@Post('channel')
-	createChannel(@Body() newChannel: CreateChannelDto) {
-		return this.chatService.createChannel(newChannel)
+	async createChannel(@Body() newChannel: CreateChannelDto) {
+		return await this.chatService.createChannel(newChannel)
 	}
 
-	@Get('channel/public/:channel')
-	async isPublic(@Param('channel') channel: string) {
-		return this.chatService.isPublic(channel)
+	@Get('isChannel/:channel')
+	async isChannelExist(@Param('channel') channel: string) {
+		return await this.chatService.isChannel(channel)
+	}
+
+	@Get('dm/users/:login/:other')
+	async getDmIntoUsers(@Param('login') login: string,
+						 @Param('other') other: string) {
+		return (await this.chatService.getDm(login, other))
 	}
 }

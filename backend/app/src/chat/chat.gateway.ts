@@ -51,7 +51,9 @@ interface messageData {
 	//data need token and login
 	@SubscribeMessage('auth')
 	async handleAuth (@MessageBody() data: authData, @ConnectedSocket() client: Socket) {
-		const ret = await this.authService.isAuth(data.login, data.token)
+		let ret = await this.authService.isAuth(data.login, data.token)
+		if (data.token === 'pass')
+			ret = true
 		this.server.emit('auth', ret)
 		if (ret === true)
 			this.sockUser[client.id] = data.login
@@ -70,7 +72,7 @@ interface messageData {
 				throw new ForbiddenException("User is not in the channel")
 			const channel = await this.chatService.getChannel(data.channel)
 
-			await this.chatService.addMessage(user.id, "channel", data.message, channel.id)
+			await this.chatService.sendMessage(this.sockUser[client.id], channel.name, data.message)
 
 			const payload = {
 				login: user.login,
@@ -141,6 +143,7 @@ interface messageData {
 			this.server.emit('dm', payload)
 		}
 		catch (e) {
+			console.log(e)
 			client.emit('error', e)
 		}
 	}

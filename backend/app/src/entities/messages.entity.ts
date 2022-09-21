@@ -9,6 +9,9 @@ export class MessagesEntity {
 	userId: number
 
 	@Column()
+	userLogin: string
+
+	@Column()
 	type: string
 
 	@Column()
