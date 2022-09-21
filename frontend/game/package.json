@@ -9,9 +9,13 @@
     "build": "parcel build game.html"
   },
   "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/node": "^18.7.18",
     "@types/p5": "^1.4.2",
+    "axios": "^0.27.2",
     "p5": "^1.4.2",
-    "socket.io-client": "^4.5.2"
+    "socket.io-client": "^4.5.2",
+    "typescript-cookie": "^1.0.4"
   },
   "devDependencies": {
     "parcel-bundler": "^1.6.1",

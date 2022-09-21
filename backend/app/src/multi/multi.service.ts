@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {matchPair} from "./matchUsers.interface";
+import matchUsersInterface, {Ball, matchPair} from "./matchUsers.interface";
 import Queue from "../utils/Queue";
 import {Socket} from "socket.io";
 import IPair from "../utils/IPair";
@@ -50,5 +50,61 @@ export class MultiService {
 		this.removeFromQueue(users[other], Q)
 		users.delete(id)
 		users.delete(other)
+	}
+
+	collideBall(ball: Ball, width: number, height: number): Ball {
+		// Left Right walls, do not collide but return goal
+		if (ball.position.x - ball.size.x <= 0 || ball.position.x + ball.size.x >= width) {
+			ball.direction.x *= -1
+			//return true
+		}
+
+		// Top Down walls, invert y direction
+		if (ball.position.y - ball.size.y <= 0 || ball.position.y + ball.size.y >= height) {
+			ball.direction.y *= -1
+		}
+		return ball
+	}
+
+	createBall(player: matchUsersInterface, x: number, y: number): matchUsersInterface {
+		player.ball = {
+			speed: {
+				x: player.width * 0.01,
+				y: player.height * 0.01,
+			},
+			size: {
+				x: player.width * 0.015,
+				y: player.height * 0.015,
+			},
+			position: {
+				x:player.width / 2,
+				y:player.height / 2
+			},
+			direction: {
+				x: x,
+				y: y
+			}
+		}
+		return player
+	}
+
+	//TODO Was here
+
+	createRod(player: matchUsersInterface, left: boolean): matchUsersInterface {
+		let x = player.width * 0.99 - player.width * 0.017
+		if (left)
+			x = player.width * 0.01
+		player.rod = {
+			width: player.width * 0.017,
+			height: player.height * 0.15,
+			speed: player.height * 0.02,
+			goUp: false,
+			goDown: false,
+			position: {
+				x: x,
+				y: player.height / 2 - (player.height * 0.15 / 2),
+			},
+		}
+		return player
 	}
 }

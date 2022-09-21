@@ -1,5 +1,6 @@
 import {io, Socket} from "socket.io-client";
 import matchmaking from "./games/Addons/Matchmaking";
+import MultiGame from "./games/MultiGame";
 
 interface connection {
 	socket: Socket
@@ -12,22 +13,28 @@ interface connection {
 
 	opponentReady: boolean
 	userReady: boolean
+	matchStart: boolean,
+	ask: boolean
 	match: {
 		login: string
 		id: string
 	}
+	ball: {x: number, y: number}
 }
 
 let net: connection = {
-	socket: io("http://e1r12p3:3000"), // TODO Set to env
+	socket: io(process.env.NODE_ENV_BACK_URL),
 	hasError: false,
 	auth: false,
 	opponentReady: false,
 	userReady: false,
 	hasMatchUp: false,
+	matchStart: false,
+	ask: true,
 	userLogin: "",
 	userToken: "",
-	match: {login: "", id: ""}
+	ball: {x: 0, y: 0},
+	match: {login: "", id: ""},
 }
 
 net.socket.on('connect', () => {
@@ -60,14 +67,25 @@ net.socket.on('multiReady', (data: {login: string, ready: boolean}) => {
 		net.opponentReady = data.ready
 })
 
+net.socket.on('multiStart', () => {
+	console.log("Start")
+	net.matchStart = true
+})
+
+net.socket.on('multiUpdate', (data: {x: number, y: number}) => {
+	console.log("update")
+	net.ball = data
+})
+
+net.socket.on('multiStop', () => {
+	console.log("stop")
+	net.ask = false
+})
+
 net.socket.on('multiError', (data: {code: number, text: string}) => {
 	if (data.code === 442) {
 		console.log("ERROR")
-		net.hasMatchUp = false
-		net.auth = false
-		net.opponentReady = false
-		net.userReady = false
-		net.hasError = true
+		window.location.reload()
 	}
 })
 

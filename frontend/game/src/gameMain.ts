@@ -20,6 +20,10 @@ export const sketch = (p5: P5) => {
 			c_width = parent.clientWidth
 			c_height = parent.clientHeight
 		}
+		if (c_width < c_height)
+			c_height = c_width
+		else
+			c_width = c_height
 
 		const canvas = p5.createCanvas(c_width, c_height)
 		canvas.parent("app")

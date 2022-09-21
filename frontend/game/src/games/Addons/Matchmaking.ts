@@ -1,15 +1,13 @@
 import IScreen from "../../interfaces/IScreen";
 import P5 from "p5";
 import net from "../../net";
+import Ready from "./Ready";
+import {removeCookie, setCookie} from "typescript-cookie";
 
-function getStatus(me: boolean): string {
-	return (me ? net.userLogin : net.match.login) + " -"
-		+ (me ? (net.userReady ? " Ready" : "") : (net.opponentReady ? " Ready" : ""))
-}
-
-class Matchmaking implements IScreen{
+class Matchmaking implements IScreen {
 	stop: boolean = false
 	title: string = ""
+	readyScreen: Ready = new Ready()
 
 
 	loadScreen(p5: P5): void {
@@ -20,7 +18,8 @@ class Matchmaking implements IScreen{
 	}
 
 	screenLoop(p5: P5): boolean {
-		if (this.stop) {
+		if (this.stop || net.hasError) {
+			net.hasError = false
 			this.stop = false
 			net.socket.emit("multiReady", {
 				id: net.match.id,
@@ -29,30 +28,20 @@ class Matchmaking implements IScreen{
 			net.userReady = false
 			return true
 		}
-		if (net.hasError) {
-			net.hasError = false
-			return true
-		}
-
-		p5.background('black')
 
 		if (net.hasMatchUp) {
-			p5.textAlign('center')
-			p5.textSize(p5.width / 20)
-			p5.text("Let's get ready to ruuuumbleeee!", 0, p5.height / 4, p5.width)
-
-			p5.textAlign('left')
-			p5.textSize(p5.width / 25)
-
-			p5.text(getStatus(true), p5.width / 4, p5.height / 2.4, p5.width / 1.4)
-			p5.text(getStatus(false), p5.width / 4, p5.height / 2, p5.width / 1.4)
-
-			p5.textAlign('center')
-			p5.textSize(p5.width / 60)
-			p5.text("Press Enter to get ready", 0, p5.height / 1.3, p5.width)
-			return false
+			if (this.readyScreen.firstTime) {
+				this.readyScreen.loadScreen(p5)
+				return false
+			}
+			return this.readyScreen.screenLoop(p5)
 		}
 
+		if (!this.readyScreen.firstTime || this.readyScreen.loaded) {
+			this.readyScreen.loaded = false
+			this.readyScreen.firstTime = true
+		}
+		p5.background('black')
 		p5.textSize(p5.width / 20)
 		p5.text(this.title, 0, p5.height / 2.5, p5.width)
 
@@ -62,6 +51,10 @@ class Matchmaking implements IScreen{
 	screenPreload(p5: P5): void {
 		this.title = "Authenticating to server"
 		let u = new URL(window.location.toString())
+		removeCookie('Session')
+		removeCookie('Login')
+		setCookie("Login", u.searchParams.get("login"))
+		setCookie("Session", u.searchParams.get("token"))
 		net.userLogin = u.searchParams.get("login")
 		net.userToken = u.searchParams.get("token")
 		net.socket.emit("multiAuth", {
@@ -80,6 +73,10 @@ class Matchmaking implements IScreen{
 	}
 
 	setKeyPressed(p5: P5): void {
+		if (net.hasMatchUp) {
+			this.readyScreen.setKeyPressed(p5)
+			return
+		}
 		if (p5.key === "q") {
 			this.stop = true
 			net.hasMatchUp = false
@@ -87,15 +84,6 @@ class Matchmaking implements IScreen{
 			net.opponentReady = false
 			net.userReady = false
 			net.socket.emit("multiLeave")
-			return
-		}
-
-		if (p5.key === "Enter") {
-			net.socket.emit("multiReady", {
-				id: net.match.id,
-				ready: !net.userReady
-			})
-			net.userReady = !net.userReady
 			return
 		}
 	}

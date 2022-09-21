@@ -16,6 +16,8 @@ interface authData {
 
 interface socketLoginPair extends IPair<Socket, string> {}
 
+interface matchData extends matchPair {}
+
 @WebSocketGateway({ cors: true })
 export class MultiGateway {
 	constructor (
@@ -28,7 +30,7 @@ export class MultiGateway {
 	matchQ: Queue<socketLoginPair> = new Queue()
 	users: Map<string, string> = new Map()
 
-	matches: Map<string, matchPair> = new Map()
+	matches: Map<string, matchData> = new Map()
 	operateQ: boolean = false
 
 	ERR_NOT_LOGGED_IN: err = {code: 401, text: "Error: not logged in"}
@@ -52,7 +54,6 @@ export class MultiGateway {
 	@SubscribeMessage('multiAuth')
 	async handleAuth(@MessageBody() data: authData, @ConnectedSocket() client: Socket) {
 		let ret = await this.authService.isAuth(data.login, data.token)
-		//TODO add DE-connection
 		if (data.token === "pass")
 			ret = true
 		client.emit('multiAuth', ret)
@@ -60,8 +61,56 @@ export class MultiGateway {
 			this.users[client.id] = data.login
 	}
 
+	@SubscribeMessage('multiMove')
+	async handleMove(@MessageBody() data: {id: string, goUp: boolean, goDown: boolean}, @ConnectedSocket() client: Socket) {
+		let user = this.users[client.id]
+		if (user === undefined) {
+			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
+			return
+		}
+
+		let match: matchData = this.matches.get(data.id)
+		if (match === undefined) {
+			client.emit('multiError', this.ERR_NOT_FOUND)
+			return
+		}
+
+
+	}
+
+	@SubscribeMessage('multiUpdate')
+	async handleUpdate(@MessageBody() data: {id: string}, @ConnectedSocket() client: Socket) {
+		let user = this.users[client.id]
+		if (user === undefined) {
+			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
+			return
+		}
+
+		let match: matchData = this.matches.get(data.id)
+		if (match === undefined) {
+			client.emit('multiError', this.ERR_NOT_FOUND)
+			return
+		}
+		if (match.first.login === user) {
+			match.first.ball.position.x += match.first.ball.direction.x * match.first.ball.speed.x
+			match.first.ball.position.y += match.first.ball.direction.y * match.first.ball.speed.y
+
+			match.second.ball.position.x += match.second.ball.direction.x * match.second.ball.speed.x
+			match.second.ball.position.y += match.second.ball.direction.y * match.second.ball.speed.y
+
+			match.first.ball = this.multiService.collideBall(match.first.ball, match.first.width, match.first.height)
+			match.second.ball = this.multiService.collideBall(match.second.ball, match.second.width, match.second.height)
+
+			match.first.socket.emit('multiUpdate', match.first.ball.position)
+			match.second.socket.emit('multiUpdate', match.second.ball.position)
+			return
+		}
+		if (match.second.login === user)
+			match.second.socket.emit('multiStop')
+	}
+
 	@SubscribeMessage('multiReady')
-	async handleMatch(@MessageBody() data: {id: string, ready: boolean}, @ConnectedSocket() client: Socket) {
+	async handleMatch(@MessageBody() data: {id: string, ready: boolean, width: number, height: number}, @ConnectedSocket() client: Socket) {
 		if (this.users[client.id] === undefined) {
 			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
 			return
@@ -74,17 +123,29 @@ export class MultiGateway {
 
 		if (this.matches.get(data.id).first.login === this.users[client.id]) {
 			this.matches.get(data.id).first.ready = data.ready
+			this.matches.get(data.id).first.width = data.width
+			this.matches.get(data.id).first.height = data.height
 			this.matches.get(data.id).second.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
 		}
 
 		if (this.matches.get(data.id).second.login === this.users[client.id]) {
 			this.matches.get(data.id).second.ready = data.ready
+			this.matches.get(data.id).second.width = data.width
+			this.matches.get(data.id).second.height = data.height
 			this.matches.get(data.id).first.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
 		}
 
 		if (this.matches.get(data.id).first.ready && this.matches.get(data.id).second.ready) {
-			this.matches.get(data.id).first.socket.emit('multiReady', {oper: "start"})
-			this.matches.get(data.id).second.socket.emit('multiReady', {oper: "start"})
+			let x = Math.random() > 0.5 ? -1 : 1
+			let y = Math.random() * (Math.random() > 0.5 ? -1 : 1)
+
+			let h = this.matches.get(data.id).first.height
+			this.matches.get(data.id).first.rod =
+
+			this.matches.get(data.id).first = this.multiService.createBall(this.matches.get(data.id).first, x, y)
+			this.matches.get(data.id).second = this.multiService.createBall(this.matches.get(data.id).second, x, y)
+			this.matches.get(data.id).first.socket.emit('multiStart', {oper: "start"})
+			this.matches.get(data.id).second.socket.emit('multiStart', {oper: "start"})
 		}
 	}
 
@@ -97,7 +158,6 @@ export class MultiGateway {
 		while (this.operateQ) {
 			await setTimeout(()=>{},500)
 		}
-		console.log(data)
 		this.operateQ = true
 		if (data.oper === "add") {
 
@@ -112,7 +172,6 @@ export class MultiGateway {
 			}
 			this.matchQ.enqueue(makePair(client, this.users[client.id]) as socketLoginPair)
 		}
-		console.log(this.matchQ.getStorage())
 		if (this.matchQ.size() >= 2) {
 			let one = this.matchQ.dequeue()
 			let two = this.matchQ.dequeue()
@@ -123,7 +182,6 @@ export class MultiGateway {
 				{socket: one.first, login: one.second, ready: false} as matchUsersInterface,
 				{socket: two.first, login: two.second, ready: false} as matchUsersInterface,
 			) as matchPair)
-			console.log(this.matches)
 		}
 		this.operateQ = false
 	}

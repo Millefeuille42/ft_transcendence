@@ -21,19 +21,6 @@ let rod_image: P5.Image
 let rod_image2: P5.Image
 let ball_image: P5.Image
 
-function autoResize(p5: P5) {
-	let parent = document.getElementById("app")
-	if (parent !== null) {
-		if (c_width !== parent.clientWidth && c_height !== parent.clientHeight) {
-			// TODO put player and ball to new position
-
-			c_width = parent.clientWidth
-			c_height = parent.clientHeight
-			p5.resizeCanvas(c_width, c_height, true)
-		}
-	}
-}
-
 function displayGetReady(p5: P5) {
 	p5.textSize(p5.width / 25)
 	p5.text("Get Ready!", 0, p5.height / 4, p5.width)
@@ -80,8 +67,6 @@ class LocalGame implements IScreen {
 	screenLoop(p5: P5): boolean {
 		if (end)
 			return true
-
-		autoResize(p5)
 
 		if (oneScore >= 5 || twoScore >= 5) {
 			if (oneScore > twoScore) {
