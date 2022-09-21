@@ -75,7 +75,13 @@ export interface twoFAInit {
 }
 
 export interface channelData {
-
+    id: string,
+    name: string
+    owner?: string,
+    admins?: string[],
+    users?: string[],
+    public: boolean,
+    hasPassword: boolean,
 }
 
 export interface dmData {

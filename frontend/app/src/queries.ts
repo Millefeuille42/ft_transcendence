@@ -340,7 +340,6 @@ export async function getChannelsOfUser(login: string): Promise<getChannelResp> 
         url: target,
         withCredentials: true,
     }).then((response) => {
-        console.log(response.data)
         return response.data
     }).catch((e) => {
         throw e
@@ -355,7 +354,6 @@ export async function getDMsOfUser(login: string): Promise<getDmResp> {
         url: target,
         withCredentials: true,
     }).then((response) => {
-        console.log(response.data)
         return response.data
     }).catch((e) => {
         throw e
@@ -370,8 +368,25 @@ export async function getChannel(channel: string): Promise<channelData> {
         url: target,
         withCredentials: true,
     }).then((response) => {
-        console.log(response.data)
         return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function createChannel(name: string, owner: string, p: boolean, password: string | undefined) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel"
+
+    return await axios( {
+        method: 'post',
+        url: target,
+        data: {
+            name: name,
+            owner: owner,
+            public: p,
+			password: password
+        },
+        withCredentials: true,
     }).catch((e) => {
         throw e
     })

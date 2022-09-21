@@ -34,6 +34,7 @@ export class ChatService {
 			throw new ConflictException("Name is already used")
 		const user = await this.userService.getUser(newChannel.owner)
 		let pass = ""
+		console.log(newChannel.password)
 		if (newChannel.public === false && newChannel.password) {
 			console.log(newChannel.password)
 			const salt = await bcrypt.genSalt()
