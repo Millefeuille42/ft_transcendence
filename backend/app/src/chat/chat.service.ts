@@ -14,6 +14,9 @@ import * as bcrypt from "bcrypt"
 import {DmChannelEntity} from "../entities/dmChannel.entity";
 import {MessagesEntity} from "../entities/messages.entity";
 import {BlockedService} from "../blocked/blocked.service";
+import {ChangePrivacyDto} from "./change-privacy.dto";
+import {MuteUserEntity} from "../entities/muteUser.entity";
+import {BanUserEntity} from "../entities/banUser.entity";
 @Injectable()
 export class ChatService {
 	constructor(@InjectRepository(RealChannelEntity)
@@ -23,7 +26,11 @@ export class ChatService {
 				private dmRepository: Repository<DmChannelEntity>,
 				@InjectRepository(MessagesEntity)
 				private messageRepository: Repository<MessagesEntity>,
-				private blockedService: BlockedService) {}
+				private blockedService: BlockedService,
+				@InjectRepository(MuteUserEntity)
+				private muteRepository: Repository<MuteUserEntity>,
+				@InjectRepository(BanUserEntity)
+				private banRepository: Repository<BanUserEntity>) {}
 
 	async createChannel(newChannel: CreateChannelDto) {
 		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
@@ -64,13 +71,9 @@ export class ChatService {
 			public: p.isPublic,
 			pass: p.isPass,
 			owner: (await this.userService.getUserById(chan.ownerId)).login,
-			admins: [],
+			admins: await this.getAdminList(channel),
 			users: [],
 			messages: chan.messages
-		}
-
-		for (const admin of chan.adminId) {
-			ret.admins.push((await this.userService.getUserById(admin)).login)
 		}
 
 		for (const user of chan.users) {
@@ -92,7 +95,7 @@ export class ChatService {
 	async joinChannel(channel: string, login: string, password: string) {
 		const chan = await this.channelRepository.findOneBy({name: channel})
 		if (!chan)
-			throw new NotFoundException()
+			throw new NotFoundException("Channel not found")
 		const user = await this.userService.getUser(login)
 
 		if (await this.isInChannel(channel, login))
@@ -100,8 +103,10 @@ export class ChatService {
 		if (chan.public === false) {
 			if (chan.password === "")
 				throw new UnauthorizedException("Channel is private")
+			if (!password || password === "")
+				throw new BadRequestException("Channel need a password")
 			if (!await bcrypt.compare(password, chan.password))
-				throw new BadRequestException("Password ")
+				throw new BadRequestException("Password is not good")
 		}
 		chan.users.push(user.id)
 		await this.channelRepository.save(chan)
@@ -293,10 +298,22 @@ export class ChatService {
 
 	}
 
+	async addAdmin(channel: string, login: string, newAdmin: string) {
+		const chan = await this.channelRepository.findOneBy({name: channel})
+		if (!chan)
+			throw new NotFoundException("Channel not found")
+		const user = await this.userService.getUser(login)
+		const userNew = await this.userService.getUser(newAdmin)
+		if (user.id !== chan.ownerId)
+			throw new UnauthorizedException("Only the owner can add admins")
+		chan.adminId.push(userNew.id)
+		return await this.channelRepository.save(chan)
+	}
+
 	async getAdminList(channel: string) {
 		const chan = await this.channelRepository.findOneBy({name: channel})
 		if (!chan)
-			throw new NotFoundException()
+			throw new NotFoundException("Channel not found")
 		const adminsId = chan.adminId
 
 		let admins = []
@@ -311,5 +328,39 @@ export class ChatService {
 		if (chan)
 			return true
 		return false
+	}
+
+	async changePrivacy(channel: string, change: ChangePrivacyDto) {
+		const chan = await this.channelRepository.findOneBy({name: channel})
+		const user = await this.userService.getUser(change.login)
+		if (chan.ownerId !== user.id)
+			throw new UnauthorizedException("Only owner chan change privacy of channel")
+		chan.public = change.public
+		if (chan.public === true)
+			chan.password = ""
+		if (chan.public === false && (change.password && change.password !== "")) {
+			const salt = await bcrypt.genSalt()
+			chan.password = await bcrypt.hash(change.password, salt)
+		}
+		return await this.channelRepository.save(chan)
+	}
+
+	async isAdmin(channel: string, login: string) {
+		const admins = await this.getAdminList(channel)
+		for (const admin of admins) {
+			if (admin === login)
+				return true
+		}
+		return false
+	}
+
+	async muteSomeone(channel: string, login: string, loginMute: string, until: Date) {
+		const chan = await this.channelRepository.findOneBy({name: channel})
+		const user = await this.userService.getUser(login)
+		const userMute = await this.userService.getUser(loginMute)
+
+		if (!await this.isAdmin(channel, login))
+			throw new UnauthorizedException("Only admin can mute someone")
+
 	}
 }

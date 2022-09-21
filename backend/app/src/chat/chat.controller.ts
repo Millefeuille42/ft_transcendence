@@ -1,7 +1,8 @@
-import {Body, Controller, Get, Param, Post, Query} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {ChatService} from "./chat.service";
 import {CreateChannelDto} from "./create-channel.dto";
 import {BanOrMuteDto} from "./ban-or-mute.dto";
+import {ChangePrivacyDto} from "./change-privacy.dto";
 
 @Controller('chat')
 export class ChatController {
@@ -61,5 +62,11 @@ export class ChatController {
 	async getDmIntoUsers(@Param('login') login: string,
 						 @Param('other') other: string) {
 		return (await this.chatService.getDm(login, other))
+	}
+
+	@Patch('channel/privacy/:channel')
+	async changePrivacy(@Param('channel') channel: string,
+						@Body() change: ChangePrivacyDto) {
+		return await this.chatService.changePrivacy(channel, change)
 	}
 }
