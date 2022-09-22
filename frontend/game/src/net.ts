@@ -23,6 +23,8 @@ interface connection {
 	ball: myVector
 	myRod: myVector
 	otherRod: myVector
+	screen: string
+	score: {left: number, right: number}
 }
 
 let net: connection = {
@@ -40,6 +42,8 @@ let net: connection = {
 	myRod: new myVector,
 	otherRod: new myVector,
 	match: {login: "", id: ""},
+	score: {left: 0, right: 0},
+	screen: ""
 }
 
 net.socket.on('connect', () => {
@@ -77,11 +81,12 @@ net.socket.on('multiStart', () => {
 	net.matchStart = true
 })
 
-net.socket.on('multiUpdate', (data: {ball: myVector, myRod: myVector, otherRod: myVector}) => {
-	console.log("update")
+net.socket.on('multiUpdate', (data: {ball: myVector, myRod: myVector, otherRod: myVector, score: {left: number, right: number}, screen: string}) => {
 	net.ball = data.ball
 	net.myRod = data.myRod
 	net.otherRod = data.otherRod
+	net.score = data.score
+	net.screen = data.screen
 })
 
 net.socket.on('multiStop', () => {

@@ -38,8 +38,6 @@ class Ready implements IScreen {
 	loadScreen(p5: P5): void {
 		this.firstTime = false
 		this.loadData().then(() => {
-			console.log(this.opponentInventory)
-			console.log(this.meInventory)
 			this.loaded = true
 		}).catch((e) => {
 			console.log(e)
@@ -53,7 +51,7 @@ class Ready implements IScreen {
 			if (this.multiGame === undefined) {
 				this.multiGame = new MultiGame (
 					{data: this.me, assets: this.meInventory},
-					{data: this.me, assets: this.opponentInventory}
+					{data: this.opponent, assets: this.opponentInventory}
 					)
 				this.multiGame.loadScreen(p5)
 			} else {

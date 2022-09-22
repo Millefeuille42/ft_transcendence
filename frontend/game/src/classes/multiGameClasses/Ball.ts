@@ -3,9 +3,9 @@ import net from "../../net";
 import Rod from "./Rod";
 
 class Ball {
+	texture: P5.Image
 
-	constructor(p5:P5, left: boolean, private texture: P5.Image) {
-	}
+	constructor(texture: P5.Image) {this.texture = texture}
 
 	move() {
 		if (net.ask)

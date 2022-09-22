@@ -4,7 +4,7 @@ import {GameService} from "../game/game.service";
 import {Socket} from "socket.io";
 import Queue from "../utils/Queue";
 import {makePair} from "../utils/Pair";
-import matchUsersInterface, {matchPair} from "./matchUsers.interface";
+import matchUsersInterface, {Ball, matchData, matchPair, Rod} from "./matchUsers.interface";
 import IPair from "../utils/IPair";
 import {err, MultiService} from "./multi.service";
 import {v4 as uuid} from 'uuid'
@@ -15,8 +15,6 @@ interface authData {
 }
 
 interface socketLoginPair extends IPair<Socket, string> {}
-
-interface matchData extends matchPair {}
 
 @WebSocketGateway({ cors: true })
 export class MultiGateway {
@@ -75,17 +73,12 @@ export class MultiGateway {
 			return
 		}
 
-		console.log(data)
-		if (match.first.login === user) {
-			match.first.rod.goUp = data.goUp
-			match.first.rod.goDown = data.goDown
-			match.second.opponentRod.goUp = data.goUp
-			match.second.opponentRod.goDown = data.goDown
-		} else if (match.second.login === user) {
-			match.second.rod.goUp = data.goUp
-			match.second.rod.goDown = data.goDown
-			match.first.opponentRod.goUp = data.goUp
-			match.first.opponentRod.goDown = data.goDown
+		if (match.rodOne.login === user) {
+			match.rodOne.goUp = data.goUp
+			match.rodOne.goDown = data.goDown
+		} else if (match.rodTwo.login === user) {
+			match.rodTwo.goUp = data.goUp
+			match.rodTwo.goDown = data.goDown
 		}
 	}
 
@@ -103,28 +96,82 @@ export class MultiGateway {
 			return
 		}
 		if (match.first.login === user) {
-			match.first.ball.position.x += match.first.ball.direction.x * match.first.ball.speed.x
-			match.first.ball.position.y += match.first.ball.direction.y * match.first.ball.speed.y
+			if (match.screen === "fst" || match.screen === "win") {
+				// TODO Send win data to back
+			}
+			if (match.screen === "") {
+				match.ball.position.x += match.ball.direction.x * match.ball.speed.x
+				match.ball.position.y += match.ball.direction.y * match.ball.speed.y
 
-			match.second.ball.position.x += match.second.ball.direction.x * match.second.ball.speed.x
-			match.second.ball.position.y += match.second.ball.direction.y * match.second.ball.speed.y
+				match.ball.position.x += match.ball.direction.x * match.ball.speed.x
+				match.ball.position.y += match.ball.direction.y * match.ball.speed.y
 
-			match.first = this.multiService.moveRod(match.first)
-			match.second = this.multiService.moveRod(match.second)
+				match = this.multiService.moveRod(match)
 
-			match.first.ball = this.multiService.collideBall(match.first.ball, match.first.width, match.first.height)
-			match.second.ball = this.multiService.collideBall(match.second.ball, match.second.width, match.second.height)
+				match.ball = this.multiService.collideBall(match)
+			}
+			if (match.ball.goal) {
+				let x = Math.random() > 0.5 ? -1 : 1
+				let y = Math.random() * (Math.random() > 0.5 ? -1 : 1)
+				let score = match.ball.score
+				match = this.multiService.createBall(match, x, y)
+				match.ball.score = score
+				match.screen = "ready"
+				if (match.ball.score.first >= 5 || match.ball.score.second >= 5) {
+					match.screen = "win"
+					if (match.ball.score.first > match.ball.score.second)
+						match.screen = "fst"
+				}
+			}
 
 			match.first.socket.emit('multiUpdate', {
-				ball: match.first.ball.position,
-				myRod: match.first.rod.position,
-				otherRod: match.first.opponentRod.position
+				ball: {
+					x: match.ball.position.x / 100 * match.first.width,
+					y: match.ball.position.y / 100 * match.first.height
+				},
+				myRod: {
+					x: match.rodOne.position.x / 100 * match.first.width,
+					y: match.rodOne.position.y / 100 * match.first.height
+				},
+				otherRod: {
+					x: match.rodTwo.position.x / 100 * match.first.width,
+					y: match.rodTwo.position.y / 100 * match.first.height
+				},
+				score: {
+					left: match.ball.score.first,
+					right: match.ball.score.second
+				},
+				screen: match.screen === "" || match.screen === "ready" ? match.screen : match.screen === "fst" ? "you" : "other"
 			})
+
 			match.second.socket.emit('multiUpdate', {
-				ball: match.second.ball.position,
-				myRod: match.second.rod.position,
-				otherRod: match.second.opponentRod.position
+				ball: {
+					x: match.ball.position.x / 100 * match.second.width,
+					y: match.ball.position.y / 100 * match.second.height
+				},
+				myRod: {
+					x: match.rodTwo.position.x / 100 * match.second.width,
+					y: match.rodTwo.position.y / 100 * match.second.height
+				},
+				otherRod: {
+					x: match.rodOne.position.x / 100 * match.second.width,
+					y: match.rodOne.position.y / 100 * match.second.height
+				},
+				score: {
+					left: match.ball.score.first,
+					right: match.ball.score.second
+				},
+				screen: match.screen === "" || match.screen === "ready" ? match.screen : match.screen === "fst" ? "other" : "you"
 			})
+			if (match.screen === "ready") {
+				if (match.wait)
+					return
+				match.wait = true
+				setTimeout(() => {
+					match.screen = ""
+					match.wait = false
+				}, 1000)
+			}
 			return
 		}
 		if (match.second.login === user)
@@ -138,35 +185,35 @@ export class MultiGateway {
 			return
 		}
 
-		if (this.matches.get(data.id) === undefined) {
+		let match = this.matches.get(data.id)
+		if (match === undefined) {
 			client.emit('multiError', this.ERR_NOT_FOUND)
 			return
 		}
 
-		if (this.matches.get(data.id).first.login === this.users[client.id]) {
-			this.matches.get(data.id).first.ready = data.ready
-			this.matches.get(data.id).first.width = data.width
-			this.matches.get(data.id).first.height = data.height
-			this.matches.get(data.id).second.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
+		if (match.first.login === this.users[client.id]) {
+			match.first.ready = data.ready
+			match.first.width = data.width
+			match.first.height = data.height
+			match.second.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
 		}
 
-		if (this.matches.get(data.id).second.login === this.users[client.id]) {
-			this.matches.get(data.id).second.ready = data.ready
-			this.matches.get(data.id).second.width = data.width
-			this.matches.get(data.id).second.height = data.height
-			this.matches.get(data.id).first.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
+		if (match.second.login === this.users[client.id]) {
+			match.second.ready = data.ready
+			match.second.width = data.width
+			match.second.height = data.height
+			match.first.socket.emit("multiReady", {login: this.users[client.id], ready: data.ready})
 		}
 
 		if (this.matches.get(data.id).first.ready && this.matches.get(data.id).second.ready) {
 			let x = Math.random() > 0.5 ? -1 : 1
 			let y = Math.random() * (Math.random() > 0.5 ? -1 : 1)
 
-			this.matches.get(data.id).first = this.multiService.createRod(this.matches.get(data.id).first, true)
-			this.matches.get(data.id).second = this.multiService.createRod(this.matches.get(data.id).second, false)
-			this.matches.get(data.id).first = this.multiService.createBall(this.matches.get(data.id).first, x, y)
-			this.matches.get(data.id).second = this.multiService.createBall(this.matches.get(data.id).second, x, y)
-			this.matches.get(data.id).first.socket.emit('multiStart', {oper: "start"})
-			this.matches.get(data.id).second.socket.emit('multiStart', {oper: "start"})
+			match = this.multiService.createRods(this.matches.get(data.id))
+			match = this.multiService.createBall(this.matches.get(data.id), x, y)
+
+			match.first.socket.emit('multiStart', {oper: "start"})
+			match.second.socket.emit('multiStart', {oper: "start"})
 		}
 	}
 
@@ -177,11 +224,11 @@ export class MultiGateway {
 			return
 		}
 		while (this.operateQ) {
+			console.log("Waiting")
 			await setTimeout(()=>{},500)
 		}
 		this.operateQ = true
 		if (data.oper === "add") {
-
 			let mat = this.matchQ.getStorage().find((x) => {
 				return x !== undefined && x.second === this.users[client.id]
 			})
@@ -194,15 +241,28 @@ export class MultiGateway {
 			this.matchQ.enqueue(makePair(client, this.users[client.id]) as socketLoginPair)
 		}
 		if (this.matchQ.size() >= 2) {
+			console.log("matchup")
 			let one = this.matchQ.dequeue()
 			let two = this.matchQ.dequeue()
 			let match_id = uuid()
 			one.first.emit('multiMatchUp', {login: two.second, id: match_id})
 			two.first.emit('multiMatchUp', {login: one.second, id: match_id})
-			this.matches.set(match_id, makePair(
+			let p = makePair(
 				{socket: one.first, login: one.second, ready: false} as matchUsersInterface,
 				{socket: two.first, login: two.second, ready: false} as matchUsersInterface,
-			) as matchPair)
+			) as matchPair
+
+			this.matches.set(match_id, {
+				first: p.first,
+				second: p.second,
+				width: 100,
+				height: 100,
+				ball: {} as Ball,
+				rodOne: {} as Rod,
+				rodTwo: {} as Rod,
+				screen: "ready",
+				wait: false
+			})
 		}
 		this.operateQ = false
 	}

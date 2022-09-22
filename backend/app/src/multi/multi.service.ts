@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import matchUsersInterface, {Ball, matchPair} from "./matchUsers.interface";
+import matchUsersInterface, {Ball, matchData, matchPair, Rod} from "./matchUsers.interface";
 import Queue from "../utils/Queue";
 import {Socket} from "socket.io";
 import IPair from "../utils/IPair";
+import {makePair} from "../utils/Pair";
 
 export interface socketLoginPair extends IPair<Socket, string> {}
 
@@ -10,6 +11,7 @@ export interface err {
 	code: number
 	text: string
 }
+
 
 @Injectable()
 export class MultiService {
@@ -52,95 +54,122 @@ export class MultiService {
 		users.delete(other)
 	}
 
-	collideBall(ball: Ball, width: number, height: number): Ball {
-		// Left Right walls, do not collide but return goal
-		if (ball.position.x - ball.size.x <= 0 || ball.position.x + ball.size.x >= width) {
-			ball.direction.x *= -1
-			//return true
-		}
+	collideWithRod(ball: Ball, rod: Rod): Ball {
+		let x = ball.position.x + (ball.size.x / (rod.left ? -2 : 2))
 
-		// Top Down walls, invert y direction
-		if (ball.position.y - ball.size.y <= 0 || ball.position.y + ball.size.y >= height) {
-			ball.direction.y *= -1
+		if (
+			x > rod.position.x &&
+			x < rod.position.x + rod.width &&
+			ball.position.y > rod.position.y &&
+			ball.position.y < rod.position.y + rod.height
+		) {
+			ball.direction.x = Math.abs(ball.direction.x) * (rod.left ? 1 : -1);
+			ball.direction.y = ((ball.position.y - rod.position.y) / rod.height) - 0.5;
 		}
 		return ball
 	}
 
-	createBall(player: matchUsersInterface, x: number, y: number): matchUsersInterface {
-		player.ball = {
+	collideBall(match: matchData): Ball {
+		// Left Right walls, do not collide but return goal
+		if (match.ball.position.x <= 0) {
+			match.ball.goal = true
+			match.ball.score.second++
+		}
+
+		if (match.ball.position.x + match.ball.size.x >= match.width) {
+			match.ball.goal = true
+			match.ball.score.first++
+		}
+
+		// Top Down walls, invert y direction
+		if (match.ball.position.y - match.ball.size.y <= 0 || match.ball.position.y + match.ball.size.y >= match.height) {
+			match.ball.direction.y *= -1
+		}
+
+		match.ball = this.collideWithRod(match.ball, match.rodOne)
+		match.ball = this.collideWithRod(match.ball, match.rodTwo)
+		return match.ball
+	}
+
+	createBall(match: matchData, x: number, y: number): matchData {
+		match.ball = {
+			score: makePair(0, 0),
 			speed: {
-				x: player.width * 0.01,
-				y: player.height * 0.01,
+				x: match.width * 0.006,
+				y: match.height * 0.006,
 			},
-			size: {
-				x: player.width * 0.015,
-				y: player.height * 0.015,
+			size: { // TODO transmit size to client
+				x: match.width * 0.015,
+				y: match.height * 0.015,
 			},
 			position: {
-				x:player.width / 2,
-				y:player.height / 2
+				x: match.width / 2,
+				y: match.height / 2
 			},
 			direction: {
 				x: x,
 				y: y
-			}
+			},
+			goal: false
 		}
-		return player
+		return match
 	}
 
-	createRod(player: matchUsersInterface, left: boolean): matchUsersInterface {
-		let rx = player.width * 0.99 - player.width * 0.017
-		let lx = player.width * 0.01
-		player.rod = {
-			width: player.width * 0.017,
-			height: player.height * 0.15,
-			speed: player.height * 0.02,
+	createRods(match: matchData): matchData {
+		match.rodOne = {
+			width: match.width * 0.017,
+			height: match.height * 0.15,
+			speed: match.height * 0.02,
 			goUp: false,
 			goDown: false,
 			position: {
-				x: left ? lx : rx,
-				y: player.height / 2 - (player.height * 0.15 / 2),
+				x: match.width * 0.01,
+				y: match.height / 2 - (match.height * 0.15 / 2),
 			},
+			left: true,
+			login: match.first.login
 		}
-		player.opponentRod = {
-			width: player.width * 0.017,
-			height: player.height * 0.15,
-			speed: player.height * 0.02,
+		match.rodTwo = {
+			width: match.width * 0.017,
+			height: match.height * 0.15,
+			speed: match.height * 0.02,
 			goUp: false,
 			goDown: false,
 			position: {
-				x: left ? rx : lx,
-				y: player.height / 2 - (player.height * 0.15 / 2),
+				x: match.width * 0.99 - match.width * 0.017,
+				y: match.height / 2 - (match.height * 0.15 / 2),
 			},
+			left: false,
+			login: match.second.login
 		}
-		return player
+		return match
 	}
 
-	moveRod(player: matchUsersInterface): matchUsersInterface {
-		if (player.rod.goUp) {
-			if (player.rod.position.y - player.rod.speed > 0)
-				player.rod.position.y -= player.rod.speed
+	moveRod(match: matchData): matchData {
+		if (match.rodOne.goUp) {
+			if (match.rodOne.position.y - match.rodOne.speed > 0)
+				match.rodOne.position.y -= match.rodOne.speed
 			else
-				player.rod.position.y = 0
+				match.rodOne.position.y = 0
 		}
-		if (player.rod.goDown) {
-			if (player.rod.position.y + player.rod.speed < player.height - player.rod.height)
-				player.rod.position.y += player.rod.speed
+		if (match.rodOne.goDown) {
+			if (match.rodOne.position.y + match.rodOne.speed < match.height - match.rodOne.height)
+				match.rodOne.position.y += match.rodOne.speed
 			else
-				player.rod.position.y = player.height - player.rod.height
+				match.rodOne.position.y = match.height - match.rodOne.height
 		}
-		if (player.opponentRod.goUp) {
-			if (player.opponentRod.position.y - player.opponentRod.speed > 0)
-				player.opponentRod.position.y -= player.opponentRod.speed
+		if (match.rodTwo.goUp) {
+			if (match.rodTwo.position.y - match.rodTwo.speed > 0)
+				match.rodTwo.position.y -= match.rodTwo.speed
 			else
-				player.opponentRod.position.y = 0
+				match.rodTwo.position.y = 0
 		}
-		if (player.opponentRod.goDown) {
-			if (player.opponentRod.position.y + player.opponentRod.speed < player.height - player.opponentRod.height)
-				player.opponentRod.position.y += player.opponentRod.speed
+		if (match.rodTwo.goDown) {
+			if (match.rodTwo.position.y + match.rodTwo.speed < match.height - match.rodTwo.height)
+				match.rodTwo.position.y += match.rodTwo.speed
 			else
-				player.opponentRod.position.y = player.height - player.opponentRod.height
+				match.rodTwo.position.y = match.height - match.rodTwo.height
 		}
-		return player
+		return match
 	}
 }
