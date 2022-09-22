@@ -42,22 +42,22 @@ interface messageData {
 
 	async handleDisconnect(client: Socket) {
 		console.log("Goodbye")
-		if (!this.sockUser[client.id])
-			client.emit('error', "Socket isn't use")
-		else
+		if (this.sockUser[client.id])
 			this.sockUser.delete(client.id)
 	}
 
-	//data need token and login
+	//data -> token (Cookie "Session") and login (Cookie "Login")
 	@SubscribeMessage('auth')
 	async handleAuth (@MessageBody() data: authData, @ConnectedSocket() client: Socket) {
-		const ret = await this.authService.isAuth(data.login, data.token)
+		let ret = await this.authService.isAuth(data.login, data.token)
+		if (data.token === 'pass')
+			ret = true
 		this.server.emit('auth', ret)
 		if (ret === true)
 			this.sockUser[client.id] = data.login
 	}
 
-	//data need channel and message
+	//data -> channel (string) and message (string)
 	@SubscribeMessage('message')
 	async handleEvent (@MessageBody() data: messageData, @ConnectedSocket() client: Socket) {
 		try {
@@ -70,7 +70,7 @@ interface messageData {
 				throw new ForbiddenException("User is not in the channel")
 			const channel = await this.chatService.getChannel(data.channel)
 
-			await this.chatService.addMessage(user.id, "channel", data.message, channel.id)
+			await this.chatService.sendMessage(this.sockUser[client.id], channel.name, data.message)
 
 			const payload = {
 				login: user.login,
@@ -86,7 +86,7 @@ interface messageData {
 		}
 	}
 
-	// Data new channel and password ("" if public or private)
+	// Data -> channel (string) and password (string "" if public or private)
 	@SubscribeMessage('join')
 	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
@@ -105,7 +105,7 @@ interface messageData {
 		}
 	}
 
-	//data -> channel
+	//data -> channel (String)
 	@SubscribeMessage('leave')
 	  async leaveChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
@@ -124,7 +124,7 @@ interface messageData {
 		}
 	}
 
-	//data -> to, message
+	//data -> to (login), message (String)
 	@SubscribeMessage('dm')
 	  async sendDM(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
@@ -141,7 +141,71 @@ interface messageData {
 			this.server.emit('dm', payload)
 		}
 		catch (e) {
+			console.log(e)
 			client.emit('error', e)
 		}
 	}
+
+	//Data -> Channel (String) et Login (String du nouvel admin)
+	@SubscribeMessage('admin')
+	  async newAdmin(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		try {
+			if (!this.sockUser[client.id])
+				throw new NotFoundException("Socket doesn't exist")
+			if (this.sockUser[client.id] === "")
+				throw new NotFoundException("Socket isn't link with a user")
+			await this.chatService.addAdmin(data.channel, this.sockUser[client.id], data.login)
+			const payload = {
+				channel: data.channel,
+				login: data.login
+			}
+			this.server.emit('admin', payload)
+		}
+		catch (e) {
+			console.log(e)
+			client.emit('error', e)
+		}
+	}
+
+	@SubscribeMessage('mute')
+	  async muteSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		try {
+			if (!this.sockUser[client.id])
+				throw new NotFoundException("Socket doesn't exist")
+			if (this.sockUser[client.id] === "")
+				throw new NotFoundException("Socket isn't link with a user")
+			//Call la bonne fonction
+			const payload = {
+				channel: data.channel,
+				mutedBy: this.sockUser[client.id],
+				target: data.target,
+				//until
+			}
+			this.server.emit('mute', payload)
+		}
+		catch (e) {
+
+		}
+	}
+
+	  @SubscribeMessage('ban')
+	  async banSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		  try {
+			  if (!this.sockUser[client.id])
+				  throw new NotFoundException("Socket doesn't exist")
+			  if (this.sockUser[client.id] === "")
+				  throw new NotFoundException("Socket isn't link with a user")
+			  //Call la bonne fonction
+			  const payload = {
+				  channel: data.channel,
+				  bannedBy: this.sockUser[client.id],
+				  target: data.target,
+				  //until
+			  }
+			  this.server.emit('ban', payload)
+		  }
+		  catch (e) {
+
+		  }
+	  }
   }

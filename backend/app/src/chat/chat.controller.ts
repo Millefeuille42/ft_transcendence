@@ -1,7 +1,8 @@
-import {Body, Controller, Get, Param, Post, Query} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {ChatService} from "./chat.service";
 import {CreateChannelDto} from "./create-channel.dto";
 import {BanOrMuteDto} from "./ban-or-mute.dto";
+import {ChangePrivacyDto} from "./change-privacy.dto";
 
 @Controller('chat')
 export class ChatController {
@@ -17,13 +18,17 @@ export class ChatController {
 		return (await this.chatService.getChannel(channel))
 	}
 
+	@Get('channel/public/:channel')
+	async isPublic(@Param('channel') channel: string) {
+		return await this.chatService.isPublic(channel)
+	}
+
 	@Get('channel/user/:login')
 	async getChannelsOfUser(@Param('login') login: string) {
-		console.log("Got here")
 		return (await this.chatService.getChannelsOfUser(login))
 	}
 
-	@Get('dm/user/:login')
+	@Get('dm/:login')
 	async getDmOfUser(@Param('login') login: string) {
 		return (await this.chatService.getDmOfUser(login))
 	}
@@ -44,18 +49,24 @@ export class ChatController {
 	}
 
 	@Post('channel')
-	createChannel(@Body() newChannel: CreateChannelDto) {
-		return this.chatService.createChannel(newChannel)
+	async createChannel(@Body() newChannel: CreateChannelDto) {
+		return await this.chatService.createChannel(newChannel)
 	}
 
-	@Get('channel/public/:channel')
-	async isPublic(@Param('channel') channel: string) {
-		return this.chatService.isPublic(channel)
+	@Get('isChannel/:channel')
+	async isChannelExist(@Param('channel') channel: string) {
+		return await this.chatService.isChannel(channel)
 	}
 
-	@Get('dm/:login/:other')
+	@Get('dm/users/:login/:other')
 	async getDmIntoUsers(@Param('login') login: string,
 						 @Param('other') other: string) {
 		return (await this.chatService.getDm(login, other))
+	}
+
+	@Patch('channel/privacy/:channel')
+	async changePrivacy(@Param('channel') channel: string,
+						@Body() change: ChangePrivacyDto) {
+		return await this.chatService.changePrivacy(channel, change)
 	}
 }
