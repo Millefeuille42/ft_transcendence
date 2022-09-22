@@ -78,7 +78,12 @@ export class ChatService {
 		}
 
 		for (const user of chan.users) {
-			ret.users.push((await this.userService.getUserById(user)).login)
+			const {username, avatar, login} = await this.userService.getUserById(user)
+			ret.users.push({
+				username: username,
+				avatar: avatar,
+				login: login
+			})
 		}
 
 		return ret

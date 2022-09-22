@@ -56,9 +56,11 @@ interface unmuteOrUnban {
 	}
 
 	async handleDisconnect(client: Socket) {
-		console.log("Goodbye")
-		if (this.sockUser[client.id])
+		console.log(this.sockUser[client.id])
+		if (this.sockUser[client.id]) {
+			await this.userService.changeOnline(this.sockUser[client.id], {online: false})
 			this.sockUser.delete(client.id)
+		}
 	}
 
 	//data -> token (Cookie "Session") and login (Cookie "Login")

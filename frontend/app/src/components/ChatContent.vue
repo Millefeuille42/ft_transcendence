@@ -57,6 +57,10 @@ interface messageData {
 			this.$data.isConnected = false
 		},
 
+    auth(data) {
+      console.log(data)
+    },
+
 		chat(data) {
 			if (data === null)
 				return
@@ -79,6 +83,12 @@ interface messageData {
 		}
 	},
 	mounted() {
+    setTimeout(() => {
+      this.$socket.emit('auth', {
+        token: this.$cookies.get("Session"),
+        login: this.$cookies.get("Login")
+      })
+    }, 1000)
 		EventBus.$on("newChannel", () => {
 			this.$data.rel = true
 			setTimeout(() => {

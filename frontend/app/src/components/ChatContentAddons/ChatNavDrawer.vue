@@ -210,11 +210,14 @@ import {EventBus} from "@/main";
 				})
 				.catch((e) => {
 					if (e.response) {
-						if (e.response.status >= 401 && e.response.status <= 404) {
+						if (e.response.status >= 401 && e.response.status <= 403) {
 							this.$cookies.remove("Session")
 							RedirectToFTAuth()
 							return
 						}
+            if (e.response.status == 404) {
+              return;
+            }
 					}
 					EventBus.$emit("down", "")
 				})
@@ -229,14 +232,17 @@ import {EventBus} from "@/main";
 				})
 				.catch((e) => {
 					if (e.response) {
-						if (e.response.status >= 401 && e.response.status <= 404) {
-							this.$cookies.remove("Session")
-							RedirectToFTAuth()
-							return
-						}
-					}
-					EventBus.$emit("down", "")
-				})
+					  	if (e.response.status >= 401 && e.response.status <= 403) {
+					  		this.$cookies.remove("Session")
+					  		RedirectToFTAuth()
+					  		return
+					  	}
+              if (e.response.status == 404) {
+                return;
+              }
+					  EventBus.$emit("down", "")
+				  }
+        })
 		}
 	},
 	mounted() {
