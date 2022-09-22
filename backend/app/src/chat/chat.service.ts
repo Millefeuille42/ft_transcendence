@@ -17,6 +17,7 @@ import {BlockedService} from "../blocked/blocked.service";
 import {ChangePrivacyDto} from "./change-privacy.dto";
 import {MuteUserEntity} from "../entities/muteUser.entity";
 import {BanUserEntity} from "../entities/banUser.entity";
+import {stringify} from "uuid/index";
 @Injectable()
 export class ChatService {
 	constructor(@InjectRepository(RealChannelEntity)
@@ -291,19 +292,6 @@ export class ChatService {
 		return ret
 	}
 
-	async getBanList(channel: string) {
-
-	}
-
-	async getMuteList(channel: string) {
-		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
-		let listOfMuted = []
-		for (const u of chan.mute) {
-			listOfMuted.push(await this.userService.getUserById(u.userId))
-		}
-		return (listOfMuted)
-	}
-
 	async addAdmin(channel: string, login: string, newAdmin: string) {
 		const chan = await this.channelRepository.findOneBy({name: channel})
 		if (!chan)
@@ -371,6 +359,15 @@ export class ChatService {
 		return list
 	}
 
+	async getMuteList(channel: string) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
+		let listOfMuted = []
+		for (const u of chan.mute) {
+			listOfMuted.push(await this.userService.getUserById(u.userId))
+		}
+		return (listOfMuted)
+	}
+
 	async muteSomeone(channel: string, login: string, loginMute: string, until: Date) {
 		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
 		const user = await this.userService.getUser(login)
@@ -381,7 +378,7 @@ export class ChatService {
 			throw new UnauthorizedException("You can't mute yourself")
 		if (await this.isAdmin(channel, loginMute))
 			throw new UnauthorizedException("You can't mute an admin")
-		if (!await this.isInChannel(channel, login))
+		if (!await this.isInChannel(channel, loginMute))
 			throw new UnauthorizedException("Target is not in the channel")
 		if (chan.mute.find((u) => u.userId === userMute.id))
 			throw new ConflictException("User is already muted")
@@ -406,4 +403,63 @@ export class ChatService {
 			throw new NotFoundException("User isn't muted")
 		await this.muteRepository.delete(mute.id)
 	}
+
+	async checkBan() {
+		let list = []
+		const allBan = await this.banRepository.find({relations: ['channel']})
+		for (const m of allBan) {
+			let now = new Date()
+			if (now >= m.endOfBan)
+				list.push({channel: m.channel.name, login: (await this.userService.getUserById(m.userId)).login})
+		}
+		return list
+	}
+
+	async getBanList(channel: string) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['ban']})
+		let listOfBanned = []
+		for (const u of chan.ban) {
+			listOfBanned.push(await this.userService.getUserById(u.userId))
+		}
+		return (listOfBanned)
+	}
+
+	async banSomeone(channel: string, login: string, loginBan: string, until: Date) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['ban']})
+		const user = await this.userService.getUser(login)
+		const userBan = await this.userService.getUser(loginBan)
+		if (!await this.isAdmin(channel, login))
+			throw new UnauthorizedException("Only admin can mute someone")
+		if (login === loginBan)
+			throw new UnauthorizedException("You can't mute yourself")
+		if (await this.isAdmin(channel, loginBan))
+			throw new UnauthorizedException("You can't mute an admin")
+		if (!await this.isInChannel(channel, loginBan))
+			throw new UnauthorizedException("Target is not in the channel")
+		if (chan.ban.find((u) => u.userId === userBan.id))
+			throw new ConflictException("User is already muted")
+		const now = new Date()
+		if (now >= until)
+			throw new ConflictException("Date can't be in past")
+
+		const newBan = {
+			userId: userBan.id,
+			endOfMute: until,
+			channel: chan
+		}
+		await this.leaveChannel(channel, loginBan)
+		await this.muteRepository.save(newBan)
+	}
+
+	async unBan(channel: string, login: string) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['ban']})
+		const user = await this.userService.getUser(login)
+
+		const mute = chan.ban.find((u) => u.userId === user.id)
+		if (!mute)
+			throw new NotFoundException("User isn't banned")
+		await this.banRepository.delete(mute.id)
+	}
+
+
 }
