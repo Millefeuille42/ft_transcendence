@@ -1,7 +1,6 @@
 <template>
 	<v-container fill-height class="align-content-start text-left">
 		<v-app-bar
-			v-if="$vuetify.breakpoint.mobile"
 			dark
 		>
 			<v-app-bar-nav-icon @click.stop="showDrawer = true"></v-app-bar-nav-icon>
@@ -9,28 +8,15 @@
 		<!-- suppress HtmlDeprecatedAttribute -->
 		<v-img color="transparent" height="0%" :src=user.banner align="center"></v-img>
 		<v-row style="height: 100%">
-			<v-col v-if="!$vuetify.breakpoint.mobile" cols="3" style="height: 100%">
 				<v-navigation-drawer v-model="showDrawer"
-									 :app="$vuetify.breakpoint.mobile"
-									 :temporary="$vuetify.breakpoint.mobile"
-									 :permanent="!$vuetify.breakpoint.mobile"
+									 app
+									 temporary
 									 class="d-flex flex-column"
 				>
 					<ChatNavDrawer @changedChannel="handleChange" v-if="!rel" :showDrawer="showDrawer" :loaded="loaded" :user=user></ChatNavDrawer>
 				</v-navigation-drawer>
-			</v-col>
-			<template v-else>
-				<v-navigation-drawer v-model="showDrawer"
-									 :app="$vuetify.breakpoint.mobile"
-									 :temporary="$vuetify.breakpoint.mobile"
-									 :permanent="!$vuetify.breakpoint.mobile"
-									 class="d-flex flex-column"
-				>
-					<ChatNavDrawer @changedChannel="handleChange" v-if="!rel" :showDrawer="showDrawer" :loaded="loaded" :user=user></ChatNavDrawer>
-				</v-navigation-drawer>
-			</template>
 			<v-col style="height: 100%">
-				<ChatMainWindow v-if="selected.name !== undefined && !relMain" :hasCurrent="isAuth" :current="selected" @messageSend="sendMessage"></ChatMainWindow>
+				<ChatMainWindow v-if="selected.name !== undefined && !relMain" :login="user.login" :hasCurrent="isAuth" :current="selected" @messageSend="sendMessage"></ChatMainWindow>
 				<SkeletonChatMainWindow v-if="!loaded"></SkeletonChatMainWindow>
 			</v-col>
 		</v-row>

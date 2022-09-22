@@ -4,7 +4,7 @@
 			<v-img :src=avatar > </v-img>
 		</v-list-item-avatar>
 		<v-list-item-content color="grey">
-			<v-list-item-title>{{ sender }}</v-list-item-title>
+			<v-list-item-title :class="(owner ? 'blue--text' : '')">{{ sender }}</v-list-item-title>
 			<v-list-item-subtitle class="text-wrap">
 				{{ content }}
 			</v-list-item-subtitle>
@@ -17,6 +17,7 @@ import {Component, Vue} from "vue-property-decorator";
 
 @Component({
 	props: {
+		owner: Boolean,
 		objKey: String,
 		sender: String,
 		content: String,

@@ -5,6 +5,7 @@
 				<template v-if="showMessages" >
 					<template v-for="message in messages">
 						<ChatMessage
+							:owner="owner === message.login"
 							:objKey="message.id"
 							:sender="message.username"
 							:avatar="message.avatar"
@@ -16,7 +17,8 @@
 						></v-divider>
 					</template>
 				</template>
-				<v-progress-linear v-else :indeterminate="loadStatus === 0" color="white" :value="loadStatus"/>
+				<v-progress-circular v-else
+									 :indeterminate="loadStatus === 0" color="white" :value="loadStatus"/>
 			</v-list>
 		</v-sheet>
 		<v-sheet color="" width="100%" class="mt-4 d-flex flex-row justify-space-around">
@@ -30,37 +32,7 @@
 			</v-sheet>
 			<v-btn @click="handleSend" width="10%" class="my-auto"> Send </v-btn>
 		</v-sheet>
-		<v-sheet height="10%" width="100%" class="d-flex flex-row justify-space-around align-center">
-			<v-btn>Users</v-btn>
-			<v-navigation-drawer app permanent>
-				<v-sheet color="transparent">
-					<v-list-item v-for="user in current.users" color="red">
-						<v-btn width="70%" height="20%" rounded :key="'btn-' + online.info.login"
-							   @click="selectedUser = online; handleUserClick()"
-							   class="d-flex justify-center mb-2 mt-2 pl-4" color="grey darken-4">
-							<v-list-item-avatar>
-								<v-img :src="user.avatar"/>
-							</v-list-item-avatar>
-							<v-list-item-content color="grey">
-								<v-list-item-title class="text-left">{{ online.info.username }}</v-list-item-title>
-							</v-list-item-content>
-						</v-btn>
-						<v-btn icon @click="handleBlock(online)" x-small>
-							<v-icon v-if="!online.blockLoading">
-								mdi-cancel
-							</v-icon>
-							<v-progress-circular v-else size="16" indeterminate></v-progress-circular>
-						</v-btn>
-						<v-btn icon @click="!online.friend ? handleAdd(online) : handleRemove(online)" x-small>
-							<v-icon v-if="!online.friendLoading">
-								{{ !online.friend ? 'mdi-account-plus' : 'mdi-close-circle' }}
-							</v-icon>
-							<v-progress-circular v-else size="16" indeterminate></v-progress-circular>
-						</v-btn>
-					</v-list-item>
-				</v-sheet>
-			</v-navigation-drawer>
-		</v-sheet>
+		<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :users="users" :usersLoaded="usersLoaded" />
 	</v-sheet>
 </template>
 
@@ -70,6 +42,8 @@ import ChatMessage from "@/components/ChatContentAddons/ChatMessage.vue";
 import {EventBus} from "@/main";
 import {channelData, messageDataIn, userDataIn} from "@/queriesData";
 import {getChannel, getUserData} from "@/queries";
+import ChatProfileCardLoader from "@/components/ChatContentAddons/ChatProfileCardLoader.vue";
+import ChatUsersDrawer from "@/components/ChatContentAddons/ChatUsersDrawer.vue";
 
 interface messageData {
 	id: string,
@@ -81,15 +55,20 @@ interface messageData {
 }
 
 @Component({
-	components: {ChatMessage},
+	components: {ChatUsersDrawer, ChatProfileCardLoader, ChatMessage},
 	props: {
+		login: String,
 		current: Object,
 		hasCurrent: Boolean
 	},
 	data: () => ({
+		owner: "",
+		isAdmin: false,
+		users: [] as userDataIn[],
 		messages: [] as messageData[],
 		knownUsers: [] as userDataIn[],
 		showMessages: false,
+		usersLoaded: false,
 		loadCount: 0,
 		loadStatus: 0,
 		text: ""
@@ -116,6 +95,16 @@ interface messageData {
 		async getMessages() {
 			getChannel(this.$props.current.name)
 				.then(async (data: channelData) => {
+					console.log(data)
+					this.$data.owner = data.owner
+					this.$data.users = data.users
+					this.$data.usersLoaded = true
+					let meADM = data.admins.find((a: any) => {
+						return a.login === this.$props.login
+					})
+					if (meADM !== undefined) {
+						this.$data.isAdmin = true
+					}
 					if (data.messages.length > 0) {
 						for (const message of data.messages) {
 							if (this.$data.knownUsers.length > 0) {
@@ -147,6 +136,7 @@ interface messageData {
 		}
 	},
 	mounted() {
+		this.$data.usersLoaded = false
 		this.getMessages()
 		this.$socket.emit('auth', {
 			token: this.$cookies.get("Session"),

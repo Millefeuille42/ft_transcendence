@@ -85,8 +85,8 @@ export interface channelData {
     id: string,
     name: string
     owner?: string,
-    admins?: string[],
-    users?: string[],
+    admins: string[],
+    users: string[],
     messages: messageDataIn[],
     public: boolean,
     pass: boolean,
