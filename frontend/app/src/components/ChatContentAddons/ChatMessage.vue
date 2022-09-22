@@ -1,5 +1,5 @@
 <template>
-	<v-list-item :key=objKey color="grey" style="width: 100%">
+	<v-list-item :key=objKey color="blue" style="width: 100%">
 		<v-list-item-avatar color="grey darken-1">
 			<v-img :src=avatar > </v-img>
 		</v-list-item-avatar>

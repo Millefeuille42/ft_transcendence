@@ -74,14 +74,22 @@ export interface twoFAInit {
     code: string
 }
 
+export interface messageDataIn {
+    content: string,
+    createAd: string,
+    id: number,
+    userLogin: string,
+}
+
 export interface channelData {
     id: string,
     name: string
     owner?: string,
     admins?: string[],
     users?: string[],
+    messages: messageDataIn[],
     public: boolean,
-    hasPassword: boolean,
+    pass: boolean,
 }
 
 export interface dmData {

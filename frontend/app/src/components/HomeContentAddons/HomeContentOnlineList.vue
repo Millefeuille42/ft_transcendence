@@ -108,8 +108,9 @@ import {EventBus} from "@/main";
 				})
 				.catch((e) => {
 					// TODO manage error
-					console.log("ici")
-					console.log(e)
+					if (e.response === undefined) {
+						return
+					}
 					if (e.response.status === 404)
 						this.showSnack(friend.info.login + " not found", "red")
 					else if (e.response.status === 400)

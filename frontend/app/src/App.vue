@@ -138,6 +138,7 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 		},
 	},
 	async mounted () {
+		this.$data.down = false
 		try {
 			if (this.$cookies.isKey("Session")) {
 				this.$data.logged_in = true
@@ -148,17 +149,14 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 				let session = await getAuthResponse()
 				window.history.pushState('home', 'Home', "/")
 				this.$data.fa = session.isTwoFA
-				console.log("Fa: ", this.$data.fa)
 
 				if (!session.isTwoFA) {
 					this.$cookies.set('Login', session.cookie.Login)
 					this.$cookies.set("Session", session.cookie.Session)
-					console.log("No Fa")
 					this.$data.logged_in = true
 					await this.queryUserData()
 					this.resetTabId()
 				} else {
-					console.log("Is Fa")
 					this.$data.login = session.cookie.Login
 					this.$data.session = session.cookie.Session
 				}

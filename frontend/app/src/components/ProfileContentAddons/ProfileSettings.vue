@@ -97,7 +97,6 @@ import {EventBus} from "@/main";
 		async get2FAStatus() {
 			getTwoFAStatus(this.$props.user.login)
 				.then((r: boolean) => {
-					console.log(r)
 					this.$props.user.fa = r
 					this.$data.faLoaded = true
 				})
