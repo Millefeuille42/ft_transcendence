@@ -32,7 +32,7 @@
 			</v-sheet>
 			<v-btn @click="handleSend" width="10%" class="my-auto"> Send </v-btn>
 		</v-sheet>
-		<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :users="users" :usersLoaded="usersLoaded" />
+		<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
 	</v-sheet>
 </template>
 
@@ -92,10 +92,9 @@ interface messageData {
 				this.$data.showMessages = true
 			}
 		},
-		async getMessages() {
+		async getMessages(noMessage: boolean = false) {
 			getChannel(this.$props.current.name)
 				.then(async (data: channelData) => {
-					console.log(data)
 					this.$data.owner = data.owner
 					this.$data.users = data.users
 					this.$data.usersLoaded = true
@@ -105,6 +104,8 @@ interface messageData {
 					if (meADM !== undefined) {
 						this.$data.isAdmin = true
 					}
+					if (noMessage)
+						return
 					if (data.messages.length > 0) {
 						for (const message of data.messages) {
 							if (this.$data.knownUsers.length > 0) {
@@ -145,6 +146,9 @@ interface messageData {
 		EventBus.$on('newMessage', (message: messageData) => {
 			message.id = message.message + message.login
 			this.$data.messages.push(message)
+		})
+		EventBus.$on('chanUpdateUserList', () => {
+			this.getMessages(true)
 		})
 	},
 	updated() {

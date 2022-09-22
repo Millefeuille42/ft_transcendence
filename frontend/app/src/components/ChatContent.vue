@@ -16,7 +16,7 @@
 					<ChatNavDrawer @changedChannel="handleChange" v-if="!rel" :showDrawer="showDrawer" :loaded="loaded" :user=user></ChatNavDrawer>
 				</v-navigation-drawer>
 			<v-col style="height: 100%">
-				<ChatMainWindow v-if="selected.name !== undefined && !relMain" :login="user.login" :hasCurrent="isAuth" :current="selected" @messageSend="sendMessage"></ChatMainWindow>
+				<ChatMainWindow v-if="selected.name !== undefined && !relMain" :login="user.login" :hasCurrent="auth" :current="selected" @messageSend="sendMessage"></ChatMainWindow>
 				<SkeletonChatMainWindow v-if="!loaded"></SkeletonChatMainWindow>
 			</v-col>
 		</v-row>
@@ -44,6 +44,7 @@ interface messageData {
 @Component({
 	components: {SkeletonChatMainWindow, ProfileCard, ProfileContent, ChatMainWindow, ChatNavDrawer},
 	props: {
+		auth: Boolean,
 		user: Object,
 		loaded: Boolean,
 		loggedIn: Boolean
@@ -62,31 +63,60 @@ interface messageData {
 		snackColor: "green",
 		rel: false,
 		relMain: false,
-		isConnected: false,
 		isAuth: false,
 		socketMessage: ''
 	}),
 	sockets: {
-		connect() {
-			this.$data.isConnected = true
-		},
-		disconnect() {
-			this.$data.isConnected = false
-		},
-
-		auth(data) {
-			console.log(data)
-			setTimeout(() => {
-				this.$data.isAuth = data
-			}, 200)
-		},
-
 		message(data) {
 			if (data === null)
 				return
 			EventBus.$emit("newMessage", data)
 		},
-		error() {
+
+		ban(data: {bannedBy: string, target: string, channel: string}) {
+			console.log(data.channel)
+			if (data.target === this.$props.user.login) {
+				this.handleChange({})
+				this.showSnack("You have been banned from " + data.channel + " by " + data.bannedBy, "red")
+				EventBus.$emit("chanUpdate")
+			} else {
+				EventBus.$emit("chanUpdateUserList")
+			}
+		},
+		unban() {},
+		mute(data) {
+			if (data.login === this.$props.user.login) {
+				EventBus.$emit("chatMuted") // TODO disable prompt on channel
+			}
+		},
+		unmute() {},
+		join(data: {login: string}) {
+			if (data.login === this.$props.user.login)
+				EventBus.$emit("chanUpdate")
+			else {
+				EventBus.$emit("chanUpdateUserList")
+			}
+		},
+		admin(data: {channel: string, login: string}) {
+			if (data.login === this.$props.user.login) {
+				EventBus.$emit("chanUpdateUserList")
+				this.showSnack("You are now an admin of " + data.channel, "green")
+			}
+		},
+		dm() {},
+		leave(data: {login: string}) {
+			if (data.login === this.$props.user.login) {
+				EventBus.$emit("chanUpdate")
+				this.$data.selected = {}
+			} else {
+				EventBus.$emit("chanUpdateUserList")
+			}
+
+		},
+		error(data: {status : number, message: string}) {
+			if (data.message === undefined)
+				return
+			this.showSnack(data.message, "red")
 		}
 	},
 	methods: {
@@ -109,12 +139,6 @@ interface messageData {
 		}
 	},
 	mounted() {
-		setTimeout(() => {
-			this.$socket.emit('auth', {
-				token: this.$cookies.get("Session"),
-				login: this.$cookies.get("Login")
-			})
-		},1000)
 		EventBus.$on("newChannel", () => {
 			this.$data.rel = true
 			setTimeout(() => {

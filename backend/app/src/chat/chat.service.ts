@@ -1,13 +1,13 @@
 import {
 	BadRequestException,
 	ConflictException,
-	Injectable,
+	Injectable, InternalServerErrorException,
 	NotFoundException,
 	UnauthorizedException
 } from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {RealChannelEntity} from "../entities/realChannel.entity";
-import {In, Repository} from "typeorm";
+import {Repository} from "typeorm";
 import {CreateChannelDto} from "./create-channel.dto";
 import {UserService} from "../user/user.service";
 import * as bcrypt from "bcrypt"
@@ -17,7 +17,6 @@ import {BlockedService} from "../blocked/blocked.service";
 import {ChangePrivacyDto} from "./change-privacy.dto";
 import {MuteUserEntity} from "../entities/muteUser.entity";
 import {BanUserEntity} from "../entities/banUser.entity";
-import {stringify} from "uuid/index";
 @Injectable()
 export class ChatService {
 	constructor(@InjectRepository(RealChannelEntity)
@@ -93,7 +92,7 @@ export class ChatService {
 		const chan = await this.getChannel(channel)
 		const user = await this.userService.getUser(login)
 
-		if (chan.users.find((u) => u === user.login))
+		if (chan.users.find((u) => u.login === user.login))
 			return true
 		return false
 	}
@@ -105,7 +104,7 @@ export class ChatService {
 		const user = await this.userService.getUser(login)
 
 		if (await this.isBan(channel, login))
-			throw new UnauthorizedException("User is ban of this channel")
+			throw new UnauthorizedException("User is banned of this channel")
 
 		if (await this.isInChannel(channel, login))
 			throw new ConflictException('User is already in the channel')
@@ -122,13 +121,20 @@ export class ChatService {
 	}
 
 	async leaveChannel(channel: string, login: string) {
-		const chan = await this.getChannel(channel)
+		const chan = await this.channelRepository.findOneBy({name: channel})
 		const user = await this.userService.getUser(login)
 
 		if (!await this.isInChannel(channel, login))
 			throw new ConflictException('User is not in the channel')
+		if (chan.ownerId === user.id)
+			throw new ConflictException('Owner cannot leave channel')
+		if (await this.isAdmin(channel, login))
+			throw new ConflictException('Admins cannot leave channel')
 		chan.users = chan.users.filter((u) => u !== user.id)
-		await this.channelRepository.save(chan)
+		console.log(chan.users)
+		await this.channelRepository.save(chan).catch(() => {
+			throw new InternalServerErrorException('Unexpected error')
+		})
 	}
 
 	async isPublic(channel: string) {
@@ -178,8 +184,15 @@ export class ChatService {
 		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['ban']})
 		const user = await this.userService.getUser(login)
 
-		if (chan.ban.find((u) => u.userId === user.id))
+		console.log(chan.ban, user)
+		let banned = chan.ban.find((u) => u.userId === user.id)
+		if (banned) {
+			if (banned.endOfBan < new Date()) {
+				await this.unBan(channel, login)
+				return false
+			}
 			return true
+		}
 		return false
 	}
 
@@ -458,26 +471,28 @@ export class ChatService {
 		const user = await this.userService.getUser(login)
 		const userBan = await this.userService.getUser(loginBan)
 		if (!await this.isAdmin(channel, login))
-			throw new UnauthorizedException("Only admin can mute someone")
+			throw new UnauthorizedException("Only admin can ban someone")
 		if (login === loginBan)
-			throw new UnauthorizedException("You can't mute yourself")
+			throw new UnauthorizedException("You can't ban yourself")
+		if (userBan.id === chan.ownerId)
+			throw new UnauthorizedException("You can't ban the owner")
 		if (await this.isAdmin(channel, loginBan))
-			throw new UnauthorizedException("You can't mute an admin")
+			throw new UnauthorizedException("You can't ban an admin")
 		if (!await this.isInChannel(channel, loginBan))
 			throw new UnauthorizedException("Target is not in the channel")
 		if (chan.ban.find((u) => u.userId === userBan.id))
-			throw new ConflictException("User is already muted")
+			throw new ConflictException("User is already banned")
 		const now = new Date()
 		if (now >= until)
 			throw new ConflictException("Date can't be in past")
 
 		const newBan = {
 			userId: userBan.id,
-			endOfMute: until,
+			endOfBan: until,
 			channel: chan
 		}
 		await this.leaveChannel(channel, loginBan)
-		await this.muteRepository.save(newBan)
+		await this.banRepository.save(newBan)
 	}
 
 	async unBan(channel: string, login: string) {

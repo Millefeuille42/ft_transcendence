@@ -27,6 +27,7 @@ import ProfileCardMatchHistoryDialog
 	from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardMatchHistoryDialog.vue";
 import {getUserStats} from "@/queries";
 import {statsIn} from "@/queriesData";
+import {EventBus} from "@/main";
 
 @Component({
 	components: {ProfileCardMatchHistoryDialog, HomeContentOnlineList},
@@ -48,7 +49,18 @@ import {statsIn} from "@/queriesData";
 				})
 		}
 	},
+	sockets: {
+		auth(data) {
+			EventBus.$emit('authSock', data);
+		},
+	},
 	mounted() {
+		setTimeout(() => {
+			this.$socket.emit('auth', {
+				token: this.$cookies.get("Session"),
+				login: this.$cookies.get("Login")
+			})
+		},1000)
 		this.loadStats()
 	}
 })

@@ -1,6 +1,7 @@
 <template>
-	<v-sheet color="transparent" width="100%" class="d-flex mt-5">
-		<v-btn @click="showJoin = true; noExist = false" class="mr-auto ml-auto">Join</v-btn>
+	<v-sheet color="transparent" width="100%" class="d-flex justify-space-around mt-5">
+		<v-btn @click="showJoin = true; noExist = false" >Join</v-btn>
+		<v-btn @click="handleLeave">Leave</v-btn>
 		<v-dialog persistent max-width="300px" dark v-model="showJoin">
 			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
 				<v-sheet v-if="noExist || joinDisplayPasswordPrompt" width="100%" class="text-center mt-4 mb-5">
@@ -36,7 +37,7 @@
 						></v-checkbox>
 						<v-text-field
 							:style="'width: 50%;'"
-							:disabled="!createHasPassword"
+							:disabled="!createHasPassword || createPublic"
 							label="Password"
 							v-model="createPasswordPrompt"
 						></v-text-field>
@@ -91,6 +92,9 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 		handleClick() {
 			!this.$data.noExist ? this.handleJoin() : this.handleCreate()
 		},
+		handleLeave() {
+			this.$emit('onLeave')
+		},
 		handleJoin() {
 			if (this.$data.joinPrompt === "") {
 				this.showSnack("Invalid channel name", "red")
@@ -119,8 +123,11 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 							return
 						}
 					}
-					// TODO Join Channel
-					console.log("AllGOUD")
+					this.$socket.emit('join', {
+						channel: this.$data.joinPrompt,
+						password: this.$data.joinPasswordPrompt
+					})
+					this.resetFields()
 				})
 				.catch((e) => {
 					if (e.response && e.response.status == 404) {

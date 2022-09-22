@@ -21,7 +21,7 @@
 				<v-divider/>
 			</template>
 		</v-sheet>
-		<ChatJoin :items="items" :user="user"/>
+		<ChatJoin @onLeave="handleLeave" :items="items" :user="user"/>
 	</v-sheet>
 </template>
 
@@ -42,6 +42,7 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 		showDrawer: Boolean
 	},
 	data: () => ({
+		curChan: "",
 		items: [
 			{
 				id: 'chan',
@@ -59,6 +60,16 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 	methods: {
 		handleClick(chan: channelData) {
 			this.$emit('changedChannel', chan)
+			this.$data.curChan = chan.name
+		},
+		handleLeave() {
+			if (this.$data.curChan === "") {
+				EventBus.$emit("chatSnack", "You must select a channel first", "red")
+				return
+			}
+			this.$socket.emit('leave', {
+				channel: this.$data.curChan
+			})
 		},
 		loadChannels() {
 			getChannelsOfUser(this.$props.user.login)
@@ -66,8 +77,10 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 					if (data.thereIsChannel) {
 						data.channels.forEach((chan: channelData) => {
 							chan.id= "chan-" + chan.id
-							this.$data.items[0].children.push(chan)
 						})
+						this.$data.items[0].children = data.channels
+					} else {
+						this.$data.items[0].children = []
 					}
 				})
 				.catch((e) => {
@@ -107,6 +120,10 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 	mounted() {
 		this.loadChannels()
 		this.loadDMs()
+
+		EventBus.$on('chanUpdate', () => {
+			this.loadChannels()
+		})
 	}
 })
 export default class ChatNavDrawer extends Vue {

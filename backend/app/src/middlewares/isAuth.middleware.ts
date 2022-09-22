@@ -2,7 +2,6 @@ import {HttpException, Injectable, NestMiddleware} from '@nestjs/common';
 import {Request, Response} from 'express';
 import {UserService} from "../user/user.service";
 import {ConfigService} from "@nestjs/config";
-import axios from "axios";
 import {AuthService} from "../auth/auth.service";
 
 @Injectable()
@@ -14,15 +13,15 @@ export class IsAuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: () => void) {
     const uuid: string = req.cookies['Session'];
     const login: string = req.cookies['Login'];
-    if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
+   // if (req.ip === "::ffff:127.0.0.1" || req.ip === "::1") {
       // const token: string = await this.userService.getToken(login);
       // const uuidSession = await this.userService.getUuidSession(login)
       // if (!token || !uuidSession)
       //   throw new HttpException("Va chercher un cookie wesh", 401)
-      console.log("from localhost")
-      next();
-      return ;
-    }
+   //   console.log("from localhost")
+   //   next();
+   //   return ;
+   // }
     console.log(login, uuid)
     if (!login || !uuid) {
       console.log("No cookie")

@@ -126,6 +126,7 @@ interface unmuteOrUnban {
 	//data -> channel (String)
 	@SubscribeMessage('leave')
 	  async leaveChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		console.log(data)
 		try {
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
@@ -211,6 +212,7 @@ interface unmuteOrUnban {
 	//Data -> Channel (string), target (string), until (Date)
 	  @SubscribeMessage('ban')
 	  async banSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+		console.log(data)
 		  try {
 			  if (!this.sockUser[client.id])
 				  throw new NotFoundException("Socket doesn't exist")
