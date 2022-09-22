@@ -45,6 +45,7 @@ import {EventBus} from "@/main";
 					EventBus.$emit("down", "")
 				}
 			} catch (e: any) {
+				// TODO handle properly
 				if (e.response.status === 404)
 					this.$data.snackErrorText = "User not found"
 				else if (e.response.status === 400)

@@ -64,6 +64,7 @@ import {disableTwoFaActivation, getTwoFaQR, validateTwoFaActivation} from "@/que
 					this.$emit("faStatus", true)
 				})
 				.catch(() => {
+					// TODO handle properly
 					this.showSnack("Invalid Code", "red")
 				})
 		},
@@ -73,6 +74,7 @@ import {disableTwoFaActivation, getTwoFaQR, validateTwoFaActivation} from "@/que
 					this.$emit("faStatus", false)
 				})
 				.catch(() => {
+					// TODO handle properly
 					this.showSnack("Invalid Code", "red")
 				})
 		}
