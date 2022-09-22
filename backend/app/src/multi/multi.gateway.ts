@@ -75,7 +75,18 @@ export class MultiGateway {
 			return
 		}
 
-
+		console.log(data)
+		if (match.first.login === user) {
+			match.first.rod.goUp = data.goUp
+			match.first.rod.goDown = data.goDown
+			match.second.opponentRod.goUp = data.goUp
+			match.second.opponentRod.goDown = data.goDown
+		} else if (match.second.login === user) {
+			match.second.rod.goUp = data.goUp
+			match.second.rod.goDown = data.goDown
+			match.first.opponentRod.goUp = data.goUp
+			match.first.opponentRod.goDown = data.goDown
+		}
 	}
 
 	@SubscribeMessage('multiUpdate')
@@ -98,11 +109,22 @@ export class MultiGateway {
 			match.second.ball.position.x += match.second.ball.direction.x * match.second.ball.speed.x
 			match.second.ball.position.y += match.second.ball.direction.y * match.second.ball.speed.y
 
+			match.first = this.multiService.moveRod(match.first)
+			match.second = this.multiService.moveRod(match.second)
+
 			match.first.ball = this.multiService.collideBall(match.first.ball, match.first.width, match.first.height)
 			match.second.ball = this.multiService.collideBall(match.second.ball, match.second.width, match.second.height)
 
-			match.first.socket.emit('multiUpdate', match.first.ball.position)
-			match.second.socket.emit('multiUpdate', match.second.ball.position)
+			match.first.socket.emit('multiUpdate', {
+				ball: match.first.ball.position,
+				myRod: match.first.rod.position,
+				otherRod: match.first.opponentRod.position
+			})
+			match.second.socket.emit('multiUpdate', {
+				ball: match.second.ball.position,
+				myRod: match.second.rod.position,
+				otherRod: match.second.opponentRod.position
+			})
 			return
 		}
 		if (match.second.login === user)
@@ -139,9 +161,8 @@ export class MultiGateway {
 			let x = Math.random() > 0.5 ? -1 : 1
 			let y = Math.random() * (Math.random() > 0.5 ? -1 : 1)
 
-			let h = this.matches.get(data.id).first.height
-			this.matches.get(data.id).first.rod =
-
+			this.matches.get(data.id).first = this.multiService.createRod(this.matches.get(data.id).first, true)
+			this.matches.get(data.id).second = this.multiService.createRod(this.matches.get(data.id).second, false)
 			this.matches.get(data.id).first = this.multiService.createBall(this.matches.get(data.id).first, x, y)
 			this.matches.get(data.id).second = this.multiService.createBall(this.matches.get(data.id).second, x, y)
 			this.matches.get(data.id).first.socket.emit('multiStart', {oper: "start"})

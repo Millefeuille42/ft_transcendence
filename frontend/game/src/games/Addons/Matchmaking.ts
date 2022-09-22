@@ -89,6 +89,10 @@ class Matchmaking implements IScreen {
 	}
 
 	setKeyReleased(p5: P5): void {
+		if (net.hasMatchUp) {
+			this.readyScreen.setKeyReleased(p5)
+			return
+		}
 	}
 
 }

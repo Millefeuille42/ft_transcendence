@@ -1,6 +1,7 @@
 import {io, Socket} from "socket.io-client";
 import matchmaking from "./games/Addons/Matchmaking";
 import MultiGame from "./games/MultiGame";
+import myVector from "./classes/genericClasses/MyVector";
 
 interface connection {
 	socket: Socket
@@ -19,7 +20,9 @@ interface connection {
 		login: string
 		id: string
 	}
-	ball: {x: number, y: number}
+	ball: myVector
+	myRod: myVector
+	otherRod: myVector
 }
 
 let net: connection = {
@@ -33,7 +36,9 @@ let net: connection = {
 	ask: true,
 	userLogin: "",
 	userToken: "",
-	ball: {x: 0, y: 0},
+	ball: new myVector,
+	myRod: new myVector,
+	otherRod: new myVector,
 	match: {login: "", id: ""},
 }
 
@@ -72,9 +77,11 @@ net.socket.on('multiStart', () => {
 	net.matchStart = true
 })
 
-net.socket.on('multiUpdate', (data: {x: number, y: number}) => {
+net.socket.on('multiUpdate', (data: {ball: myVector, myRod: myVector, otherRod: myVector}) => {
 	console.log("update")
-	net.ball = data
+	net.ball = data.ball
+	net.myRod = data.myRod
+	net.otherRod = data.otherRod
 })
 
 net.socket.on('multiStop', () => {
@@ -83,8 +90,9 @@ net.socket.on('multiStop', () => {
 })
 
 net.socket.on('multiError', (data: {code: number, text: string}) => {
+	console.log("ERROR")
 	if (data.code === 442) {
-		console.log("ERROR")
+		console.log("LEFT")
 		window.location.reload()
 	}
 })

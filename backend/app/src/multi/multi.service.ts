@@ -88,12 +88,9 @@ export class MultiService {
 		return player
 	}
 
-	//TODO Was here
-
 	createRod(player: matchUsersInterface, left: boolean): matchUsersInterface {
-		let x = player.width * 0.99 - player.width * 0.017
-		if (left)
-			x = player.width * 0.01
+		let rx = player.width * 0.99 - player.width * 0.017
+		let lx = player.width * 0.01
 		player.rod = {
 			width: player.width * 0.017,
 			height: player.height * 0.15,
@@ -101,9 +98,48 @@ export class MultiService {
 			goUp: false,
 			goDown: false,
 			position: {
-				x: x,
+				x: left ? lx : rx,
 				y: player.height / 2 - (player.height * 0.15 / 2),
 			},
+		}
+		player.opponentRod = {
+			width: player.width * 0.017,
+			height: player.height * 0.15,
+			speed: player.height * 0.02,
+			goUp: false,
+			goDown: false,
+			position: {
+				x: left ? rx : lx,
+				y: player.height / 2 - (player.height * 0.15 / 2),
+			},
+		}
+		return player
+	}
+
+	moveRod(player: matchUsersInterface): matchUsersInterface {
+		if (player.rod.goUp) {
+			if (player.rod.position.y - player.rod.speed > 0)
+				player.rod.position.y -= player.rod.speed
+			else
+				player.rod.position.y = 0
+		}
+		if (player.rod.goDown) {
+			if (player.rod.position.y + player.rod.speed < player.height - player.rod.height)
+				player.rod.position.y += player.rod.speed
+			else
+				player.rod.position.y = player.height - player.rod.height
+		}
+		if (player.opponentRod.goUp) {
+			if (player.opponentRod.position.y - player.opponentRod.speed > 0)
+				player.opponentRod.position.y -= player.opponentRod.speed
+			else
+				player.opponentRod.position.y = 0
+		}
+		if (player.opponentRod.goDown) {
+			if (player.opponentRod.position.y + player.opponentRod.speed < player.height - player.opponentRod.height)
+				player.opponentRod.position.y += player.opponentRod.speed
+			else
+				player.opponentRod.position.y = player.height - player.opponentRod.height
 		}
 		return player
 	}

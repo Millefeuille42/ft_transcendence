@@ -24,6 +24,7 @@ interface matchUsersInterface {
 	width: number
 	height: number
 	rod: Rod
+	opponentRod: Rod
 	ball: Ball
 }
 

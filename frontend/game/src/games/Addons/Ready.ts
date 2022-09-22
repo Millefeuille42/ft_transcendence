@@ -53,7 +53,7 @@ class Ready implements IScreen {
 			if (this.multiGame === undefined) {
 				this.multiGame = new MultiGame (
 					{data: this.me, assets: this.meInventory},
-					{data: this.me, assets: this.meInventory}
+					{data: this.me, assets: this.opponentInventory}
 					)
 				this.multiGame.loadScreen(p5)
 			} else {
@@ -93,6 +93,10 @@ class Ready implements IScreen {
 	}
 
 	setKeyPressed(p5: P5): void {
+		if (net.matchStart && this.multiGame !== undefined) {
+			this.multiGame.setKeyPressed(p5)
+			return
+		}
 		if (p5.key === "q") {
 			window.location.reload()
 			return
@@ -111,6 +115,10 @@ class Ready implements IScreen {
 	}
 
 	setKeyReleased(p5: P5): void {
+		if (net.matchStart && this.multiGame !== undefined) {
+			this.multiGame.setKeyReleased(p5)
+			return
+		}
 	}
 
 }
