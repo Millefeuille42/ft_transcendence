@@ -30,7 +30,7 @@ export class ChatService {
 				@InjectRepository(MuteUserEntity)
 				private muteRepository: Repository<MuteUserEntity>,
 				@InjectRepository(BanUserEntity)
-				private banRepository: Repository<BanUserEntity>) {}
+				private banRepository: Repository<BanUserEntity>,) {}
 
 	async createChannel(newChannel: CreateChannelDto) {
 		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
@@ -295,7 +295,12 @@ export class ChatService {
 	}
 
 	async getMuteList(channel: string) {
-
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
+		let listOfMuted = []
+		for (const u of chan.mute) {
+			listOfMuted.push(await this.userService.getUserById(u.userId))
+		}
+		return (listOfMuted)
 	}
 
 	async addAdmin(channel: string, login: string, newAdmin: string) {
@@ -348,19 +353,56 @@ export class ChatService {
 	async isAdmin(channel: string, login: string) {
 		const admins = await this.getAdminList(channel)
 		for (const admin of admins) {
-			if (admin === login)
+			if (admin.login === login)
 				return true
 		}
 		return false
 	}
 
+	async checkMute() {
+		let list = []
+		const allMute = await this.muteRepository.find({relations: ['channel']})
+		for (const m of allMute) {
+			let now = new Date()
+			if (now >= m.endOfMute)
+				list.push({channel: m.channel.name, login: (await this.userService.getUserById(m.userId)).login})
+		}
+		return list
+	}
+
 	async muteSomeone(channel: string, login: string, loginMute: string, until: Date) {
-		const chan = await this.channelRepository.findOneBy({name: channel})
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
 		const user = await this.userService.getUser(login)
 		const userMute = await this.userService.getUser(loginMute)
-
 		if (!await this.isAdmin(channel, login))
 			throw new UnauthorizedException("Only admin can mute someone")
+		if (login === loginMute)
+			throw new UnauthorizedException("You can't mute yourself")
+		if (await this.isAdmin(channel, loginMute))
+			throw new UnauthorizedException("You can't mute an admin")
+		if (!await this.isInChannel(channel, login))
+			throw new UnauthorizedException("Target is not in the channel")
+		if (chan.mute.find((u) => u.userId === userMute.id))
+			throw new ConflictException("User is already muted")
+		const now = new Date()
+		if (now >= until)
+			throw new ConflictException("Date can't be in past")
 
+		const newMute = {
+			userId: userMute.id,
+			endOfMute: until,
+			channel: chan
+		}
+		await this.muteRepository.save(newMute)
+	}
+
+	async unMute(channel: string, login: string) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
+		const user = await this.userService.getUser(login)
+
+		const mute = chan.mute.find((u) => u.userId === user.id)
+		if (!mute)
+			throw new NotFoundException("User isn't muted")
+		await this.muteRepository.delete(mute.id)
 	}
 }

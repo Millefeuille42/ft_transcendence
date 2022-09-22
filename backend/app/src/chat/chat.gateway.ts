@@ -5,12 +5,12 @@ import {
 	ConnectedSocket,
 	MessageBody
   } from '@nestjs/websockets';
-import { ConfigService } from "@nestjs/config";
 import {Socket} from "socket.io";
 import {UserService} from "../user/user.service";
 import {AuthService} from "../auth/auth.service";
 import {ChatService} from "./chat.service";
 import {ForbiddenException, NotFoundException} from "@nestjs/common";
+import {Cron, CronExpression, SchedulerRegistry} from "@nestjs/schedule";
 
 interface authData {
 	token: string,
@@ -22,15 +22,30 @@ interface messageData {
 	message: string,
 }
 
+interface unmuteOrUnban {
+	channel: string,
+	login: string
+}
+
   @WebSocketGateway({ cors: true })
   export class ChatGateway {
 	constructor(private userService: UserService,
 				private authService: AuthService,
-				private chatService: ChatService) {}
+				private chatService: ChatService,
+				private schedulerRegistry: SchedulerRegistry) {}
 
 	@WebSocketServer() server;
 	users: number = 0;
 	sockUser = new Map<string, string>([])
+
+
+	 @Cron(CronExpression.EVERY_5_SECONDS)
+	 async triggerCronJob() {
+		let list = await this.chatService.checkMute()
+		 for (const data of list) {
+			 await this.unmuteSomeone(data)
+		 }
+	}
 
 	async handleConnection(client: Socket) {
 		console.log("New connection :", client.id)
@@ -174,17 +189,20 @@ interface messageData {
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
 				throw new NotFoundException("Socket isn't link with a user")
-			//Call la bonne fonction
+			let now = new Date()
+			now.setSeconds(now.getSeconds() + 20)
+			await this.chatService.muteSomeone(data.channel, this.sockUser[client.id], data.target, now)
+
 			const payload = {
 				channel: data.channel,
 				mutedBy: this.sockUser[client.id],
 				target: data.target,
-				//until
+				until: /*data.until*/ now
 			}
 			this.server.emit('mute', payload)
 		}
 		catch (e) {
-
+			client.emit('error', e)
 		}
 	}
 
@@ -205,7 +223,36 @@ interface messageData {
 			  this.server.emit('ban', payload)
 		  }
 		  catch (e) {
-
+			client.emit('error', e)
 		  }
+	  }
+
+	  @SubscribeMessage('unmute')
+	  async unmuteSomeone(@MessageBody() data: any) {
+		try {
+			const payload = {
+				channel: data.channel,
+				login: data.login
+			}
+			await this.chatService.unMute(data.channel, data.login)
+			this.server.emit('unmute', payload)
+		}
+		catch (e) {
+			this.server.emit('error', e)
+		}
+	  }
+
+	  async unbanSomeone(data: any) {
+		try {
+			const payload = {
+				channel: data.channel,
+				login: data.login
+			}
+
+			this.server.emit('unban', payload)
+		}
+		catch (e) {
+			this.server.emit('error', e)
+		}
 	  }
   }
