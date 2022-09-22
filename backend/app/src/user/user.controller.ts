@@ -48,20 +48,11 @@ export class UserController {
 		return this.userService.deleteUser(login)
 	}
 
-	/**
-	 * @api {get} user/username/:username Get User if username exist
-	 * @apiName isUsernameExist
-	 * @apiGroup User
-	 *
-	 * @apiParam username Username that need a check
-	 *
-	 * @apiSuccess {Json} userExist Boolean set to false if username doesn't exist
-	 * @apiSuccess {Json} login if <code>userExist</code> is true, the login of the user
-	 */
-	//@Get('username/:username')
-	//isUsernameExist(@Param('username') username: string) {
-	//	return (this.userService.isUsernameExist(username))
-	//}
+	@Get('byuser/:usertoget/:login')
+	async getUserByUser(@Param('login') login: string,
+						@Param('usertoget') user: string) {
+		return this.userService.getUserByUser(login, user)
+	}
 
 	/**
 	 * @api {get} /user/:login/:resource Request information about a User
