@@ -43,11 +43,6 @@ export class UserController {
 		return ('pong')
 	}
 
-	@Delete(':login')
-	async deleteUser(@Param('login') login: string) {
-		return this.userService.deleteUser(login)
-	}
-
 	@Get('byuser/:usertoget/:login')
 	async getUserByUser(@Param('login') login: string,
 						@Param('usertoget') user: string) {
