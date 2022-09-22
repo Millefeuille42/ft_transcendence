@@ -1,16 +1,17 @@
-import {rod} from "./rod";
-import {ballClass} from "./ball";
+import Rod from "../classes/localGameClasses/Rod";
+import Ball from "../classes/localGameClasses/Ball";
 import P5 from "p5";
+import IScreen from "../interfaces/IScreen";
 
 let c_width = 200
 let c_height = 200
 
-let playerOne: rod
-let playerTwo: rod
+let playerOne: Rod
+let playerTwo: Rod
 let oneScore: number = 0
 let twoScore: number = 0
 
-let ball: ballClass
+let ball: Ball
 
 let goalLastTick: boolean
 let sleeping: boolean
@@ -25,12 +26,6 @@ function autoResize(p5: P5) {
 	if (parent !== null) {
 		if (c_width !== parent.clientWidth && c_height !== parent.clientHeight) {
 			// TODO put player and ball to new position
-
-			setTimeout(() => {
-				playerOne = new rod(playerOne.position.x, playerOne.position.y, p5, rod_image)
-				playerTwo = new rod(playerTwo.position.x, playerTwo.position.y, p5, rod_image2)
-				ball = new ballClass(ball.position.x, ball.position.y, ball.direction.x, ball.direction.y, p5, ball_image)
-			}, 200)
 
 			c_width = parent.clientWidth
 			c_height = parent.clientHeight
@@ -62,17 +57,17 @@ function drawScene(p5: P5) {
 	p5.text(twoScore, (p5.width / 4) * 3, p5.height / 7)
 }
 
-export class LocalGame {
-	gamePreload(p5: P5) {
+class LocalGame implements IScreen {
+	screenPreload(p5: P5) {
 		ball_image = p5.loadImage("/balls/ball_bob.png")
 		rod_image = p5.loadImage("/rods/rod_github.png")
 		rod_image2 = p5.loadImage("/rods/rod_millefeuille.png")
 	}
 
-	private gameSetup(p5: P5) {
-		playerOne = new rod(p5.width * 0.01, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image)
-		playerTwo = new rod(p5.width * 0.99 - p5.width * 0.017, p5.height / 2 - (p5.height * 0.15 / 2), p5, rod_image2)
-		ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
+	screenSetup(p5: P5) {
+		playerOne = new Rod(p5, true)
+		playerTwo = new Rod(p5, false)
+		ball = new Ball(p5, p5.random(-1, 1) > 0)
 
 		goalLastTick = true
 		sleeping = false
@@ -82,7 +77,7 @@ export class LocalGame {
 		displayGetReady(p5)
 	}
 
-	gameLoop(p5: P5): boolean {
+	screenLoop(p5: P5): boolean {
 		if (end)
 			return true
 
@@ -120,21 +115,17 @@ export class LocalGame {
 			return false
 		}
 
-		let goal = ball.move(playerOne, playerTwo, p5)
+		playerOne.update(p5)
+		playerTwo.update(p5)
+		let goal = ball.update(p5, playerOne, playerTwo)
 		drawScene(p5)
 		if (goal) {
 			if (ball.direction.x > 0) {
 				twoScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
-				if (ball.direction.x < 0) {
-					ball.direction.x *= -1
-				}
+				ball = new Ball(p5, true)
 			} else {
 				oneScore++
-				ball = new ballClass(p5.width / 2, p5.height / 2, p5.width * 0.007, p5.width * 0.007, p5, ball_image)
-				if (ball.direction.x > 0) {
-					ball.direction.x *= -1
-				}
+				ball = new Ball(p5, false)
 			}
 			goalLastTick = true
 			drawScene(p5)
@@ -142,13 +133,13 @@ export class LocalGame {
 		return false
 	}
 
-	loadGame(p5: P5) {
-		this.gamePreload(p5)
-		this.gameSetup(p5)
+	loadScreen(p5: P5) {
+		this.screenPreload(p5)
+		this.screenSetup(p5)
 	}
 
 	setKeyPressed(p5: P5) {
-		if (p5.key === "w") {
+		if (p5.key === "w" || p5.key == "z") {
 			playerOne.goUp = true
 		} else if (p5.key === "s") {
 			playerOne.goDown = true
@@ -160,7 +151,7 @@ export class LocalGame {
 	}
 
 	setKeyReleased(p5: P5) {
-		if (p5.key === "w") {
+		if (p5.key === "w" || p5.key == "z") {
 			playerOne.goUp = false
 		} else if (p5.key === "s") {
 			playerOne.goDown = false
@@ -171,3 +162,5 @@ export class LocalGame {
 		}
 	}
 }
+
+export default LocalGame

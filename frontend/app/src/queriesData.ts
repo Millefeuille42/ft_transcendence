@@ -73,3 +73,27 @@ export interface twoFAInit {
     qr: string,
     code: string
 }
+
+export interface channelData {
+    id: string,
+    name: string
+    owner?: string,
+    admins?: string[],
+    users?: string[],
+    public: boolean,
+    hasPassword: boolean,
+}
+
+export interface dmData {
+
+}
+
+export interface getChannelResp {
+	thereIsChannel: boolean
+	channels: channelData[]
+}
+
+export interface getDmResp {
+    thereIsDm: boolean
+    dms: dmData[]
+}

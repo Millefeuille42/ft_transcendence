@@ -38,6 +38,7 @@
 				   :color="user.fa ? 'green' : ''"
 				   class="ml-4"
 				   width="20%"
+				   min-width="120px"
 			> {{ $vuetify.breakpoint.mobile ? '' : (user.fa ? 'Disable 2FA' : 'Enable 2FA') }}
 				<v-icon v-if="$vuetify.breakpoint.mobile" >
 					mdi-shield-lock
