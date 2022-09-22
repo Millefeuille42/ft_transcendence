@@ -94,11 +94,6 @@ export class UserService implements OnModuleInit {
 		return await this.usersListRepository.findOneBy({login: user.login})
 	}
 
-	async deleteUser(login: string) {
-		const user = await this.getUser(login)
-		return await this.usersListRepository.delete(user.id)
-	}
-
 	async getUUID(login: string) {
 		const user = await this.verificationUser(login)
 		return (user.id)
