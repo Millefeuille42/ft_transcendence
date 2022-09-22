@@ -122,6 +122,18 @@ export class UserService implements OnModuleInit {
 		return await this.verificationUser(login) ;
 	}
 
+	async getUserByUser(login: string, user: string) {
+		const u = await this.getUser(login)
+		const uToRet = await this.getUser(user)
+
+		return ({
+			avatar: uToRet.avatar,
+			username: uToRet.username,
+			isBlocked: this.blockedService.isBlocked(u.login, uToRet.login),
+			isFriend: this.friendService.isFriend(u.login, uToRet.login)
+		})
+	}
+
 	async getUserById(id: number) {
 		const user = await this.usersListRepository.findOneBy({id: id})
 
