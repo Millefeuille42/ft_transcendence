@@ -41,7 +41,7 @@ class Matchmaking implements IScreen {
 			this.readyScreen.loaded = false
 			this.readyScreen.firstTime = true
 		}
-		p5.background('black')
+		p5.background(net.white ? "black" : "white")
 		p5.textSize(p5.width / 20)
 		p5.text(this.title, 0, p5.height / 2.5, p5.width)
 

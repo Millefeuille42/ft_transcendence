@@ -2,9 +2,7 @@ import Rod from "../classes/localGameClasses/Rod";
 import Ball from "../classes/localGameClasses/Ball";
 import P5 from "p5";
 import IScreen from "../interfaces/IScreen";
-
-let c_width = 200
-let c_height = 200
+import net from "../net";
 
 let playerOne: Rod
 let playerTwo: Rod
@@ -32,7 +30,7 @@ function displayWinner(player: string, p5: P5) {
 }
 
 function drawScene(p5: P5) {
-	p5.background("black")
+	p5.background(net.white ? "black" : "white")
 
 	playerOne.draw(p5)
 	playerTwo.draw(p5)
@@ -59,7 +57,7 @@ class LocalGame implements IScreen {
 		goalLastTick = true
 		sleeping = false
 		end = false
-		p5.fill("white")
+		p5.fill(net.white ? "white" : "black")
 		p5.textAlign("center")
 		displayGetReady(p5)
 	}
@@ -125,25 +123,49 @@ class LocalGame implements IScreen {
 
 	setKeyPressed(p5: P5) {
 		if (p5.key === "w" || p5.key == "z") {
-			playerOne.goUp = true
+			if (net.white)
+				playerOne.goUp = true
+			else
+				playerOne.goDown = true
 		} else if (p5.key === "s") {
-			playerOne.goDown = true
+			if (net.white)
+				playerOne.goDown = true
+			else
+				playerOne.goUp = true
 		} else if (p5.key === "ArrowUp") {
-			playerTwo.goUp = true
+			if (net.white)
+				playerTwo.goUp = true
+			else
+				playerTwo.goDown = true
 		} else if (p5.key === "ArrowDown") {
-			playerTwo.goDown = true
+			if (net.white)
+				playerTwo.goDown = true
+			else
+				playerTwo.goUp = true
 		}
 	}
 
 	setKeyReleased(p5: P5) {
 		if (p5.key === "w" || p5.key == "z") {
-			playerOne.goUp = false
+			if (net.white)
+				playerOne.goUp = false
+			else
+				playerOne.goDown = false
 		} else if (p5.key === "s") {
-			playerOne.goDown = false
+			if (net.white)
+				playerOne.goDown = false
+			else
+				playerOne.goUp = false
 		} else if (p5.key === "ArrowUp") {
-			playerTwo.goUp = false
+			if (net.white)
+				playerTwo.goUp = false
+			else
+				playerTwo.goDown = false
 		} else if (p5.key === "ArrowDown") {
-			playerTwo.goDown = false
+			if (net.white)
+				playerTwo.goDown = false
+			else
+				playerTwo.goUp = false
 		}
 	}
 }

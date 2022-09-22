@@ -42,12 +42,12 @@ class MultiGame implements IScreen {
 		playerTwo = new Rod(rod_image2)
 		ball = new Ball(ball_image)
 
-		p5.fill("white")
+		p5.fill(net.white ? "white" : "black")
 		p5.textAlign("center")
 	}
 
 	screenLoop(p5: P5): boolean {
-		p5.background("black")
+		p5.background(net.white ? "black" : "white")
 		ball.update(playerOne)
 		playerOne.draw(p5, net.myRod)
 		playerTwo.draw(p5, net.otherRod)
@@ -82,17 +82,29 @@ class MultiGame implements IScreen {
 
 	setKeyPressed(p5: P5) {
 		if (p5.key === "w" || p5.key == "z" || p5.key === "ArrowUp") {
-			playerOne.goUp = true
+			if (net.white)
+				playerOne.goUp = true
+			else
+				playerOne.goDown = true
 		} else if (p5.key === "s" || p5.key === "ArrowDown") {
-			playerOne.goDown = true
+			if (net.white)
+				playerOne.goDown = true
+			else
+				playerOne.goUp = true
 		}
 	}
 
 	setKeyReleased(p5: P5) {
 		if (p5.key === "w" || p5.key == "z" || p5.key === "ArrowUp") {
-			playerOne.goUp = false
+			if (net.white)
+				playerOne.goUp = false
+			else
+				playerOne.goDown = false
 		} else if (p5.key === "s" || p5.key === "ArrowDown") {
-			playerOne.goDown = false
+			if (net.white)
+				playerOne.goDown = false
+			else
+				playerOne.goUp = false
 		}
 	}
 }

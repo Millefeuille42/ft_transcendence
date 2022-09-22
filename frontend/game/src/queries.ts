@@ -1,6 +1,4 @@
 import axios from "axios";
-import {getCookies} from "typescript-cookie";
-import net from "./net";
 
 export interface userDataIn {
 	login: string,
@@ -31,6 +29,7 @@ export interface gameUserData {
 }
 
 export async function getUserData(login: string): Promise<userDataIn> {
+	console.log(process.env.NODE_ENV_BACK_URL)
 	return axios.get(process.env.NODE_ENV_BACK_URL + "/user/" + login + "/profile", {
 			withCredentials: true,
 		})

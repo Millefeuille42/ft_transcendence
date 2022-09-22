@@ -17,6 +17,7 @@ class Ready implements IScreen {
 
 	async loadData() {
 		await getUserData(net.userLogin).then((data) => {
+			console.log(data)
 			this.me = data
 		})
 		await getUserData(net.match.login).then((data) => {
@@ -46,7 +47,7 @@ class Ready implements IScreen {
 	}
 
 	screenLoop(p5: P5): boolean {
-		p5.background('black')
+		p5.background(net.white ? "black" : "white")
 		if (net.matchStart) {
 			if (this.multiGame === undefined) {
 				this.multiGame = new MultiGame (

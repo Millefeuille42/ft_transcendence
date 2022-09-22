@@ -1,9 +1,12 @@
+// noinspection JSSuspiciousNameCombination
+
 import P5 from "p5"
 import Button from "./classes/genericClasses/Button";
 import LocalGame from "./games/LocalGame";
 import Menu from "./games/Addons/Menu";
 import Prompt from "./games/Addons/Prompt";
 import Matchmaking from "./games/Addons/Matchmaking";
+import net from "./net";
 
 let MultiMenu: Menu
 let MainMenu: Menu
@@ -28,7 +31,7 @@ export const sketch = (p5: P5) => {
 		const canvas = p5.createCanvas(c_width, c_height)
 		canvas.parent("app")
 		p5.frameRate(60)
-		p5.background("black")
+		p5.background(net.white ? "black" : "white")
 		p5.textAlign("center")
 
 		SpectatePrompt = new Prompt("Enter room code", (val: string) => { console.log(val) })

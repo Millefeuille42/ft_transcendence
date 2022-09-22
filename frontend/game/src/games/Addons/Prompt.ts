@@ -1,6 +1,6 @@
 import IScreen from "../../interfaces/IScreen";
 import P5 from "p5";
-import {getOnlineText} from "../../net";
+import net, {getOnlineText} from "../../net";
 import {createButton, createPrompt} from "../../elements";
 
 class Prompt implements IScreen {
@@ -26,10 +26,10 @@ class Prompt implements IScreen {
 			return true
 		}
 
-		p5.background("black")
+		p5.background(net.white ? "black" : "white")
 
-		p5.fill("white")
-		p5.stroke("black")
+		p5.fill(net.white ? "white" : "black")
+		p5.stroke(net.white ? "black" : "white")
 		p5.textSize(p5.width / 20)
 		p5.text(this.title, 0, p5.height / 5, p5.width)
 

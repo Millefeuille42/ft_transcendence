@@ -4,7 +4,7 @@
 				<div id="game" style="width: 98%; height: 98%; margin-top: auto; margin-bottom: auto">
 					<iframe width="100%" height="100%"
 							style="border: 0"
-							src="https://google.com" > Browser not compatible </iframe>
+							:src="`http://localhost:1234?login=${user.login}&token=${session}`" > Browser not compatible </iframe>
 				</div>
 			</v-sheet>
 		<v-sheet height="30%" width="100%" class="d-flex mt-auto flex-row">
@@ -35,6 +35,7 @@ import {EventBus} from "@/main";
 		user: Object
 	},
 	data: () => ({
+		session: "",
 		canvas: Object,
 		stats: {},
 		loaded: false,
@@ -55,6 +56,7 @@ import {EventBus} from "@/main";
 		},
 	},
 	mounted() {
+		this.$data.session = this.$cookies.get("Session")
 		setTimeout(() => {
 			this.$socket.emit('auth', {
 				token: this.$cookies.get("Session"),

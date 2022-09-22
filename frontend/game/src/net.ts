@@ -1,6 +1,4 @@
 import {io, Socket} from "socket.io-client";
-import matchmaking from "./games/Addons/Matchmaking";
-import MultiGame from "./games/MultiGame";
 import myVector from "./classes/genericClasses/MyVector";
 
 interface connection {
@@ -16,6 +14,7 @@ interface connection {
 	userReady: boolean
 	matchStart: boolean,
 	ask: boolean
+	white: boolean
 	match: {
 		login: string
 		id: string
@@ -31,6 +30,7 @@ let net: connection = {
 	socket: io(process.env.NODE_ENV_BACK_URL),
 	hasError: false,
 	auth: false,
+	white: true,
 	opponentReady: false,
 	userReady: false,
 	hasMatchUp: false,
@@ -48,6 +48,8 @@ let net: connection = {
 
 net.socket.on('connect', () => {
 	console.log("Connected")
+	let u = new URL(window.location.toString())
+	console.log(u.searchParams.get("login"), u.searchParams.get("token"))
 	net.hasError = false
 })
 
@@ -61,6 +63,8 @@ net.socket.on('connect_error', () => {
 
 net.socket.on('multiAuth', (valid: boolean) => {
 	console.log("AUTH")
+	let u = new URL(window.location.toString())
+	console.log(u.searchParams.get("login"), u.searchParams.get("token"))
 	net.auth = valid
 })
 
