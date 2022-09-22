@@ -174,6 +174,7 @@ export class ChatService {
 		const mess = await this.addMessage(user.id, "channel", message, chan.id)
 		chan.messages.push(mess)
 		await this.channelRepository.save(chan)
+		return mess
 	}
 
 	async sendDM(from: string, to: string, message: string) {

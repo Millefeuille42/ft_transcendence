@@ -85,9 +85,10 @@ interface unmuteOrUnban {
 				throw new ForbiddenException("User is not in the channel")
 			const channel = await this.chatService.getChannel(data.channel)
 
-			await this.chatService.sendMessage(this.sockUser[client.id], channel.name, data.message)
+			const mess = await this.chatService.sendMessage(this.sockUser[client.id], channel.name, data.message)
 
 			const payload = {
+				id: mess.id,
 				login: user.login,
 				message: data.message,
 				avatar: user.avatar,
