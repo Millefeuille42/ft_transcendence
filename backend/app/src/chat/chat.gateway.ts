@@ -183,6 +183,7 @@ interface unmuteOrUnban {
 		}
 	}
 
+	  //Data -> Channel (string), target (string), until (Date)
 	@SubscribeMessage('mute')
 	  async muteSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
@@ -190,15 +191,13 @@ interface unmuteOrUnban {
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
 				throw new NotFoundException("Socket isn't link with a user")
-			let now = new Date()
-			now.setSeconds(now.getSeconds() + 20)
-			await this.chatService.muteSomeone(data.channel, this.sockUser[client.id], data.target, now)
+			await this.chatService.muteSomeone(data.channel, this.sockUser[client.id], data.target, data.until)
 
 			const payload = {
 				channel: data.channel,
 				mutedBy: this.sockUser[client.id],
 				target: data.target,
-				until: /*data.until*/ now
+				until: data.until
 			}
 			this.server.emit('mute', payload)
 		}
@@ -207,6 +206,7 @@ interface unmuteOrUnban {
 		}
 	}
 
+	//Data -> Channel (string), target (string), until (Date)
 	  @SubscribeMessage('ban')
 	  async banSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		  try {
@@ -214,12 +214,12 @@ interface unmuteOrUnban {
 				  throw new NotFoundException("Socket doesn't exist")
 			  if (this.sockUser[client.id] === "")
 				  throw new NotFoundException("Socket isn't link with a user")
-			  //Call la bonne fonction
+			  await this.chatService.banSomeone(data.channel, this.sockUser[client.id], data.target, data.until)
 			  const payload = {
 				  channel: data.channel,
 				  bannedBy: this.sockUser[client.id],
 				  target: data.target,
-				  //until
+				  until: data.until
 			  }
 			  this.server.emit('ban', payload)
 		  }

@@ -99,6 +99,9 @@ export class ChatService {
 			throw new NotFoundException("Channel not found")
 		const user = await this.userService.getUser(login)
 
+		if (await this.isBan(channel, login))
+			throw new UnauthorizedException("User is ban of this channel")
+
 		if (await this.isInChannel(channel, login))
 			throw new ConflictException('User is already in the channel')
 		if (chan.public === false) {
@@ -166,10 +169,31 @@ export class ChatService {
 		return await this.dmRepository.save(chan)
 	}
 
+	async isBan(channel: string, login: string) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['ban']})
+		const user = await this.userService.getUser(login)
+
+		if (chan.ban.find((u) => u.userId === user.id))
+			return true
+		return false
+	}
+
+	async isMute(channel: string, login: string) {
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['mute']})
+		const user = await this.userService.getUser(login)
+
+		if (chan.mute.find((u) => u.userId === user.id))
+			return true
+		return false
+	}
+
 	async sendMessage(from: string, channel: string, message: string) {
 		const user = await this.userService.getUser(from)
 		if (!await this.isInChannel(channel, from))
 			throw new UnauthorizedException("User is not in the channel")
+
+		if (await this.isMute(channel, from))
+			throw new UnauthorizedException("User is mute")
 
 		const chan = (await this.channelRepository.find({where: {name: channel}, relations: ['messages']}))[0]
 		const mess = await this.addMessage(user.id, "channel", message, chan.id)
