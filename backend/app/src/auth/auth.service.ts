@@ -122,19 +122,16 @@ export class AuthService {
 		const uuidSession = await this.userService.getUuidSession(login)
 
 		if (!token) {
-			console.log('token')
 			if (uuid === uuidSession)
 				await this.userService.deleteUuidSession(login)
 			return false ;
 		}
 		if (uuidSession !== uuid) {
-			console.log('uuid')
 			return false
 		}
 
 		const ret: boolean = await this.meRequest(token);
 		if (!ret) {
-			console.log('me request')
 			await this.userService.deleteToken(login)
 			await this.userService.deleteUuidSession(login)
 			return false
