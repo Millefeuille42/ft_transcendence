@@ -24,11 +24,9 @@ export class IsAuthMiddleware implements NestMiddleware {
       // const uuidSession = await this.userService.getUuidSession(login)
       // if (!token || !uuidSession)
       //   throw new HttpException("Va chercher un cookie wesh", 401)
-     // console.log("from localhost")
      // next();
      // return ;
     }
-    console.log(login, uuid)
     if (!login || !uuid) {
       res.statusCode = 401
       throw new HttpException("User don't have cookies", 401) ;

@@ -30,7 +30,6 @@ export class MultiService {
 		let other: string
 		let key: string
 		matches.forEach((val, k) => {
-			console.log(val.first.login, val.second.login)
 			if (val.first.login === login) {
 				val.second.socket.emit("multiError", this.ERR_OPPONENT)
 				other = val.second.socket.id

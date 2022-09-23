@@ -166,12 +166,10 @@ interface messageData {
 		})
 		EventBus.$on('newDm', (dm: {from: string, to: string, message: string}) => {
 			if (dm.from !== this.$props.current.name && dm.to !== this.$props.current.name) {
-				console.log("Differ")
 				return
 			}
 			getUserByUser(this.$props.login, dm.from).then((uData: smolUserData) => {
 				if (uData.isBlocked) {
-					console.log("Blocked")
 					return
 				}
 				let message: messageData = {} as messageData

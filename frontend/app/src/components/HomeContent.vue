@@ -66,7 +66,6 @@ import {EventBus} from "@/main";
 	},
 	sockets: {
 		userStatus() {
-			console.log("HERE")
 			EventBus.$emit("updateOnlineList")
 			setTimeout(() => {
 				EventBus.$emit("updateFriendStatus")

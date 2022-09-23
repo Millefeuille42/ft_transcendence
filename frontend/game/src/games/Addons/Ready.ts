@@ -17,7 +17,6 @@ class Ready implements IScreen {
 
 	async loadData() {
 		await getUserData(net.userLogin).then((data) => {
-			console.log(data)
 			this.me = data
 		})
 		await getUserData(net.match.login).then((data) => {

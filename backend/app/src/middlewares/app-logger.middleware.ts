@@ -12,7 +12,6 @@ export class AppLoggerMiddleware implements NestMiddleware {
 
     const {headers, method, originalUrl: url} = req;
     if (headers["poussifeu"] && headers["poussifeu"] === this.configService.get('SECRET_PASSWORD')) {
-      console.log("INIT")
       next()
       return
     }

@@ -14,10 +14,8 @@ async function bootstrap() {
 		credentials: true,
 		origin: (requestOrigin, callback) => {
 			if (!requestOrigin || whiteList.indexOf(requestOrigin) !== -1) {
-				console.log("CORS OK")
 				callback(null, requestOrigin)
 			} else {
-				console.log("Denied by CORS")
 				callback(null, false)
 			}
 		},

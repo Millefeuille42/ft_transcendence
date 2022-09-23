@@ -41,7 +41,6 @@ export class ChatService {
 		const user = await this.userService.getUser(newChannel.owner)
 		let pass = ""
 		if (newChannel.public === false && (newChannel.password && newChannel.password !== "")) {
-			console.log(newChannel.password)
 			const salt = await bcrypt.genSalt()
 			pass = await bcrypt.hash(newChannel.password, salt)
 		}
@@ -130,7 +129,6 @@ export class ChatService {
 		if (await this.isAdmin(channel, login))
 			throw new ConflictException('Admins cannot leave channel')
 		chan.users = chan.users.filter((u) => u !== user.id)
-		console.log(chan.users)
 		await this.channelRepository.save(chan).catch(() => {
 			throw new InternalServerErrorException('Unexpected error')
 		})

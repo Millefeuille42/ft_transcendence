@@ -55,7 +55,6 @@ class Menu implements IScreen {
 			return
 		}
 
-		console.log(p5.key)
 		if (p5.key === "2") {
 			net.white = true
 		}

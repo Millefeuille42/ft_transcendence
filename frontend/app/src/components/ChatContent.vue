@@ -82,14 +82,12 @@ interface messageData {
 			})
 		},
 		userStatus() {
-			console.log("HERE")
 			EventBus.$emit("updateOnlineList")
 			setTimeout(() => {
 				EventBus.$emit("updateFriendStatus")
 			}, 100)
 		},
 		dm(data: {from: string, to: string, message: string}) {
-			console.log("hey")
 			EventBus.$emit("newDm", data)
 		},
 		auth(data) {
@@ -107,7 +105,6 @@ interface messageData {
 			EventBus.$emit('chanUpdate')
 		},
 		ban(data: {bannedBy: string, target: string, channel: string}) {
-			console.log(data.channel)
 			if (data.target === this.$props.user.login) {
 				this.handleChange({})
 				this.showSnack("You have been banned from " + data.channel + " by " + data.bannedBy, "red")

@@ -88,8 +88,6 @@ import {EventBus} from "@/main";
 		handleBan() {
 			let d = new Date()
 			d.setMinutes(d.getMinutes() + this.$data.banTime)
-			console.log(d)
-			console.log({
 				channel: this.$props.channel,
 				target: this.$data.selectedUser,
 				until: d

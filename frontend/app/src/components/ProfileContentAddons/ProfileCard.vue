@@ -105,7 +105,6 @@ import * as Console from "console";
 		this.$data.loaded = false
 		await getUserStats(this.$props.user.login)
 			.then((stats: statsIn) => {
-				console.log(stats)
 				this.$data.stats = stats
 			})
 			.catch((e) => {

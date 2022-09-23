@@ -105,18 +105,15 @@ import ProfileSettingsAuthSecurity
 
 			try {
 				if (this.$data.formUsername.length <= 12) {
-					console.log("username")
 					await postForm({username: this.$data.formUsername}, this.$props.user.login)
 				}
 				if (this.$data.formAvatar) {
-					console.log("ava")
 					await encode(this.$data.formAvatar).then(async av => {
 						await postForm({avatar: av}, this.$props.user.login)
 					})
 					this.$data.formAvatar = undefined
 				}
 				if (this.$data.formBanner) {
-					console.log("banner")
 					await encode(this.$data.formBanner).then(async ban => {
 						await postForm({banner: ban}, this.$props.user.login)
 					})
