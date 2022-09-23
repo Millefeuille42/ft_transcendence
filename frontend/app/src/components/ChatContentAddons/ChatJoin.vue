@@ -19,6 +19,7 @@
 		<v-dialog persistent max-width="300px" dark v-model="showInvite">
 			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
 				<v-text-field class="mr-auto ml-auto"
+							  :counter="12"
 							  :style="'width: 80%;'"
 							  v-model="invitePrompt"
 							  label="Enter login"
@@ -32,6 +33,7 @@
 		<v-dialog persistent max-width="300px" dark v-model="showDm">
 			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
 				<v-text-field class="mr-auto ml-auto"
+							  :counter="12"
 							  :style="'width: 80%;'"
 							  v-model="dmPrompt"
 							  label="Enter login"
@@ -49,12 +51,14 @@
 				</v-sheet>
 				<v-sheet v-if="joinDisplayPasswordPrompt" width="80%" class="d-flex flex-row align-center">
 					<v-text-field
+						:counter="12"
 						:style="'width: 50%;'"
 						label="Password"
 						v-model="joinPasswordPrompt"
 					></v-text-field>
 				</v-sheet>
 				<v-text-field v-if="!noExist && !joinDisplayPasswordPrompt"
+							  :counter="12"
 							  class="mr-auto ml-auto"
 							  :style="'width: 80%;'"
 							  v-model="joinPrompt"
@@ -76,6 +80,7 @@
 							class="shrink mr-2 mt-0"
 						></v-checkbox>
 						<v-text-field
+							:counter="12"
 							:style="'width: 50%;'"
 							:disabled="!createHasPassword || createPublic"
 							label="Password"
@@ -119,6 +124,10 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 	},
 	methods: {
 		sendInvite() {
+			if (this.$data.invitePrompt.length >= 12 || this.$data.invitePrompt.length <= 0) {
+				this.showSnack("Invalid login", "red")
+				return;
+			}
 			if (this.$data.invitePrompt === "") {
 				this.showSnack("Invalid login", "red")
 				return
@@ -129,6 +138,10 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 			this.resetFields()
 		},
 		sendNewDm() {
+			if (this.$data.dmPrompt.length >= 12 || this.$data.dmPrompt.length <= 0) {
+				this.showSnack("Invalid login", "red")
+				return;
+			}
 			if (this.$data.dmPrompt === "") {
 				this.showSnack("Invalid login", "red")
 				return
@@ -166,6 +179,11 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 			this.$emit('onLeave')
 		},
 		handleJoin() {
+			if (this.$data.joinPrompt.length >= 12 || this.$data.joinPrompt.length <= 0) {
+				this.showSnack("Invalid channel name", "red")
+				return;
+			}
+
 			if (this.$data.joinPrompt === "") {
 				this.showSnack("Invalid channel name", "red")
 				return
@@ -205,7 +223,7 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 						return
 					}
 					if (e.response) {
-						if (e.response.status >= 401 && e.response.status <= 404) {
+						if (e.response.status >= 400 && e.response.status <= 404) {
 							this.$cookies.remove("Session")
 							RedirectToFTAuth()
 							return
@@ -222,6 +240,8 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 					return
 				}
 				pass = this.$data.createPasswordPrompt
+			} else {
+				this.$data.createPasswordPrompt = ""
 			}
 			createChannel(this.$data.joinPrompt, this.$props.user.login, this.$data.createPublic, pass)
 				.then(() => {
@@ -233,7 +253,11 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 							this.showSnack("This channel already exists", "red")
 							return
 						}
-						if (e.response.status >= 401 && e.response.status <= 403) {
+						if (e.response.status == 400) {
+							this.showSnack("Invalid channel name", "red")
+							return;
+						}
+						if (e.response.status >= 400 && e.response.status <= 403) {
 							this.$cookies.remove("Session")
 							RedirectToFTAuth()
 							return

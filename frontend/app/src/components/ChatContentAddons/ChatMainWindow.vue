@@ -26,6 +26,7 @@
 				<v-text-field
 					:disabled="!hasCurrent"
 					class="justify-end"
+					:counter="140"
 					:label="current.name"
 					v-model="text"
 				></v-text-field>
@@ -147,6 +148,10 @@ interface messageData {
 			})
 		},
 		handleSend() {
+			if (this.$data.text.length <= 0 || this.$data.text.length > 140) {
+				EventBus.$emit("chatSnack", "Invalid message", "red")
+				return
+			}
 			this.$emit("messageSend", this.$data.text)
 			this.$data.text  = ""
 		}

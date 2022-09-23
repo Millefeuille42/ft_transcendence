@@ -19,6 +19,7 @@
 					></v-checkbox>
 					<v-text-field
 						:style="'width: 50%;'"
+						:counter="12"
 						:disabled="!createHasPassword || createPublic"
 						label="Password"
 						v-model="createPasswordPrompt"
@@ -49,7 +50,7 @@ import {EventBus} from "@/main";
 	}),
 	methods: {
 		handleSend() {
-			if (this.$data.createHasPassword && this.$data.createPasswordPrompt === "") {
+			if (this.$data.createHasPassword && (this.$data.createPasswordPrompt === "" || this.$data.createPasswordPrompt.length < 12)) {
 				EventBus.$emit("chatSnack", "Invalid password", "red")
 			}
 			let pass = this.$data.createHasPassword ? this.$data.createPasswordPrompt : undefined

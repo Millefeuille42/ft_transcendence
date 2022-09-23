@@ -88,10 +88,6 @@ import {EventBus} from "@/main";
 		handleBan() {
 			let d = new Date()
 			d.setMinutes(d.getMinutes() + this.$data.banTime)
-				channel: this.$props.channel,
-				target: this.$data.selectedUser,
-				until: d
-			})
 			this.$socket.emit('ban', {
 				channel: this.$props.channel,
 				target: this.$data.selectedUser,

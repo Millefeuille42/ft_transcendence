@@ -13,6 +13,7 @@
 		></v-text-field>
 		<v-file-input
 			show-size
+			ref="sexe"
 			v-model="formAvatar"
 			class="mr-auto ml-auto"
 			:style="'width: ' + ($vuetify.breakpoint.mobile ? '100%' : '70%' )+ ';'"
@@ -37,7 +38,7 @@
 					mdi-receipt-text-check-outline
 				</v-icon>
 			</v-btn>
-			<v-btn @click="faButton = true"
+			<v-btn @click="handleFA"
 				   :color="user.fa ? 'green' : ''"
 				   class="ml-4"
 				   width="20%"
@@ -49,7 +50,7 @@
 			</v-btn>
 		</v-sheet>
 		<v-dialog v-if="!reload" v-model="faButton" width="90%" max-width="400px" dark>
-			<ProfileSettingsAuthSecurity @faStatus="changeFa" :user="user" />
+			<ProfileSettingsAuthSecurity v-if="faButton" @faStatus="changeFa" :user="user" />
 		</v-dialog>
 		<v-snackbar v-model="snackShow" :color="snackColor" timeout="2000" > {{ snackText }} </v-snackbar>
 	</v-form>
@@ -72,7 +73,7 @@ import ProfileSettingsAuthSecurity
 		formBanner: undefined as unknown as File,
 		formProfilePic: "",
 		usernameRules: [
-			(v: string) => v.length <= 12 || 'Username must be less than 12 characters'
+			(v: string) => v.length < 12 || 'Username must be less than 12 characters'
 		],
 		snackShow: false,
 		snackText: "",
@@ -85,59 +86,93 @@ import ProfileSettingsAuthSecurity
 		user: Object
 	},
 	methods: {
+		handleFA() {
+			this.$data.faButton = true
+		},
 		showSnack(text: string, color: string) {
 			this.$data.snackColor = color
 			this.$data.snackText = text
 			this.$data.snackShow = true
 		},
 		async formCheck() {
+			let that = this
+			this.$data.valid = true
+
+			if (this.$data.formAvatar) {
+				this.$data.formAvatar.onload = function () {
+					console.log("fersses")
+					if (!this.width) {
+						that.$data.valid = false
+					}
+				};
+			}
+
+			if (this.$data.formBanner) {
+				this.$data.formBanner.onload = function () {
+					if (!this.width) {
+						that.$data.valid = false
+					}
+				};
+			}
+
+
 			if (!this.$data.valid) {
+				this.$data.valid = true
 				this.showSnack("Invalid data in the form", "red")
 				return
 			}
-      let type
 			const encode = (file: File) => new Promise<string>((resolve, reject) => {
 				const reader = new FileReader();
 				reader.readAsDataURL(file);
 				reader.onload = (() => {
-          resolve(reader.result as string)
-          const arr = (new Uint8Array(<any>reader.result)).subarray(0, 4)
-          let header = ''
-          for (let i = 0; i < arr.length; i++) {
-            header += arr[i].toString(16)
-          }
-          switch (header) {
-            case '8950e47':
-              type = "image/png";
-              break
-            case 'ffd8ffe0':
-            case 'ffd8ffe1':
-            case 'ffd8ffe2':
-            case 'ffd8ffe3':
-            case 'ffd8ffe8':
-              type = 'image/jpeg';
-              break;
-            default:
-              type = 'unknown';
-              break;
-          }
-        });
+					resolve(reader.result as string)
+				});
 				reader.onerror = error => reject(error);
 			})
 
+			const toBuffer = (file: any) => new Promise<ArrayBuffer>((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = (() => {
+					resolve(reader.result as ArrayBuffer)
+				});
+				reader.readAsArrayBuffer(file)
+				reader.onerror = error => reject(error);
+			})
+
+			const check = (file: ArrayBuffer) => new Promise<Boolean>((resolve, reject) => {
+				let bytes = new Uint8Array(file);
+				if ((bytes[0] == 0xFF) && (bytes[1] == 0xD8))
+					resolve(true)
+				else if ((bytes[0] == 0x89) && (bytes[1] == 0x50))
+					resolve(true)
+				else
+					resolve(false)
+			})
+
 			try {
-        if (type === 'unknown')
-          throw new Error("Wrong format for image")
-				if (this.$data.formUsername.length <= 12) {
+				if (this.$data.formUsername.length <= 0 || this.$data.formUsername.length >= 12 || this.$data.formUsername === this.$props.user.username) {
+					throw new Error("T'as cru quoi (feur)")
+				}
+				if (this.$data.formUsername.length < 12) {
 					await postForm({username: this.$data.formUsername}, this.$props.user.login)
 				}
 				if (this.$data.formAvatar) {
+					let buf = await toBuffer(this.$data.formAvatar)
+					let ok = await check(buf)
+					if (!ok) {
+						throw new Error("T'as cru quoi (feur)")
+					}
 					await encode(this.$data.formAvatar).then(async av => {
 						await postForm({avatar: av}, this.$props.user.login)
 					})
 					this.$data.formAvatar = undefined
 				}
 				if (this.$data.formBanner) {
+					let buf = await toBuffer(this.$data.formAvatar)
+					let ok = await check(buf)
+					if (!ok) {
+						throw new Error("T'as cru quoi (feur)")
+					}
 					await encode(this.$data.formBanner).then(async ban => {
 						await postForm({banner: ban}, this.$props.user.login)
 					})
