@@ -66,7 +66,7 @@ import {getInventoryByCategory, getEquippedByCategory, RedirectToFTAuth} from "@
 					that.sortItems()
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -82,7 +82,7 @@ import {getInventoryByCategory, getEquippedByCategory, RedirectToFTAuth} from "@
 					that.$data.currentItem = inv
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return

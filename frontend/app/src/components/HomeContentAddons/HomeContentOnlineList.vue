@@ -110,7 +110,6 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch((e) => {
-					// TODO manage error
 					if (e.response === undefined) {
 						return
 					}
@@ -118,6 +117,9 @@ import {EventBus} from "@/main";
 						this.showSnack(friend.info.login + " not found", "red")
 					else if (e.response.status === 400)
 						this.showSnack(friend.info.login + " is already your friend", "red")
+					else if (e.response) {
+						EventBus.$emit("chatSnack", e.response.data.message, "red")
+					}
 					friend.friendLoading = false
 				})
 		},

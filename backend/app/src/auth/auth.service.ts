@@ -101,6 +101,7 @@ export class AuthService {
 		await this.userService.initSession(userData.login, access_token)
 		const us = await this.userService.userExist(userData.login)
 		if (us) {
+			await this.userService.checkUser(userData.login)
 			await this.userService.changeOnline(userData.login, {online: true})
 			return (userData.login);
 		}

@@ -41,7 +41,6 @@ class Ready implements IScreen {
 		this.loadData().then(() => {
 			this.loaded = true
 		}).catch((e) => {
-			console.log(e)
 			window.location.reload()
 		})
 	}

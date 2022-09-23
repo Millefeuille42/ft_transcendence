@@ -56,7 +56,6 @@ import {EventBus} from "@/main";
 			let pass = this.$data.createHasPassword ? this.$data.createPasswordPrompt : undefined
 			editPrivacy(this.$props.currentChan, this.$props.login, this.$data.createPublic, pass).catch((e) => {
 				if (e.response) {
-					console.log(e.response)
 					EventBus.$emit("chatSnack", e.response.data.message, "red")
 				}
 			})

@@ -9,6 +9,7 @@ import {Component, Vue} from "vue-property-decorator";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import {userDataIn} from "@/queriesData";
 import {getUserData} from "@/queries";
+import {EventBus} from "@/main";
 
 @Component({
 	components: {ProfileCard},
@@ -24,7 +25,9 @@ import {getUserData} from "@/queries";
 			this.$data.user = data
 			this.$data.loadedUser = true
 		}).catch((e) => {
-			console.log(e)
+			if (e.response) {
+				EventBus.$emit("chatSnack", e.response.data.message, "red")
+			}
 		})
 	}
 })

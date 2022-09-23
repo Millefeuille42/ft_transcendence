@@ -99,14 +99,14 @@ import {EventBus} from "@/main";
 					}, 3000);
 				})
 				.catch((e) => {
-					if (e.response.status == "442") {
+					if ( e.response && e.response.status == "442") {
 						this.$data.loadedItem = true
 						this.showSnack("You are out of points!", "red")
 						this.loadUserStats()
 						this.loadUserHistory()
 						return
 					}
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if ( e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -140,7 +140,7 @@ import {EventBus} from "@/main";
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
