@@ -154,6 +154,14 @@ export class UserService implements OnModuleInit {
 	}
 
 	async getUser(login: string) {
+		for (let i = 0; login.length; i++) {
+			let code = login.charCodeAt(i);
+			if (!(code > 47 && code < 58) && // numeric (0-9)
+				!(code > 64 && code < 91) && // upper alpha (A-Z)
+				!(code > 96 && code < 123)) { // lower alpha (a-z)
+				throw new BadRequestException("Bad characters");
+			}
+		}
 		return await this.verificationUser(login) ;
 	}
 
@@ -253,6 +261,14 @@ export class UserService implements OnModuleInit {
 		const user = await this.getUser(login)
 		if (change.username.length > 12)
 			throw new BadRequestException()
+		for (let i = 0; i < change.username.length; i++) {
+			let code = change.username.charCodeAt(i);
+			if (!(code > 47 && code < 58) && // numeric (0-9)
+				!(code > 64 && code < 91) && // upper alpha (A-Z)
+				!(code > 96 && code < 123)) { // lower alpha (a-z)
+				throw new BadRequestException("Bad characters");
+			}
+		}
 		const loginOtherUser = await this.isUsernameExist(change.username)
 		if (loginOtherUser.userExist && user.username !== change.username) {
 			if (change.username === login) {

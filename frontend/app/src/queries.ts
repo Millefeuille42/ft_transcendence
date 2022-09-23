@@ -82,16 +82,19 @@ export async function getFriendsList(login: string): Promise<friendListIn> {
     }
 }
 
-export async function getFriendStatus(friend: string): Promise<string> {
-    let target: string = process.env.VUE_APP_BACK_URL + "/user/"
-    target += friend + "/status"
+export async function getFriendStatus(login: string, friend: string): Promise<string> {
+   // let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
+   // target += login + "/" + friend + "/online"
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/" + friend + "/online"
     try {
         let response = await axios( {
             method: 'get',
             url: target,
             withCredentials: true,
         })
-        return response.data.status
+        if (response.data === true)
+            return 'online'
+        return 'offline'
     } catch (e) {
         throw e
     }
@@ -209,7 +212,6 @@ export async function getUserStats(login: string): Promise<statsIn> {
         url: target,
         withCredentials: true
     }).then((response) => {
-        console.log(response)
         return response.data
     }).catch((e) => {
         throw e

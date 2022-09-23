@@ -354,7 +354,6 @@ export class MultiGateway {
 			return
 		}
 		while (this.operateQ) {
-			console.log("Waiting")
 			await setTimeout(()=>{},500)
 		}
 		this.operateQ = true
@@ -371,7 +370,6 @@ export class MultiGateway {
 			this.matchQ.enqueue(makePair(client, this.users[client.id]) as socketLoginPair)
 		}
 		if (this.matchQ.size() >= 2) {
-			console.log("matchup")
 			let one = this.matchQ.dequeue()
 			let two = this.matchQ.dequeue()
 			let match_id = uuid()

@@ -53,7 +53,6 @@ interface unmuteOrUnban {
 	}
 
 	async handleConnection(client: Socket) {
-		console.log("New connection :", client.id)
 		if (!this.sockUser[client.id])
 			client.emit('error', "Socket already used")
 		else
@@ -61,7 +60,6 @@ interface unmuteOrUnban {
 	}
 
 	async handleDisconnect(client: Socket) {
-		console.log(this.sockUser[client.id])
 		if (this.sockUser[client.id]) {
 			await this.userService.changeOnline(this.sockUser[client.id], {online: false})
 			this.server.emit('userStatus', {login: this.sockUser[client.id]})
@@ -136,7 +134,6 @@ interface unmuteOrUnban {
 	@SubscribeMessage('join')
 	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
-			console.log(data)
 			if (!data.channel || (!data.password && data.password !== ""))
 				throw new BadRequestException("Bad request to join")
 			if (!this.sockUser[client.id])
@@ -157,7 +154,6 @@ interface unmuteOrUnban {
 	//data -> channel (String)
 	@SubscribeMessage('leave')
 	  async leaveChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
-		console.log(data)
 		try {
 			if (!data.channel)
 				throw new BadRequestException("Bad request to leave")
@@ -249,7 +245,6 @@ interface unmuteOrUnban {
 	//Data -> Channel (string), target (string), until (Date)
 	  @SubscribeMessage('ban')
 	  async banSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
-		console.log(data)
 		  try {
 			  if (!data.channel || !data.target || !data.until)
 				  throw new BadRequestException("Bad request to ban")

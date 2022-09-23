@@ -57,41 +57,33 @@ let net: connection = {
 }
 
 net.socket.on('connect', () => {
-	console.log("Connected")
 	let u = new URL(window.location.toString())
-	console.log(u.searchParams.get("login"), u.searchParams.get("token"))
 	net.hasError = false
 })
 
 net.socket.on('disconnect', () => {
-	console.log("Disconnected")
 })
 
 net.socket.on('connect_error', () => {
-	console.log("Error while establishing connection")
 })
 
 net.socket.on('multiAuth', (valid: boolean) => {
-	console.log("AUTH")
 	if (!valid)
 		net.hasError = true
 	net.auth = valid
 })
 
 net.socket.on('multiMatchUp', (data: {login: string, id: string}) => {
-	console.log("MATCHUP")
 	net.hasMatchUp = true
 	net.match = data
 })
 
 net.socket.on('multiReady', (data: {login: string, ready: boolean}) => {
-	console.log("READY")
 	if (data.login === net.match.login)
 		net.opponentReady = data.ready
 })
 
 net.socket.on('multiStart', () => {
-	console.log("Start")
 	net.matchStart = true
 })
 
@@ -117,14 +109,11 @@ net.socket.on('multiSpec', (data: {started: boolean, ball: myVector, myRod: myVe
 })
 
 net.socket.on('multiStop', () => {
-	console.log("stop")
 	net.ask = false
 })
 
 net.socket.on('multiError', (data: {code: number, text: string}) => {
-	console.log("ERROR")
 	if (data.code === 442) {
-		console.log("LEFT")
 		window.location.reload()
 	} else if (data.code === 404) {
 		window.location.reload()

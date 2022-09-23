@@ -61,7 +61,6 @@ class MultiGame implements IScreen {
 				displayGetReady(p5)
 			else {
 				let winner = net.screen === "you" ? this.me.data.username : this.opponent.data.username
-				console.log(net.screen, this.me.data.username, this.opponent.data.username)
 				displayWinner(winner, p5)
 				if (this.sleep)
 					return false

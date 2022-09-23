@@ -95,28 +95,49 @@ import ProfileSettingsAuthSecurity
 				this.showSnack("Invalid data in the form", "red")
 				return
 			}
-
+      let type
 			const encode = (file: File) => new Promise<string>((resolve, reject) => {
 				const reader = new FileReader();
 				reader.readAsDataURL(file);
-				reader.onload = () => resolve(reader.result as string);
+				reader.onload = (() => {
+          resolve(reader.result as string)
+          const arr = (new Uint8Array(<any>reader.result)).subarray(0, 4)
+          let header = ''
+          for (let i = 0; i < arr.length; i++) {
+            header += arr[i].toString(16)
+          }
+          switch (header) {
+            case '8950e47':
+              type = "image/png";
+              break
+            case 'ffd8ffe0':
+            case 'ffd8ffe1':
+            case 'ffd8ffe2':
+            case 'ffd8ffe3':
+            case 'ffd8ffe8':
+              type = 'image/jpeg';
+              break;
+            default:
+              type = 'unknown';
+              break;
+          }
+        });
 				reader.onerror = error => reject(error);
 			})
 
 			try {
+        if (type === 'unknown')
+          throw new Error("Wrong format for image")
 				if (this.$data.formUsername.length <= 12) {
-					console.log("username")
 					await postForm({username: this.$data.formUsername}, this.$props.user.login)
 				}
 				if (this.$data.formAvatar) {
-					console.log("ava")
 					await encode(this.$data.formAvatar).then(async av => {
 						await postForm({avatar: av}, this.$props.user.login)
 					})
 					this.$data.formAvatar = undefined
 				}
 				if (this.$data.formBanner) {
-					console.log("banner")
 					await encode(this.$data.formBanner).then(async ban => {
 						await postForm({banner: ban}, this.$props.user.login)
 					})

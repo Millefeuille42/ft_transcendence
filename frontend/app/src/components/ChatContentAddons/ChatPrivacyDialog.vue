@@ -49,7 +49,6 @@ import {EventBus} from "@/main";
 	}),
 	methods: {
 		handleSend() {
-			console.log(this.$props.currentChan)
 			if (this.$data.createHasPassword && this.$data.createPasswordPrompt === "") {
 				EventBus.$emit("chatSnack", "Invalid password", "red")
 			}

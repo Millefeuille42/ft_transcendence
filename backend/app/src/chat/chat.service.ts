@@ -36,12 +36,19 @@ export class ChatService {
 		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
 		!newChannel.owner)
 			throw new BadRequestException('Missing fields for create Channel')
+		for (let i = 0; i < newChannel.name.length; i++) {
+			let code = newChannel.name.charCodeAt(i);
+			if (!(code > 47 && code < 58) && // numeric (0-9)
+				!(code > 64 && code < 91) && // upper alpha (A-Z)
+				!(code > 96 && code < 123)) { // lower alpha (a-z)
+				throw new BadRequestException("Bad characters");
+			}
+		}
 		if (await this.channelRepository.findOneBy({name: newChannel.name}))
 			throw new ConflictException("Name is already used")
 		const user = await this.userService.getUser(newChannel.owner)
 		let pass = ""
 		if (newChannel.public === false && (newChannel.password && newChannel.password !== "")) {
-			console.log(newChannel.password)
 			const salt = await bcrypt.genSalt()
 			pass = await bcrypt.hash(newChannel.password, salt)
 		}
@@ -59,6 +66,14 @@ export class ChatService {
 	}
 
 	async getChannel(channel: string) {
+		for (let i = 0; i < channel.length; i++) {
+			let code = channel.charCodeAt(i);
+			if (!(code > 47 && code < 58) && // numeric (0-9)
+				!(code > 64 && code < 91) && // upper alpha (A-Z)
+				!(code > 96 && code < 123)) { // lower alpha (a-z)
+				throw new BadRequestException("Bad characters");
+			}
+		}
 		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['messages']})
 		if (!chan)
 			throw new NotFoundException("Channel not found")
@@ -130,7 +145,6 @@ export class ChatService {
 		if (await this.isAdmin(channel, login))
 			throw new ConflictException('Admins cannot leave channel')
 		chan.users = chan.users.filter((u) => u !== user.id)
-		console.log(chan.users)
 		await this.channelRepository.save(chan).catch(() => {
 			throw new InternalServerErrorException('Unexpected error')
 		})

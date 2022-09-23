@@ -105,7 +105,6 @@ import {EventBus} from "@/main";
 			let that = this
 			getFriendStatus(friend)
 				.then (function (onlineData: string) {
-					console.log(onlineData)
 					let fFriend: userDataIn = that.$data.friends.find((f: userDataIn) => f.login === friend)
 					if (fFriend)
 						fFriend.status = onlineData

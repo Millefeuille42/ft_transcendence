@@ -193,7 +193,6 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 							return
 						}
 					}
-					console.log(this.$data.joinPasswordPrompt)
 					this.$socket.emit('join', {
 						channel: this.$data.joinPrompt,
 						password: this.$data.joinPasswordPrompt
