@@ -5,7 +5,17 @@ export interface userDataIn {
     avatar: string,
     status: string
     fa: boolean
+
 }
+
+export interface smolUserData {
+    login: string,
+    avatar: string,
+    username: string,
+    isBlocked: boolean,
+    isFriend: boolean,
+}
+
 
 export interface sessionData {
     cookie: {

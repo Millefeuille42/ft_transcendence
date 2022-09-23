@@ -91,6 +91,9 @@ import {EventBus} from "@/main";
 						this.showSnack(block.info.login + " blocked", "green")
 						block.blockLoading = false
 					}, 100)
+					setTimeout(() => {
+						EventBus.$emit("chatBlocked")
+					}, 100)
 				})
 				.catch(() => {
 					this.showSnack("Failed to block " + block.info.login, "red")

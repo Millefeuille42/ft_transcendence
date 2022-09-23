@@ -51,7 +51,7 @@
 						</v-sheet>
 						{{ banTime }}
 					</v-sheet>
-					<v-btn @click="handleAdmin"> Make Admin </v-btn>
+					<v-btn v-if="isOwner" @click="handleAdmin"> Make Admin </v-btn>
 				</v-sheet>
 			</v-dialog>
 		</v-navigation-drawer>
@@ -66,6 +66,7 @@ import {EventBus} from "@/main";
 @Component({
 	components: {ChatProfileCardLoader},
 	props: {
+		isOwner: Boolean,
 		channel: String,
 		users: [],
 		usersLoaded: Boolean,

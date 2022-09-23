@@ -1,6 +1,6 @@
 <template>
 	<v-container fill-height class="d-flex flex-column justify-center align-center pa-6">
-		<v-btn @click="showGame = true" color="red" class="mt-auto" x-large> PLAY THE GAME LO</v-btn>
+		<v-btn @click="showGame = true" color="red" class="mt-auto" x-large> PLAY </v-btn>
 		<v-dialog dark width="100%" fullscreen v-model="showGame">
 			<v-sheet
 				width="100%"

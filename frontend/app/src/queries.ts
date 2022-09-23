@@ -7,7 +7,7 @@ import {
     formDataOut,
     onlineDataIn,
     blockedListIn,
-    match, sessionData, twoFAInit, getChannelResp, getDmResp, channelData
+    match, sessionData, twoFAInit, getChannelResp, getDmResp, channelData, smolUserData
 } from "@/queriesData"
 
 export async function RedirectToFTAuth() {
@@ -31,7 +31,18 @@ export async function getAuthResponse(): Promise<sessionData> {
 
 export async function getUserData(login: string): Promise<userDataIn> {
     try {
-    const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
+        const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
+            withCredentials: true,
+        })
+        return response.data
+    } catch (e) {
+        throw e
+    }
+}
+
+export async function getUserByUser(from: string, target: string): Promise<smolUserData> {
+    try {
+        const response = await axios.get(process.env.VUE_APP_BACK_URL + `/user/byuser/${target}/${from}`, {
             withCredentials: true,
         })
         return response.data

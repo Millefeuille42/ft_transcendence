@@ -124,8 +124,8 @@ export class UserService implements OnModuleInit {
 		return ({
 			avatar: uToRet.avatar,
 			username: uToRet.username,
-			isBlocked: this.blockedService.isBlocked(u.login, uToRet.login),
-			isFriend: this.friendService.isFriend(u.login, uToRet.login)
+			isBlocked: await this.blockedService.isBlocked(u.login, uToRet.login),
+			isFriend: await this.friendService.isFriend(u.login, uToRet.login)
 		})
 	}
 
