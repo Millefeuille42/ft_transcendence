@@ -1,5 +1,5 @@
 <template>
-	<v-sheet width="30%" height="100%">
+	<v-sheet width="40%" height="100%">
 		<v-sheet color="grey darken-4" elevation="0" rounded="t-xl"
 				 width="100%" height="15%" class="d-flex align-center">
 			<v-container class="text-h6 text-truncate">

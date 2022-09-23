@@ -95,7 +95,17 @@ interface messageData {
 		auth(data) {
 			EventBus.$emit('authSock', data);
 		},
-
+		multiInviteCode(data: {inviteCode: string, to: string}) {
+			if (data.to === "") {
+				this.showSnack("Invalid login", "red")
+				return
+			}
+			this.$socket.emit('dm', {
+				to: data.to,
+				message: data.inviteCode,
+			})
+			EventBus.$emit('chanUpdate')
+		},
 		ban(data: {bannedBy: string, target: string, channel: string}) {
 			console.log(data.channel)
 			if (data.target === this.$props.user.login) {

@@ -1,6 +1,6 @@
 <template>
-	<v-sheet height="100%" class="align-content-end ">
-		<v-sheet id="chatWin" class="overflow-y-auto mt-5 pb-0 pt-0" height="70%">
+	<v-sheet color="transparent" height="100%" class="align-content-end " elevation="0">
+		<v-sheet id="chatWin" class="overflow-y-auto mt-5 pb-0 pt-0" height="65%">
 			<v-list two-line class="">
 				<template v-if="showMessages" >
 					<template v-for="message in messages">
@@ -21,7 +21,7 @@
 									 :indeterminate="loadStatus === 0" color="white" :value="loadStatus"/>
 			</v-list>
 		</v-sheet>
-		<v-sheet color="" width="100%" class="mt-4 d-flex flex-row justify-space-around">
+		<v-sheet color=""  width="100%" class="mt-4 d-flex flex-row justify-space-around">
 			<v-sheet width="70%" color="" class="d-flex flex-column justify-center">
 				<v-text-field
 					:disabled="!hasCurrent"
@@ -32,7 +32,7 @@
 			</v-sheet>
 			<v-btn @click="handleSend" width="10%" class="my-auto"> Send </v-btn>
 		</v-sheet>
-		<v-sheet width="100%" class="d-flex flex-row justify-center">
+		<v-sheet width="100%" color="transparent" class="d-flex flex-row justify-center">
 			<ChatUsersDrawer v-if="!current.isDm" :login="login" :isAdmin="isAdmin" :isOwner="owner === login" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
 			<ChatPrivacyDialog :owner="owner === login" :login="login" :currentChan="current.name"/>
 		</v-sheet>

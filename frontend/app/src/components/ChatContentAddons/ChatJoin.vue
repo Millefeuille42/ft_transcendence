@@ -10,7 +10,25 @@
 					mdi-plus
 				</v-icon>
 			</v-btn>
+			<v-btn  large icon @click="showInvite = true">
+				<v-icon>
+					mdi-mail
+				</v-icon>
+			</v-btn>
 		</v-sheet>
+		<v-dialog persistent max-width="300px" dark v-model="showInvite">
+			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
+				<v-text-field class="mr-auto ml-auto"
+							  :style="'width: 80%;'"
+							  v-model="invitePrompt"
+							  label="Enter login"
+				></v-text-field>
+				<v-sheet width="100%" color="transparent" class="d-flex flex-row justify-space-around mb-4">
+					<v-btn width="30%" @click="sendInvite">Yes</v-btn>
+					<v-btn width="30%" @click="resetFields">Quit</v-btn>
+				</v-sheet>
+			</v-sheet>
+		</v-dialog>
 		<v-dialog persistent max-width="300px" dark v-model="showDm">
 			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
 				<v-text-field class="mr-auto ml-auto"
@@ -84,6 +102,8 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 	data: () => ({
 		showJoin: false,
 		showDm: false,
+		showInvite: false,
+		invitePrompt: "",
 		dmPrompt: "",
 		joinPrompt: "",
 		joinDisplayPasswordPrompt: false,
@@ -98,6 +118,16 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 		user: Object
 	},
 	methods: {
+		sendInvite() {
+			if (this.$data.invitePrompt === "") {
+				this.showSnack("Invalid login", "red")
+				return
+			}
+			this.$socket.emit('multiInviteCode', {
+				to: this.$data.invitePrompt,
+			})
+			this.resetFields()
+		},
 		sendNewDm() {
 			if (this.$data.dmPrompt === "") {
 				this.showSnack("Invalid login", "red")
@@ -113,7 +143,9 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 		resetFields() {
 			this.$data.showJoin = false
 			this.$data.showDm = false
+			this.$data.showInvite = false
 			setTimeout(() => {
+				this.$data.invitePrompt = ""
 				this.$data.joinPrompt = ""
 				this.$data.dmPrompt = ""
 				this.$data.joinDisplayPasswordPrompt = false

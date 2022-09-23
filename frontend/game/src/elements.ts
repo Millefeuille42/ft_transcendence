@@ -3,10 +3,10 @@ import net from "./net";
 
 export function createPrompt(p5: P5): P5.Element {
 	let input = p5.createInput();
-	input.position(p5.width / 2 - p5.width / 4, p5.height / 2 - p5.height / 40)
-	input.style("width", (p5.width / 2).toString() + 'px')
-	input.style("height", (p5.height / 20).toString() + 'px')
-	input.style('font-size', '30px');
+	input.position(p5.windowWidth / 2 - p5.windowWidth / 6, p5.windowHeight / 2 - p5.windowHeight / 20)
+	input.style("width", (p5.windowWidth / 3).toString() + 'px')
+	input.style("height",  (p5.windowHeight / 20).toString() + 'px')
+	input.style('font-size', '1vw');
 	input.style('background-color', net.white ? "black" : "white");
 	input.style('color', net.white ? "white" : "black")
 	input.style('border', '2px solid white')
@@ -18,9 +18,9 @@ export function createPrompt(p5: P5): P5.Element {
 export function createButton(value: string, p5: P5): P5.Element {
 	let button = p5.createButton(value)
 
-	button.style("width", (p5.width / 7).toString() + 'px')
-	button.style("height", (p5.height / 20).toString() + 'px')
-	button.style('font-size', '30px');
+	button.style("width", '12vw')
+	button.style("height", '4vh')
+	button.style('font-size', '1vw');
 	button.style('background-color', net.white ? "black" : "white");
 	button.style('color', net.white ? "white" : "black")
 	button.style('border', '2px solid white')

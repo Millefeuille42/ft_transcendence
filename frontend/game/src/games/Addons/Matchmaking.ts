@@ -8,6 +8,13 @@ class Matchmaking implements IScreen {
 	stop: boolean = false
 	title: string = ""
 	readyScreen: Ready = new Ready()
+	code: string = ""
+	join: boolean = false
+
+	constructor(join: boolean = false, code: string = "") {
+		this.join = join
+		this.code = code
+	}
 
 
 	loadScreen(p5: P5): void {
@@ -66,6 +73,10 @@ class Matchmaking implements IScreen {
 	screenSetup(p5: P5): void {
 		if (net.auth) {
 			this.title = "Looking for a match..."
+			if (this.join) {
+				net.socket.emit("multiJoinInvite", {code: this.code})
+				return;
+			}
 			net.socket.emit("multiQueue", {oper: "add"})
 			return
 		}

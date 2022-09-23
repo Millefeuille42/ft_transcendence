@@ -1,5 +1,5 @@
 <template>
-	<v-sheet v-if="currentChan !== '' && owner" height="10%" class="mx-4 d-flex flex-row justify-space-around align-center">
+	<v-sheet color="transparent" v-if="currentChan !== '' && owner" height="10%" class="mx-4 d-flex flex-row justify-space-around align-center">
 		<v-btn @click="showDialog = true">Settings</v-btn>
 		<v-dialog v-model="showDialog" dark width="50%">
 			<v-sheet width="100%" class="mt-6 pa-4 d-flex flex-column align-center">

@@ -8,11 +8,13 @@ import Prompt from "./games/Addons/Prompt";
 import Matchmaking from "./games/Addons/Matchmaking";
 import net from "./net";
 import SpectateScreen from "./games/Addons/SpectateScreen";
+import IScreen from "./interfaces/IScreen";
 
 let MultiMenu: Menu
 let MainMenu: Menu
-let SpectatePrompt: Prompt
 let JoinPrompt: Prompt
+let JoinGame: IScreen
+let ovrd: boolean
 
 export const sketch = (p5: P5) => {
 	let c_width = 200
@@ -35,8 +37,11 @@ export const sketch = (p5: P5) => {
 		p5.background(net.white ? "black" : "white")
 		p5.textAlign("center")
 
-		SpectatePrompt = new Prompt("Enter room code", (val: string) => { console.log(val) })
-		JoinPrompt = new Prompt("Enter room code", (val: string) => { console.log(val) })
+		JoinPrompt = new Prompt("Enter room code", (val: string) => {
+			ovrd = true
+			JoinGame = new Matchmaking(true, val)
+			JoinGame.loadScreen(p5)
+		})
 
 		MultiMenu = new Menu("Multiplayer", [
 			new Button("Play", 0, new Matchmaking(), p5),
@@ -53,16 +58,28 @@ export const sketch = (p5: P5) => {
 	}
 
 	p5.draw = () => {
+		if (ovrd && JoinGame !== undefined) {
+			JoinGame.screenLoop(p5)
+			return
+		}
 		if (MainMenu !== undefined)
 			MainMenu.screenLoop(p5)
 	}
 
 	p5.keyPressed = () => {
+		if (ovrd && JoinGame !== undefined) {
+			JoinGame.setKeyPressed(p5)
+			return
+		}
 		if (MainMenu !== undefined)
 			MainMenu.setKeyPressed(p5)
 	}
 
 	p5.keyReleased = () => {
+		if (ovrd && JoinGame !== undefined) {
+			JoinGame.setKeyReleased(p5)
+			return
+		}
 		if (MainMenu !== undefined)
 			MainMenu.setKeyReleased(p5)
 	}

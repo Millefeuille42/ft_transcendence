@@ -1,5 +1,5 @@
 <template>
-	<v-sheet height="10%" class="mx-4 d-flex flex-row justify-space-around align-center">
+	<v-sheet color="transparent" height="10%" class="mx-4 d-flex flex-row justify-space-around align-center">
 		<v-btn @click="showUsers = true">Users</v-btn>
 		<v-navigation-drawer v-if="usersLoaded"
 							 app
