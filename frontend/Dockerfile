@@ -1,5 +1,8 @@
 FROM node:18-alpine as build-app-stage
 
+RUN apk add --update python make g++\
+   && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 RUN chown -R node:node /app
 
@@ -11,6 +14,9 @@ COPY --chown=node:node app/ .
 RUN npm run build
 
 FROM node:18-alpine as build-game-stage
+
+RUN apk add --update python make g++\
+   && rm -rf /var/cache/apk/*
 
 WORKDIR /game
 RUN chown -R node:node /game

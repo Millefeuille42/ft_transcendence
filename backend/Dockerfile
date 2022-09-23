@@ -1,5 +1,8 @@
 FROM node:18-alpine as build-stage
 
+RUN apk add --update python make g++\
+   && rm -rf /var/cache/apk/*
+
 WORKDIR /usr/src/app
 COPY --chown=node:node app/package*.json ./
 RUN npm install
