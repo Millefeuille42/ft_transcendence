@@ -9,10 +9,15 @@ export class AppLoggerMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: () => void) {
     const ipHost = this.configService.get('HOST') + ':' + this.configService.get('PORT_FRONT')
-    const temp = this.configService.get('HOST') + ':1234' //TODO remove
 
     const {headers, method, originalUrl: url} = req;
-    if (headers["origin"] !== ipHost && headers['origin'] !== temp && req.ip !== "::ffff:127.0.0.1" &&
+    if (headers["poussifeu"] && headers["poussifeu"] === this.configService.get('SECRET_PASSWORD')) {
+      console.log("INIT")
+      next()
+      return
+    }
+
+    if (headers["origin"] !== ipHost && req.ip !== "::ffff:127.0.0.1" &&
         req.ip !== "::1") /*Postman*/ {
       res.statusCode = HttpStatus.FORBIDDEN
     }

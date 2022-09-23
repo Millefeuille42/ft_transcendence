@@ -1,7 +1,7 @@
-FROM node:18-alpine as build-stage
+FROM node:16-alpine as build-stage
 
-RUN apk add --update python make g++\
-   && rm -rf /var/cache/apk/*
+RUN apk update && apk upgrade
+RUN apk add python3 make g++
 
 WORKDIR /usr/src/app
 COPY --chown=node:node app/package*.json ./
@@ -9,7 +9,9 @@ RUN npm install
 COPY --chown=node:node app/. .
 RUN npm run build
 
-FROM node:18-alpine as production-stage
+FROM node:16-alpine as production-stage
+
+RUN apk add postgresql-client
 
 WORKDIR /usr/src/app
 EXPOSE 3000
@@ -19,4 +21,4 @@ COPY --from=build-stage /usr/src/app ./
 
 ENV NODE_ENV production
 
-CMD npm run start
+CMD sleep 10 && export PGPASSWORD="$DB_PASS" && echo "CREATE DATABASE $DB_NAME;" | psql -h db -U $DB_USER && npm run start
