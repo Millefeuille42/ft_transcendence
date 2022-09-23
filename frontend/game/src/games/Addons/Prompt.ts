@@ -52,7 +52,12 @@ class Prompt implements IScreen {
 
 		this.sendButton = createButton("SEND", p5)
 		this.sendButton.position(((p5.width / 12) * 7) - p5.width / 14, p5.height - p5.height / 2.5)
-		this.sendButton.mousePressed(() => { this.action(this.input.value()) })
+		this.sendButton.mousePressed(() => {
+			this.action(this.input.value())
+			this.sendButton.remove()
+			this.quitButton.remove()
+			this.input.remove()
+		})
 
 		this.quitButton = createButton("QUIT", p5)
 		this.quitButton.position(((p5.width / 12) * 5) - p5.width / 14, p5.height - p5.height / 2.5)

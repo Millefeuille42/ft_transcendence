@@ -29,6 +29,8 @@ export class MultiGateway {
 	matchQ: Queue<socketLoginPair> = new Queue()
 	users: Map<string, string> = new Map()
 
+	invites: Map<string, Queue<socketLoginPair> > = new Map()
+
 	matches: Map<string, matchData> = new Map()
 	operateQ: boolean = false
 
@@ -139,6 +141,13 @@ export class MultiGateway {
 		client.emit('multiSpecList', ret)
 	}
 
+	@SubscribeMessage('multiInviteCode')
+	async handleInvite(@MessageBody() data: {to: string}, @ConnectedSocket() client: Socket) {
+		let code: string = uuid()
+		this.invites.set(code, new Queue())
+		client.emit('multiInviteCode', {inviteCode: code, to: data.to})
+	}
+
 	@SubscribeMessage('multiUpdate')
 	async handleUpdate(@MessageBody() data: {id: string}, @ConnectedSocket() client: Socket) {
 		let user = this.users[client.id]
@@ -160,7 +169,6 @@ export class MultiGateway {
 				await this.userService.removeInGame(match.first.login)
 				await this.userService.removeInGame(match.second.login)
 
-				//TODO modifier mode
 				await this.gameService.addHistory(match.first.login, match.second.login,
 											match.ball.score.first, match.ball.score.second,
 											"normal")
@@ -287,6 +295,55 @@ export class MultiGateway {
 			match.first.socket.emit('multiStart', {oper: "start"})
 			match.second.socket.emit('multiStart', {oper: "start"})
 			match.started = true
+		}
+	}
+	@SubscribeMessage('multiJoinInvite')
+	async handleJoin(@MessageBody() data: {code: string}, @ConnectedSocket() client: Socket) {
+		if (this.users[client.id] === undefined) {
+			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
+			return
+		}
+
+		let q = this.invites.get(data.code)
+		if (q === undefined) {
+			client.emit('multiError', this.ERR_NOT_FOUND)
+			return
+		}
+
+		let mat = q.getStorage().find((x) => {
+			return x !== undefined && x.second === this.users[client.id]
+		})
+
+		if (mat !== undefined) {
+			client.emit('multiError', this.ERR_IN_QUEUE)
+			return
+		}
+		q.enqueue(makePair(client, this.users[client.id]) as socketLoginPair)
+		if (q.size() >= 2) {
+			let one = q.dequeue()
+			let two = q.dequeue()
+			let match_id = uuid()
+			one.first.emit('multiMatchUp', {login: two.second, id: match_id})
+			two.first.emit('multiMatchUp', {login: one.second, id: match_id})
+			let p = makePair(
+				{socket: one.first, login: one.second, ready: false} as matchUsersInterface,
+				{socket: two.first, login: two.second, ready: false} as matchUsersInterface,
+			) as matchPair
+
+			this.matches.set(match_id, {
+				first: p.first,
+				second: p.second,
+				width: 100,
+				height: 100,
+				ball: {} as Ball,
+				rodOne: {} as Rod,
+				rodTwo: {} as Rod,
+				screen: "ready",
+				wait: false,
+				stop: false,
+				started: false
+			})
+			this.invites.delete(data.code)
 		}
 	}
 
