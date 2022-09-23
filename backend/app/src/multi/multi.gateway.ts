@@ -98,8 +98,11 @@ export class MultiGateway {
 			client.emit('multiError', this.ERR_NOT_FOUND)
 			return
 		}
+		if (match.stop)
+			return
 		if (match.first.login === user) {
 			if (match.screen === "fst" || match.screen === "win") {
+				match.stop = true
 				await this.userService.removeInGame(match.first.login)
 				await this.userService.removeInGame(match.second.login)
 
@@ -110,6 +113,7 @@ export class MultiGateway {
 				await this.gameService.addHistory(match.second.login, match.first.login,
 					match.ball.score.second, match.ball.score.first,
 					"normal")
+				this.matches.delete(data.id)
 			}
 			if (match.screen === "") {
 				match.ball.position.x += match.ball.direction.x * match.ball.speed.x
@@ -275,7 +279,8 @@ export class MultiGateway {
 				rodOne: {} as Rod,
 				rodTwo: {} as Rod,
 				screen: "ready",
-				wait: false
+				wait: false,
+				stop: false,
 			})
 		}
 		this.operateQ = false

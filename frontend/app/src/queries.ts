@@ -402,3 +402,20 @@ export async function createChannel(name: string, owner: string, p: boolean, pas
         throw e
     })
 }
+
+export async function editPrivacy(channel: string, owner: string, p: boolean, password: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/privacy/" + channel
+
+    return await axios( {
+        method: 'patch',
+        url: target,
+        data: {
+            login: owner,
+            public: p,
+            password: password
+        },
+        withCredentials: true,
+    }).catch((e) => {
+        throw e
+    })
+}

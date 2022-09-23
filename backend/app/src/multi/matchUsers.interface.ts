@@ -38,6 +38,7 @@ export interface matchData extends matchPair {
 	width: number
 	height: number
 	screen: string
+	stop: boolean
 }
 
 export interface matchPair extends IPair<matchUsersInterface, matchUsersInterface> {

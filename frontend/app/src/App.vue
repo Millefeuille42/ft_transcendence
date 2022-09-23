@@ -141,7 +141,7 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 	async mounted () {
 		EventBus.$on('authSock', (data: boolean) => {
 			setTimeout(() => {
-				this.$data.isAuth = data
+				this.$data.isAuth = true
 			}, 200)
 		})
 		this.$data.down = false

@@ -362,6 +362,8 @@ export class ChatService {
 
 	async changePrivacy(channel: string, change: ChangePrivacyDto) {
 		const chan = await this.channelRepository.findOneBy({name: channel})
+		if (!chan)
+			throw new NotFoundException("Channel not found")
 		const user = await this.userService.getUser(change.login)
 		if (chan.ownerId !== user.id)
 			throw new UnauthorizedException("Only owner chan change privacy of channel")

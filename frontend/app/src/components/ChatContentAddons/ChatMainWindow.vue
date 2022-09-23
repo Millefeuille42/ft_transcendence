@@ -32,7 +32,10 @@
 			</v-sheet>
 			<v-btn @click="handleSend" width="10%" class="my-auto"> Send </v-btn>
 		</v-sheet>
-		<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :isOwner="owner === login" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
+		<v-sheet width="100%" class="d-flex flex-row justify-center">
+			<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :isOwner="owner === login" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
+			<ChatPrivacyDialog :owner="owner === login" :login="login" :currentChan="current.name"/>
+		</v-sheet>
 	</v-sheet>
 </template>
 
@@ -44,6 +47,7 @@ import {channelData, messageDataIn, smolUserData, userDataIn} from "@/queriesDat
 import {getChannel, getUserByUser, getUserData} from "@/queries";
 import ChatProfileCardLoader from "@/components/ChatContentAddons/ChatProfileCardLoader.vue";
 import ChatUsersDrawer from "@/components/ChatContentAddons/ChatUsersDrawer.vue";
+import ChatPrivacyDialog from "@/components/ChatContentAddons/ChatPrivacyDialog.vue";
 
 interface messageData {
 	id: string,
@@ -51,11 +55,12 @@ interface messageData {
 	message: string,
 	username: string,
 	avatar: string,
+	channel: string,
 	createdAt: Date
 }
 
 @Component({
-	components: {ChatUsersDrawer, ChatProfileCardLoader, ChatMessage},
+	components: {ChatPrivacyDialog, ChatUsersDrawer, ChatProfileCardLoader, ChatMessage},
 	props: {
 		login: String,
 		current: Object,
@@ -147,6 +152,8 @@ interface messageData {
 			login: this.$cookies.get("Login")
 		})
 		EventBus.$on('newMessage', (message: messageData) => {
+			if (message.channel !== this.$props.current.name)
+				return
 			message.id = message.message + message.login
 			this.$data.messages.push(message)
 		})

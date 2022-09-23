@@ -262,7 +262,7 @@ interface unmuteOrUnban {
 				channel: data.channel,
 				login: data.login
 			}
-
+			await this.chatService.unBan(data.channel, data.login)
 			this.server.emit('unban', payload)
 		}
 		catch (e) {

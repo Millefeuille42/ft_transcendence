@@ -79,6 +79,9 @@ interface messageData {
 				console.log(e)
 			})
 		},
+		auth(data) {
+			EventBus.$emit('authSock', data);
+		},
 
 		ban(data: {bannedBy: string, target: string, channel: string}) {
 			console.log(data.channel)
@@ -90,13 +93,23 @@ interface messageData {
 				EventBus.$emit("chanUpdateUserList")
 			}
 		},
-		unban() {},
-		mute(data) {
+		unban(data: {channel: string, login: string}) {
 			if (data.login === this.$props.user.login) {
-				EventBus.$emit("chatMuted") // TODO disable prompt on channel
+				this.showSnack("You are now unbanned from " + data.channel, "green")
 			}
 		},
-		unmute() {},
+		mute(data: {channel: string, mutedBy: string, target: string}) {
+			if (data.target === this.$props.user.login) {
+				this.showSnack("You have been muted from " + data.channel + " by " + data.mutedBy, "red")
+				EventBus.$emit("chatMuted", true) // TODO disable prompt on channel
+			}
+		},
+		unmute(data: {channel: string, login: string}) {
+			if (data.login === this.$props.user.login) {
+				this.showSnack("You are now un-muted from " + data.channel, "green")
+				EventBus.$emit("chatMuted", false) // TODO disable prompt on channel
+			}
+		},
 		join(data: {login: string}) {
 			if (data.login === this.$props.user.login)
 				EventBus.$emit("chanUpdate")

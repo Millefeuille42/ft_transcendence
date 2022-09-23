@@ -53,15 +53,13 @@ export class UserService implements OnModuleInit {
 	}
 
 	async addInGame(login: string) {
-		if (await this.isInGame(login))
-			throw new ConflictException("User is already in game")
-		this.inGame.push(login)
+		if (!await this.isInGame(login))
+			this.inGame.push(login)
 	}
 
 	async removeInGame(login: string) {
-		if (!await this.isInGame(login))
-			throw new ConflictException("User is not in game")
-		this.inGame = this.inGame.filter((u) => u !== login)
+		if (await this.isInGame(login))
+			this.inGame = this.inGame.filter((u) => u !== login)
 	}
 
 	async listInGame() {
