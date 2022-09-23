@@ -32,6 +32,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VUE_APP_BACK_URL=${VUE_APP_BACK_URL}
+        - NODE_ENV_BACK_URL=${NODE_ENV_BACK_URL}
     image: front
     environment:
       VUE_APP_BACK_URL: ${VUE_APP_BACK_URL}

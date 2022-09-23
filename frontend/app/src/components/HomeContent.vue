@@ -15,7 +15,7 @@
 					<div id="game" style="width: 98%; height: 98%; margin-top: auto; margin-bottom: auto">
 						<iframe v-if="showGame" width="100%" height="100%"
 								style="border: 0"
-								:src="`http://e1r12p3:1234?login=${user.login}&token=${session}`" > Browser not compatible </iframe>
+								:src="`/game.html?login=${user.login}&token=${session}`" > Browser not compatible </iframe>
 					</div>
 				</v-sheet>
 			</v-sheet>

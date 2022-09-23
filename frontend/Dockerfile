@@ -21,6 +21,9 @@ FROM node:16-alpine as build-game-stage
 RUN apk update && apk upgrade
 RUN apk add python3 make g++
 
+ARG NODE_ENV_BACK_URL
+ENV NODE_ENV_BACK_URL $NODE_ENV_BACK_URL
+
 WORKDIR /game
 RUN chown -R node:node /game
 
@@ -35,6 +38,9 @@ FROM nginx:stable-alpine as production-stage
 
 ARG VUE_APP_BACK_URL
 ENV VUE_APP_BACK_URL $VUE_APP_BACK_URL
+
+ARG NODE_ENV_BACK_URL
+ENV NODE_ENV_BACK_URL $NODE_ENV_BACK_URL
 
 COPY --from=build-app-stage /app/dist /usr/share/nginx/html
 COPY --from=build-game-stage /game/dist /usr/share/nginx/html
