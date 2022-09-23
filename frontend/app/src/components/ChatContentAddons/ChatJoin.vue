@@ -1,7 +1,29 @@
 <template>
-	<v-sheet color="transparent" width="100%" class="d-flex justify-space-around mt-5">
-		<v-btn @click="showJoin = true; noExist = false" >Join</v-btn>
-		<v-btn @click="handleLeave">Leave</v-btn>
+	<v-sheet color="transparent" width="100%" class="d-flex flex-column mt-5">
+		<v-sheet width="100%" color="transparent" class="d-flex justify-center">
+			<v-btn @click="showJoin = true; noExist = false" class="mx-2" >Join</v-btn>
+			<v-btn @click="handleLeave" class="mx-2">Leave</v-btn>
+		</v-sheet>
+		<v-sheet width="100%" color="transparent" class="mt-4 d-flex justify-center">
+			<v-btn  large icon @click="showDm = true">
+				<v-icon>
+					mdi-plus
+				</v-icon>
+			</v-btn>
+		</v-sheet>
+		<v-dialog persistent max-width="300px" dark v-model="showDm">
+			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
+				<v-text-field class="mr-auto ml-auto"
+							  :style="'width: 80%;'"
+							  v-model="dmPrompt"
+							  label="Enter login"
+				></v-text-field>
+				<v-sheet width="100%" color="transparent" class="d-flex flex-row justify-space-around mb-4">
+					<v-btn width="30%" @click="sendNewDm">Yes</v-btn>
+					<v-btn width="30%" @click="resetFields">Quit</v-btn>
+				</v-sheet>
+			</v-sheet>
+		</v-dialog>
 		<v-dialog persistent max-width="300px" dark v-model="showJoin">
 			<v-sheet width="100%" height="100%" class="d-flex flex-column justify-center align-center">
 				<v-sheet v-if="noExist || joinDisplayPasswordPrompt" width="100%" class="text-center mt-4 mb-5">
@@ -61,6 +83,8 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 @Component({
 	data: () => ({
 		showJoin: false,
+		showDm: false,
+		dmPrompt: "",
 		joinPrompt: "",
 		joinDisplayPasswordPrompt: false,
 		joinPasswordPrompt: "",
@@ -74,10 +98,24 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 		user: Object
 	},
 	methods: {
+		sendNewDm() {
+			if (this.$data.dmPrompt === "") {
+				this.showSnack("Invalid login", "red")
+				return
+			}
+			this.$socket.emit('dm', {
+				to: this.$data.dmPrompt,
+				message: "Hello there!",
+			})
+			this.resetFields()
+			EventBus.$emit('chanUpdate')
+		},
 		resetFields() {
 			this.$data.showJoin = false
+			this.$data.showDm = false
 			setTimeout(() => {
 				this.$data.joinPrompt = ""
+				this.$data.dmPrompt = ""
 				this.$data.joinDisplayPasswordPrompt = false
 				this.$data.joinPasswordPrompt = ""
 				this.$data.noExist = false
@@ -109,7 +147,6 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 			}
 			getChannel(this.$data.joinPrompt)
 				.then((data: channelData) => {
-					console.log("coucou", this.$data.joinPasswordPrompt)
 					if (!data.public && !data.pass) {
 						this.showSnack("This channel is private", "red")
 						return

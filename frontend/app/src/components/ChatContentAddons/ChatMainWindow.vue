@@ -33,7 +33,7 @@
 			<v-btn @click="handleSend" width="10%" class="my-auto"> Send </v-btn>
 		</v-sheet>
 		<v-sheet width="100%" class="d-flex flex-row justify-center">
-			<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :isOwner="owner === login" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
+			<ChatUsersDrawer v-if="!current.isDm" :login="login" :isAdmin="isAdmin" :isOwner="owner === login" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
 			<ChatPrivacyDialog :owner="owner === login" :login="login" :currentChan="current.name"/>
 		</v-sheet>
 	</v-sheet>
@@ -44,7 +44,7 @@ import {Component, Vue} from "vue-property-decorator";
 import ChatMessage from "@/components/ChatContentAddons/ChatMessage.vue";
 import {EventBus} from "@/main";
 import {channelData, messageDataIn, smolUserData, userDataIn} from "@/queriesData";
-import {getChannel, getUserByUser, getUserData} from "@/queries";
+import {getChannel, getDm, getUserByUser, getUserData} from "@/queries";
 import ChatProfileCardLoader from "@/components/ChatContentAddons/ChatProfileCardLoader.vue";
 import ChatUsersDrawer from "@/components/ChatContentAddons/ChatUsersDrawer.vue";
 import ChatPrivacyDialog from "@/components/ChatContentAddons/ChatPrivacyDialog.vue";
@@ -100,12 +100,15 @@ interface messageData {
 			}
 		},
 		async getMessages(noMessage: boolean = false) {
-			getChannel(this.$props.current.name)
+			let dummy = this.$props.current.isDm ? this.$props.current.name : ""
+			let fst = this.$props.current.isDm ? this.$props.login : this.$props.current.name
+			let query = this.$props.current.isDm ? getDm : getChannel
+			query(fst, dummy)
 				.then(async (data: channelData) => {
 					this.$data.owner = data.owner
 					this.$data.users = data.users
 					this.$data.usersLoaded = true
-					let meADM = data.admins.find((a: any) => {
+					let meADM = data.admins?.find((a: any) => {
 						return a.login === this.$props.login
 					})
 					if (meADM !== undefined) {
@@ -156,6 +159,28 @@ interface messageData {
 				return
 			message.id = message.message + message.login
 			this.$data.messages.push(message)
+		})
+		EventBus.$on('newDm', (dm: {from: string, to: string, message: string}) => {
+			if (dm.from !== this.$props.current.name && dm.to !== this.$props.current.name) {
+				console.log("Differ")
+				return
+			}
+			getUserByUser(this.$props.login, dm.from).then((uData: smolUserData) => {
+				if (uData.isBlocked) {
+					console.log("Blocked")
+					return
+				}
+				let message: messageData = {} as messageData
+				message.id = dm.message + dm.from
+				message.message = dm.message
+				message.login = dm.from
+				message.avatar = uData.avatar
+				message.username = uData.username
+				message.channel = dm.from
+				this.$data.messages.push(message)
+			}).catch((e) => {
+				console.log(e)
+			})
 		})
 		EventBus.$on('chanUpdateUserList', () => {
 			this.getMessages(true)

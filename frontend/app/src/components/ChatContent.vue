@@ -79,6 +79,13 @@ interface messageData {
 				console.log(e)
 			})
 		},
+		status() {
+			EventBus.$emit("reloadStatus")
+		},
+		dm(data: {from: string, to: string, message: string}) {
+			console.log("hey")
+			EventBus.$emit("newDm", data)
+		},
 		auth(data) {
 			EventBus.$emit('authSock', data);
 		},
@@ -123,7 +130,6 @@ interface messageData {
 				this.showSnack("You are now an admin of " + data.channel, "green")
 			}
 		},
-		dm() {},
 		leave(data: {login: string}) {
 			if (data.login === this.$props.user.login) {
 				EventBus.$emit("chanUpdate")
@@ -154,7 +160,13 @@ interface messageData {
 			this.$data.snackShow = true
 		},
 		sendMessage(text: string) {
-			let data: messageData = {message: text, channel: this.$data.selected.name}
+			if (this.$data.selected.isDm) {
+				let data = {message: text, to: this.$data.selected.name}
+				this.$socket.emit('dm', data)
+				return
+			}
+
+			let data = {message: text, channel: this.$data.selected.name}
 			this.$socket.emit('message', data)
 		}
 	},

@@ -168,7 +168,6 @@ interface unmuteOrUnban {
 			this.server.emit('dm', payload)
 		}
 		catch (e) {
-			console.log(e)
 			client.emit('error', e)
 		}
 	}

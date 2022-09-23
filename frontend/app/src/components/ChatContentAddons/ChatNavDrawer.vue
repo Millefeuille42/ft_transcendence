@@ -30,7 +30,7 @@ import {Component, Vue} from "vue-property-decorator";
 import ChatProfileCard from "@/components/ChatContentAddons/ChatProfileCard.vue";
 import SkeletonChatProfileCard from "@/components/SkeletonComponents/SkeletonChatProfileCard.vue";
 import {getChannelsOfUser, getDMsOfUser, RedirectToFTAuth} from "@/queries";
-import {channelData, getChannelResp, getDmResp} from "@/queriesData";
+import {channelData, dmData, getChannelResp, getDmResp} from "@/queriesData";
 import {EventBus} from "@/main";
 import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 
@@ -43,6 +43,7 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 	},
 	data: () => ({
 		curChan: "",
+		isDm: false,
 		items: [
 			{
 				id: 'chan',
@@ -52,7 +53,7 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 			{
 				id: 'dm',
 				name: "Private Messages",
-				children: [] as Array<channelData>
+				children: [] as Array<dmData>
 			}
 		]
 	}),
@@ -61,10 +62,15 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 		handleClick(chan: channelData) {
 			this.$emit('changedChannel', chan)
 			this.$data.curChan = chan.name
+			this.$data.isDm = chan.isDm
 		},
 		handleLeave() {
 			if (this.$data.curChan === "") {
 				EventBus.$emit("chatSnack", "You must select a channel first", "red")
+				return
+			}
+			if (this.$data.isDm) {
+				EventBus.$emit("chatSnack", "You cannot leave Dms", "red")
 				return
 			}
 			this.$socket.emit('leave', {
@@ -77,6 +83,7 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 					if (data.thereIsChannel) {
 						data.channels.forEach((chan: channelData) => {
 							chan.id= "chan-" + chan.id
+							chan.isDm = false
 						})
 						this.$data.items[0].children = data.channels
 					} else {
@@ -100,7 +107,14 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 			getDMsOfUser(this.$props.user.login)
 				.then((data: getDmResp) => {
 					if (data.thereIsDm) {
-						// TODO load dm data
+						data.dms.forEach((dm: dmData) => {
+							dm.id = "dm-" + dm.id
+							dm.name = dm.user
+							dm.isDm = true
+						})
+						this.$data.items[1].children = data.dms
+					} else {
+						this.$data.items[1].children = []
 					}
 				})
 				.catch((e) => {
@@ -123,6 +137,7 @@ import ChatJoin from "@/components/ChatContentAddons/ChatJoin.vue";
 
 		EventBus.$on('chanUpdate', () => {
 			this.loadChannels()
+			this.loadDMs()
 		})
 	}
 })

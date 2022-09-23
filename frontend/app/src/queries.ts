@@ -358,7 +358,7 @@ export async function getChannelsOfUser(login: string): Promise<getChannelResp> 
 }
 
 export async function getDMsOfUser(login: string): Promise<getDmResp> {
-    let target: string = process.env.VUE_APP_BACK_URL + "/chat/dm/user/"
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/dm/"
     target += login
     return await axios( {
         method: 'get',
@@ -371,7 +371,21 @@ export async function getDMsOfUser(login: string): Promise<getDmResp> {
     })
 }
 
-export async function getChannel(channel: string): Promise<channelData> {
+export async function getDm(login: string, other: string): Promise<channelData> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/dm/users/"
+    target += (login + "/" + other)
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getChannel(channel: string, dummy: string = ""): Promise<channelData> {
     let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/"
     target += channel
     return await axios( {

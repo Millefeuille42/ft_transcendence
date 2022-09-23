@@ -95,15 +95,19 @@ export interface channelData {
     id: string,
     name: string
     owner?: string,
-    admins: string[],
+    admins?: string[],
     users: string[],
     messages: messageDataIn[],
-    public: boolean,
-    pass: boolean,
+    public?: boolean,
+    pass?: boolean,
+	isDm: boolean
 }
 
 export interface dmData {
-
+    id: string
+    user: string
+	name: string
+	isDm: boolean
 }
 
 export interface getChannelResp {
