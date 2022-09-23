@@ -290,6 +290,14 @@ export class UserService implements OnModuleInit {
 		return false
 	}
 
+	async getStatus(login: string) {
+		await this.verificationUser(login)
+		return {
+			isOnline: await this.isOnline(login),
+			isInGame: await this.isInGame(login)
+		}
+	}
+
 	async listOfOnlinePeople(login: string) {
 		await this.verificationUser(login)
 		let users: {
@@ -301,7 +309,8 @@ export class UserService implements OnModuleInit {
 				const {username, avatar, login: ulogin, banner} = await this.getUser(u.login)
 				const friend = await this.friendService.isFriend(login, u.login)
 				const stats = await this.gameService.getStats(u.login)
-				users.push({info: {login: ulogin, username, avatar, banner, stats }, friend})
+				const isInGame = await this.isInGame(u.login)
+				users.push({info: {login: ulogin, username, avatar, banner, isInGame ,stats }, friend})
 			}
 		}
 		return (users);
