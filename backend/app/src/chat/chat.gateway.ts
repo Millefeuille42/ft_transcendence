@@ -45,6 +45,10 @@ interface unmuteOrUnban {
 		 for (const data of list) {
 			 await this.unmuteSomeone(data)
 		 }
+		 list = await this.chatService.checkBan()
+		 for (const data of list) {
+			 await this.unbanSomeone(data)
+		 }
 	}
 
 	async handleConnection(client: Socket) {
@@ -247,7 +251,8 @@ interface unmuteOrUnban {
 		}
 	  }
 
-	  async unbanSomeone(data: any) {
+	  @SubscribeMessage('unban')
+	  async unbanSomeone(@MessageBody() data: any) {
 		try {
 			const payload = {
 				channel: data.channel,
