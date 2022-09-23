@@ -24,27 +24,23 @@ export class IsAuthMiddleware implements NestMiddleware {
    // }
     console.log(login, uuid)
     if (!login || !uuid) {
-      console.log("No cookie")
       res.statusCode = 401
       throw new HttpException("User don't have cookies", 401) ;
     }
     const token: string = await this.userService.getToken(login);
     const uuidSession = await this.userService.getUuidSession(login)
     if (!token) {
-      console.log('Pas dans la base de données')
       if (uuid === uuidSession)
         await this.userService.deleteUuidSession(login)
       res.statusCode = 401
       throw new HttpException("User is not in database", 401) ;
     }
     if (uuidSession !== uuid && uuid !== "pass") {
-      console.log('Pas le même uuid')
       res.statusCode = 401
       throw new HttpException("User don't have the good uuid", 401)
     }
     const ret: boolean = await this.authService.meRequest(token);
     if (!ret) {
-      console.log('Token qui fonctionne pas')
       await this.userService.deleteToken(login)
       await this.userService.deleteUuidSession(login)
       res.statusCode = 403

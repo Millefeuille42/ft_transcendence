@@ -43,6 +43,6 @@ import { MultiModule } from './multi/multi.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
     consumer.apply(AppLoggerMiddleware).forRoutes('*')
-    consumer.apply(IsAuthMiddleware).forRoutes('user', 'friends', 'items', 'blocked', 'game', 'chat')
+    consumer.apply(IsAuthMiddleware).forRoutes('user', 'friends', 'items', 'blocked', 'game', 'chat', 'multi')
   }
 }

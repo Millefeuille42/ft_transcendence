@@ -1,7 +1,6 @@
-import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post} from '@nestjs/common';
 import {ChatService} from "./chat.service";
 import {CreateChannelDto} from "./create-channel.dto";
-import {BanOrMuteDto} from "./ban-or-mute.dto";
 import {ChangePrivacyDto} from "./change-privacy.dto";
 
 @Controller('chat')

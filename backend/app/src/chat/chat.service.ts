@@ -35,7 +35,7 @@ export class ChatService {
 	async createChannel(newChannel: CreateChannelDto) {
 		if (!newChannel.name || !newChannel.hasOwnProperty('public') ||
 		!newChannel.owner)
-			throw new BadRequestException()
+			throw new BadRequestException('Missing fields for create Channel')
 		if (await this.channelRepository.findOneBy({name: newChannel.name}))
 			throw new ConflictException("Name is already used")
 		const user = await this.userService.getUser(newChannel.owner)
@@ -59,10 +59,9 @@ export class ChatService {
 	}
 
 	async getChannel(channel: string) {
-		const chanc = await this.channelRepository.find({where: {name: channel}, relations: ['messages']})
-		if (!chanc || chanc.length <= 0 || chanc.length > 1)
+		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['messages']})
+		if (!chan)
 			throw new NotFoundException("Channel not found")
-		const chan = chanc[0]
 		let p = await this.isPublic(chan.name)
 
 		let ret = {
@@ -361,6 +360,8 @@ export class ChatService {
 	}
 
 	async changePrivacy(channel: string, change: ChangePrivacyDto) {
+		if (!change.hasOwnProperty("public") || !change.login)
+			throw new BadRequestException("Missing fields to change privacy")
 		const chan = await this.channelRepository.findOneBy({name: channel})
 		if (!chan)
 			throw new NotFoundException("Channel not found")

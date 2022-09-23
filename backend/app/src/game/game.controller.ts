@@ -28,7 +28,6 @@ export class GameController {
 	@Patch('points/:login')
 	async fixPoints(@Param('login') login: string,
 			  @Query() points: {points: number}) {
-		console.log('points :', points)
 		if (!points.points)
 			throw new BadRequestException("Points need to be set")
 		return await this.gameService.fixPoints(login, points.points)

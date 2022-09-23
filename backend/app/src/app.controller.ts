@@ -1,10 +1,6 @@
 import {Controller, Get} from '@nestjs/common';
 import { AppService } from './app.service';
 
-/**
- * This is a comment.
- */
-
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}

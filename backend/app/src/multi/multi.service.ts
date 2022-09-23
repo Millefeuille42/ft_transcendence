@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import matchUsersInterface, {Ball, matchData, matchPair, Rod} from "./matchUsers.interface";
+import {Ball, matchData, matchPair, Rod} from "./matchUsers.interface";
 import Queue from "../utils/Queue";
 import {Socket} from "socket.io";
 import IPair from "../utils/IPair";

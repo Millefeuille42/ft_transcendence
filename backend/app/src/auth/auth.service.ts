@@ -26,6 +26,7 @@ export class AuthService {
 					await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
 					return this.meRequest(token);
 				}
+				throw new UnauthorizedException("meRequest doesn't work")
 				return false
 			});
 	}
@@ -51,9 +52,9 @@ export class AuthService {
 				ret = res.data.access_token;
 		})
 			.catch((err) => {
-				if (err.response && err.response.statusText)
+				if (err.response && err.response.statusText && err.response.status)
 					throw new HttpException(err.response.statusText + " on token grab", err.response.status);
-				throw new UnauthorizedException()
+				return false
 			});
 		return ret;
 	}
@@ -84,14 +85,16 @@ export class AuthService {
 				return ('');
 			})
 			.catch(async (err) => {
-				if (!err.response && !err.response.statusText) {
-					throw new HttpException("Error", 429)
+				if (err.response && err.response.statusText && err.response.status) {
+					if (err.response.status == 429) {
+						await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
+						return this.addSomeone(access_token);
+					}
+					else
+						throw new HttpException(err.response.statusText, err.response.status);
 				}
-				if (err.response.status == 429) {
-					await new Promise(f => setTimeout(f, +err.response.headers['retry-after'] * 1000))
-					return this.addSomeone(access_token);
-				}
-				throw new HttpException(err.response.statusText, err.response.status);
+				else
+					throw err
 			});
 		if (login !== '')
 			return login;
