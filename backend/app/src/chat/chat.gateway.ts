@@ -9,8 +9,9 @@ import {Socket} from "socket.io";
 import {UserService} from "../user/user.service";
 import {AuthService} from "../auth/auth.service";
 import {ChatService} from "./chat.service";
-import {ForbiddenException, NotFoundException} from "@nestjs/common";
+import {BadRequestException, ForbiddenException, NotFoundException} from "@nestjs/common";
 import {Cron, CronExpression, SchedulerRegistry} from "@nestjs/schedule";
+import {catchError} from "rxjs";
 
 interface authData {
 	token: string,
@@ -71,21 +72,31 @@ interface unmuteOrUnban {
 	//data -> token (Cookie "Session") and login (Cookie "Login")
 	@SubscribeMessage('auth')
 	async handleAuth (@MessageBody() data: authData, @ConnectedSocket() client: Socket) {
-		let ret = await this.authService.isAuth(data.login, data.token)
-		if (data.token === 'pass')
-			ret = true
-		this.server.emit('auth', ret)
-		if (ret === true) {
-			this.sockUser[client.id] = data.login
-			await this.userService.changeOnline(data.login, {online: true})
-			this.server.emit('status', {login: data.login})
+		try {
+			if (!data.login || !data.token)
+				throw new BadRequestException("Bad request to auth")
+			let ret = await this.authService.isAuth(data.login, data.token)
+			if (data.token === 'pass')
+				ret = true
+			this.server.emit('auth', ret)
+			if (ret === true) {
+				this.sockUser[client.id] = data.login
+				await this.userService.changeOnline(data.login, {online: true})
+				this.server.emit('status', {login: data.login})
+			}
 		}
+		catch(e) {
+			client.emit('error', e)
+		}
+
 	}
 
 	//data -> channel (string) and message (string)
 	@SubscribeMessage('message')
 	async handleEvent (@MessageBody() data: messageData, @ConnectedSocket() client: Socket) {
 		try {
+			if (!data.channel || !data.message)
+				throw new BadRequestException("Bad request to message")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
@@ -116,6 +127,8 @@ interface unmuteOrUnban {
 	@SubscribeMessage('join')
 	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
+			if (!data.channel || !data.password)
+				throw new BadRequestException("Bad request to join")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
@@ -136,6 +149,8 @@ interface unmuteOrUnban {
 	  async leaveChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		console.log(data)
 		try {
+			if (!data.channel)
+				throw new BadRequestException("Bad request to leave")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
@@ -155,6 +170,8 @@ interface unmuteOrUnban {
 	@SubscribeMessage('dm')
 	  async sendDM(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
+			if (!data.to || !data.message)
+				throw new BadRequestException("Bad request to dm")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
@@ -176,6 +193,8 @@ interface unmuteOrUnban {
 	@SubscribeMessage('admin')
 	  async newAdmin(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
+			if (!data.channel || !data.login)
+				throw new BadRequestException("Bad request to set admin")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
@@ -197,6 +216,8 @@ interface unmuteOrUnban {
 	@SubscribeMessage('mute')
 	  async muteSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
+			if (!data.channel || !data.target || !data.until)
+				throw new BadRequestException("Bad request to mute")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
 			if (this.sockUser[client.id] === "")
@@ -221,6 +242,8 @@ interface unmuteOrUnban {
 	  async banSomeone(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		console.log(data)
 		  try {
+			  if (!data.channel || !data.target || !data.until)
+				  throw new BadRequestException("Bad request to ban")
 			  if (!this.sockUser[client.id])
 				  throw new NotFoundException("Socket doesn't exist")
 			  if (this.sockUser[client.id] === "")
@@ -239,9 +262,12 @@ interface unmuteOrUnban {
 		  }
 	  }
 
+	  //data -> channel et login
 	  @SubscribeMessage('unmute')
 	  async unmuteSomeone(@MessageBody() data: any) {
 		try {
+			if (!data.channel || !data.login)
+				throw new BadRequestException("Bad request to unmute")
 			const payload = {
 				channel: data.channel,
 				login: data.login
@@ -257,6 +283,8 @@ interface unmuteOrUnban {
 	  @SubscribeMessage('unban')
 	  async unbanSomeone(@MessageBody() data: any) {
 		try {
+			if (!data.channel || !data.login)
+				throw new BadRequestException("Bad request to unban")
 			const payload = {
 				channel: data.channel,
 				login: data.login

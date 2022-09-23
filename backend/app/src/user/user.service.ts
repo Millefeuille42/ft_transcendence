@@ -42,13 +42,18 @@ export class UserService implements OnModuleInit {
 	inGame: string[] = []
 
 	async onModuleInit(): Promise<void> {
+		const allU = await this.usersListRepository.findBy({online: true})
+		for (const u of allU) {
+			await this.changeOnline(u.login, {online: false})
+		}
+
 		if (await this.userExist("tester")) {
 			let user = await this.getUser("tester")
-			await this.changeOnlineInDB({login: "tester", online: user.online})
+			await this.changeOnlineInDB({login: "tester", online: true})
 		}
 		if (await this.userExist("patate")) {
 			let user = await this.getUser("patate")
-			await this.changeOnlineInDB({login: "patate", online: user.online})
+			await this.changeOnlineInDB({login: "patate", online: true})
 		}
 	}
 
@@ -255,7 +260,7 @@ export class UserService implements OnModuleInit {
 		const user = this.onlinePeople.find(u => u.login === online.login)
 		if (user)
 			user.online = online.online
-		else
+		else if (online.online === true)
 			this.onlinePeople = [...this.onlinePeople, online];
 	}
 
@@ -269,7 +274,6 @@ export class UserService implements OnModuleInit {
 		await this.usersListRepository.save(changeUser);
 	}
 
-	//TODO Chercher dans la db
 	async isUsernameExist(username: string): Promise<{userExist: boolean, login?: string}> {
 		const user = await this.usersListRepository.findOneBy({username: username})
 		if (!user)
@@ -286,6 +290,14 @@ export class UserService implements OnModuleInit {
 		return false
 	}
 
+	async getStatus(login: string) {
+		await this.verificationUser(login)
+		return {
+			isOnline: await this.isOnline(login),
+			isInGame: await this.isInGame(login)
+		}
+	}
+
 	async listOfOnlinePeople(login: string) {
 		await this.verificationUser(login)
 		let users: {
@@ -297,7 +309,8 @@ export class UserService implements OnModuleInit {
 				const {username, avatar, login: ulogin, banner} = await this.getUser(u.login)
 				const friend = await this.friendService.isFriend(login, u.login)
 				const stats = await this.gameService.getStats(u.login)
-				users.push({info: {login: ulogin, username, avatar, banner, stats }, friend})
+				const isInGame = await this.isInGame(u.login)
+				users.push({info: {login: ulogin, username, avatar, banner, isInGame ,stats }, friend})
 			}
 		}
 		return (users);
@@ -307,7 +320,7 @@ export class UserService implements OnModuleInit {
 		await this.verificationUser(login)
 		await this.changeOnline(login, {online: false})
 		await this.deleteUuidSession(login)
-		await this.deleteToken(login) //TODO demander si faut vraiment le supp
+		await this.deleteToken(login)
 		return ("user disconnected")
 	}
 

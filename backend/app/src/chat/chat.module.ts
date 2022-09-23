@@ -12,7 +12,7 @@ import {RealChannelEntity} from "../entities/realChannel.entity";
 import {UserModule} from "../user/user.module";
 import {AuthModule} from "../auth/auth.module";
 import {BlockedModule} from "../blocked/blocked.module";
-import {ScheduleModule, SchedulerRegistry} from "@nestjs/schedule";
+import {ScheduleModule} from "@nestjs/schedule";
 
 @Module({
 	imports: [

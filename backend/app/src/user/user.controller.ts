@@ -82,6 +82,10 @@ export class UserController {
 			return (await this.userService.getUsername(login));
 		if (resource === 'online')
 			return (await this.userService.isOnline(login));
+		if (resource === 'status')
+			return (await this.userService.getStatus(login))
+		if (resource === 'inGame')
+			return (await this.userService.isInGame(login))
 	}
 
 	/**

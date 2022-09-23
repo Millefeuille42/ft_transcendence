@@ -1,4 +1,4 @@
-import {Controller, Get, Param, Post, Query, Req, Res} from '@nestjs/common';
+import {Controller, Get, Param, Post, Req, Res} from '@nestjs/common';
 import {Request, Response} from 'express'
 import {AuthService} from "./auth.service";
 import {UserService} from "../user/user.service";
@@ -16,7 +16,7 @@ export class AuthController {
 	 * @apiSuccess {String} link Link to redirect to user for connection
 	 */
 	@Get()
-	async getAuth(@Query() query: { code: string }, @Req() req: Request, @Res() res: Response) {
+	async getAuth(@Req() req: Request, @Res() res: Response) {
 		res.send({ page: this.authService.getRedipage() });
 		return ;
 	}
