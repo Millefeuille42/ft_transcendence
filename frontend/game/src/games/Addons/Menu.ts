@@ -1,7 +1,7 @@
 import IScreen from "../../interfaces/IScreen";
 import P5 from "p5";
-import Button from "./Button";
-import {getOnlineText} from "../../net";
+import Button from "../../classes/genericClasses/Button";
+import net, {getOnlineText} from "../../net";
 
 class Menu implements IScreen {
 	title: string
@@ -28,10 +28,10 @@ class Menu implements IScreen {
 		}
 
 		if (!this.loaded) {
-			p5.background("black")
+			p5.background(net.white ? "black" : "white")
 
-			p5.fill("white")
-			p5.stroke("black")
+			p5.fill(net.white ? "white" : "black")
+			p5.stroke(net.white ? "black" : "white")
 			p5.textSize(p5.width / 20)
 			p5.text(this.title, 0, p5.height / 10, p5.width)
 
@@ -54,6 +54,13 @@ class Menu implements IScreen {
 			this.buttons[this.buttonIndex].act.setKeyPressed(p5)
 			return
 		}
+
+		console.log(p5.key)
+		if (p5.key === "2") {
+			net.white = true
+		}
+		if (p5.key === "1")
+			net.white = false
 
 		if (p5.key === "q") {
 			this.stop = true

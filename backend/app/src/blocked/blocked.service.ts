@@ -90,7 +90,6 @@ export class BlockedService {
 		const user = await this.userService.getUser(login)
 
 		const alreadyRelation = await this.relationsRepository.findOneBy({id: user.id, otherLogin: block})
-		console.log(alreadyRelation)
 		if (alreadyRelation && alreadyRelation.blocked === true)
 			return true
 		return false

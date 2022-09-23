@@ -17,7 +17,7 @@
 									</v-tab-item>
 									<v-tab-item>
 										<DisplayContainer cols="12" sm="8" height="88vh" min_height="">
-											<ChatContent v-if="logged_in" :user=user :loaded="loaded"/>
+											<ChatContent v-if="logged_in && loaded" :user=user :auth="isAuth" :loaded="loaded"/>
 											<LoginPage v-if="!fa && !logged_in"/>
 											<TwoFAPage @FaLogin="handleFALogin" :login="login" :session="session" v-if="fa && !logged_in"></TwoFAPage>
 										</DisplayContainer>
@@ -59,6 +59,7 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 @Component( {
 	components: {TwoFAPage, DownPage, LoginPage, DisplayContainer, AppBar, ProfileContent, HomeContent, ChatContent},
 	data: () => ({
+		isAuth: false,
 		curTab: 0,
 		component: "HomeContent",
 		currentTab: "Home",
@@ -113,6 +114,7 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 		async queryUserData() {
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Login") as string)
 				.catch((e) => {
+					// TODO add undefined protection
 					if (e.response === undefined || e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
@@ -137,6 +139,12 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 		},
 	},
 	async mounted () {
+		EventBus.$on('authSock', (data: boolean) => {
+			setTimeout(() => {
+				this.$data.isAuth = data
+			}, 200)
+		})
+		this.$data.down = false
 		try {
 			if (this.$cookies.isKey("Session")) {
 				this.$data.logged_in = true
@@ -147,17 +155,14 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 				let session = await getAuthResponse()
 				window.history.pushState('home', 'Home', "/")
 				this.$data.fa = session.isTwoFA
-				console.log("Fa: ", this.$data.fa)
 
 				if (!session.isTwoFA) {
 					this.$cookies.set('Login', session.cookie.Login)
 					this.$cookies.set("Session", session.cookie.Session)
-					console.log("No Fa")
 					this.$data.logged_in = true
 					await this.queryUserData()
 					this.resetTabId()
 				} else {
-					console.log("Is Fa")
 					this.$data.login = session.cookie.Login
 					this.$data.session = session.cookie.Session
 				}

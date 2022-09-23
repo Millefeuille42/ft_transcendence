@@ -51,6 +51,7 @@ import {validateTwoFaActivation} from "@/queries";
 					this.$emit("FaLogin", true)
 				})
 				.catch(() => {
+					// TODO Handle properly
 					this.$cookies.remove('Login', this.$data.login)
 					this.$cookies.remove("Session", this.$data.session)
 					this.showSnack("Invalid Code", "red")

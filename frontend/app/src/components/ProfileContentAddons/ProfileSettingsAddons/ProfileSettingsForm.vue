@@ -102,6 +102,7 @@ import ProfileSettingsAuthSecurity
 					EventBus.$emit("userChanged", "")
 					this.showSnack("Profile updated", "green")
 				} catch (e) {
+					// TODO handle properly
 					this.showSnack("Failed to update profile", "red")
 				}
 			}

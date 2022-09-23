@@ -107,8 +107,10 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch((e) => {
-					console.log("ici")
-					console.log(e)
+					// TODO manage error
+					if (e.response === undefined) {
+						return
+					}
 					if (e.response.status === 404)
 						this.showSnack(friend.info.login + " not found", "red")
 					else if (e.response.status === 400)
@@ -126,6 +128,7 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch(() => {
+					// TODO manage error
 					this.showSnack("Failed to remove " + friend.info.login, "red")
 					friend.friendLoading = false
 				})

@@ -50,7 +50,6 @@ export class ItemsService {
 		else if (rarity <= 100)
 			itemsRarity = await this.listItems.find({where: {rarity: 4}})
 		const item = Math.floor(Math.random() * itemsRarity.length)
-		console.log('index item : ' + item)
 		itemToAdd = itemsRarity[item]
 		return (itemToAdd);
 	}
@@ -63,10 +62,8 @@ export class ItemsService {
 		await this.gameService.fixPoints(login, points - 1)
 
 		const rarity = Math.floor(Math.random() * 100) + 1
-		console.log('rarity : ' + rarity)
 
 		let itemToAdd: Items = await this.getItemByRarity(rarity);
-		console.log(itemToAdd)
 
 		await this.addItem(login, itemToAdd);
 		return (itemToAdd)
@@ -107,7 +104,6 @@ export class ItemsService {
 	async getInventory(login: string) {
 		const user = await this.userService.getUser(login)
 		const inventory = await this.inventoryRepository.findOneBy({id: user.id})
-		console.log(inventory)
 		let rod: Items[] = []
 		let ball: Items[] = []
 		let sound: Items[] = []

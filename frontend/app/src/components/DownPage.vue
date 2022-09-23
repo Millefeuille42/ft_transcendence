@@ -11,8 +11,8 @@
 							:height="$vuetify.breakpoint.mobile ? '30%' : '15%'"
 							:width="$vuetify.breakpoint.mobile ? '70%' : '50%'"
 							class=" d-flex mt-16 flex-column justify-center align-center ml-auto mr-auto pa-4">
-						<v-card-title >Server is offline</v-card-title>
-						<v-card-subtitle>Our server is down for maintenance, please reload this page in a few minutes</v-card-subtitle>
+						<v-card-title >Unknown error</v-card-title>
+						<v-card-subtitle>You encountered an unknown error, please reload this page in a few minutes</v-card-subtitle>
 					</v-card>
 				</v-sheet>
 			</v-img>

@@ -4,14 +4,24 @@ import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
 	const frontAddress = process.env.HOST + ":" + process.env.PORT_FRONT
+	const devAddress = process.env.HOST + ":1234"
+	const whiteList = [frontAddress, devAddress]
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
 	app.enableCors({
 		credentials: true,
-		origin: frontAddress,
+		origin: (requestOrigin, callback) => {
+			if (!requestOrigin || whiteList.indexOf(requestOrigin) !== -1) {
+				console.log("CORS OK")
+				callback(null, requestOrigin)
+			} else {
+				console.log("Denied by CORS")
+				callback(null, false)
+			}
+		},
 		allowedHeaders: "content-type",
 		methods: ["PATCH, DELETE"]
 	  });
-	await app.listen(3000);
+	await app.listen(process.env.PORT);
 }
 bootstrap();

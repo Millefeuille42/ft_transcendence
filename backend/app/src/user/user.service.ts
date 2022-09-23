@@ -49,7 +49,6 @@ export class UserService implements OnModuleInit {
 			let user = await this.getUser("patate")
 			await this.changeOnlineInDB({login: "patate", online: user.online})
 		}
-		console.log('Patate and Tester are online (or not)')
 	}
 
 	async verificationUser(login: string) {
@@ -95,11 +94,6 @@ export class UserService implements OnModuleInit {
 		return await this.usersListRepository.findOneBy({login: user.login})
 	}
 
-	async deleteUser(login: string) {
-		const user = await this.getUser(login)
-		return await this.usersListRepository.delete(user.id)
-	}
-
 	async getUUID(login: string) {
 		const user = await this.verificationUser(login)
 		return (user.id)
@@ -117,13 +111,30 @@ export class UserService implements OnModuleInit {
 		const id: string = uuid()
 		this.connectSession.set(login, token);
 		this.connectUUID.set(login, id)
-		console.log("Login : " + login)
-		console.log("Token : " + this.connectSession.get(login))
-		console.log("uuid : " + this.connectUUID.get(login))
 	}
 
 	async getUser(login: string) {
 		return await this.verificationUser(login) ;
+	}
+
+	async getUserByUser(login: string, user: string) {
+		const u = await this.getUser(login)
+		const uToRet = await this.getUser(user)
+
+		return ({
+			avatar: uToRet.avatar,
+			username: uToRet.username,
+			isBlocked: this.blockedService.isBlocked(u.login, uToRet.login),
+			isFriend: this.friendService.isFriend(u.login, uToRet.login)
+		})
+	}
+
+	async getUserById(id: number) {
+		const user = await this.usersListRepository.findOneBy({id: id})
+
+		if (!user)
+			throw new BadRequestException("User doesn't exist")
+		return user
 	}
 
 	async userExist(login: string) {
