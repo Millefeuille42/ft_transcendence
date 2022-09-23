@@ -37,6 +37,7 @@ export class MultiGateway {
 	ERR_NOT_FOUND: err = {code: 404, text: "Error: match not found"}
 
 	async handleDisconnect(client: Socket) {
+		// TODO No more in game
 		this.multiService.deleteUser(client.id, this.users, this.matchQ, this.matches)
 	}
 
@@ -46,6 +47,7 @@ export class MultiGateway {
 			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
 			return
 		}
+		// TODO No more in game
 		this.multiService.deleteUser(client.id, this.users, this.matchQ, this.matches)
 	}
 
@@ -97,6 +99,7 @@ export class MultiGateway {
 		}
 		if (match.first.login === user) {
 			if (match.screen === "fst" || match.screen === "win") {
+				// TODO No more in game
 				// TODO Send win data to back
 			}
 			if (match.screen === "") {
@@ -212,6 +215,7 @@ export class MultiGateway {
 			match = this.multiService.createRods(this.matches.get(data.id))
 			match = this.multiService.createBall(this.matches.get(data.id), x, y)
 
+			// TODO this.authService.addToInGame()
 			match.first.socket.emit('multiStart', {oper: "start"})
 			match.second.socket.emit('multiStart', {oper: "start"})
 		}
