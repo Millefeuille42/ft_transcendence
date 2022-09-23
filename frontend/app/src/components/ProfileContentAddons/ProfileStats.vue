@@ -17,7 +17,7 @@
 						</v-sheet>
 					</v-dialog>
 					<v-dialog v-model="showHistory" dark>
-						<ProfileCardMatchHistoryDialog :is_rounded="false" :user="user" :stats="stats"/>
+						<ProfileCardMatchHistoryDialog v-if="loaded" :is_rounded="false" :user="user" :stats="stats"/>
 					</v-dialog>
 				</template>
 			</TransparentCard>
@@ -67,7 +67,7 @@ import {EventBus} from "@/main";
 		user: Object as () => userDataIn
 	},
 	data: () => ({
-		stats: Object as () => statsIn,
+		stats: Object as () => userDataIn,
 		loaded: false,
 		rivalData: Object as () => userDataIn,
 		loadedRival: false,
@@ -121,7 +121,7 @@ import {EventBus} from "@/main";
 					this.$data.stats = stats
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
