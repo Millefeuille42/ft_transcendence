@@ -8,6 +8,7 @@ import matchUsersInterface, {Ball, matchData, matchPair, Rod} from "./matchUsers
 import IPair from "../utils/IPair";
 import {err, MultiService} from "./multi.service";
 import {v4 as uuid} from 'uuid'
+import {UserService} from "../user/user.service";
 
 interface authData {
 	token: string,
@@ -21,8 +22,8 @@ export class MultiGateway {
 	constructor (
 		private multiService: MultiService,
 		private gameService: GameService,
-		private authService: AuthService
-	) {}
+		private authService: AuthService,
+		private userService: UserService) {}
 	@WebSocketServer() server;
 
 	matchQ: Queue<socketLoginPair> = new Queue()
@@ -37,7 +38,7 @@ export class MultiGateway {
 	ERR_NOT_FOUND: err = {code: 404, text: "Error: match not found"}
 
 	async handleDisconnect(client: Socket) {
-		// TODO No more in game
+		await this.userService.removeInGame(this.users[client.id])
 		this.multiService.deleteUser(client.id, this.users, this.matchQ, this.matches)
 	}
 
@@ -47,7 +48,7 @@ export class MultiGateway {
 			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
 			return
 		}
-		// TODO No more in game
+		await this.userService.removeInGame(this.users[client.id])
 		this.multiService.deleteUser(client.id, this.users, this.matchQ, this.matches)
 	}
 
@@ -99,8 +100,16 @@ export class MultiGateway {
 		}
 		if (match.first.login === user) {
 			if (match.screen === "fst" || match.screen === "win") {
-				// TODO No more in game
-				// TODO Send win data to back
+				await this.userService.removeInGame(match.first.login)
+				await this.userService.removeInGame(match.second.login)
+
+				//TODO modifier mode
+				await this.gameService.addHistory(match.first.login, match.second.login,
+											match.ball.score.first, match.ball.score.second,
+											"normal")
+				await this.gameService.addHistory(match.second.login, match.first.login,
+					match.ball.score.second, match.ball.score.first,
+					"normal")
 			}
 			if (match.screen === "") {
 				match.ball.position.x += match.ball.direction.x * match.ball.speed.x
@@ -215,7 +224,8 @@ export class MultiGateway {
 			match = this.multiService.createRods(this.matches.get(data.id))
 			match = this.multiService.createBall(this.matches.get(data.id), x, y)
 
-			// TODO this.authService.addToInGame()
+			await this.userService.addInGame(match.first.login)
+			await this.userService.addInGame(match.second.login)
 			match.first.socket.emit('multiStart', {oper: "start"})
 			match.second.socket.emit('multiStart', {oper: "start"})
 		}

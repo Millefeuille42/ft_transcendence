@@ -184,15 +184,9 @@ export class ChatService {
 		const chan = await this.channelRepository.findOne({where: {name: channel}, relations: ['ban']})
 		const user = await this.userService.getUser(login)
 
-		console.log(chan.ban, user)
 		let banned = chan.ban.find((u) => u.userId === user.id)
-		if (banned) {
-			if (banned.endOfBan < new Date()) {
-				await this.unBan(channel, login)
-				return false
-			}
+		if (banned)
 			return true
-		}
 		return false
 	}
 

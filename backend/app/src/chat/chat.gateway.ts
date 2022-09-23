@@ -45,6 +45,10 @@ interface unmuteOrUnban {
 		 for (const data of list) {
 			 await this.unmuteSomeone(data)
 		 }
+		 list = await this.chatService.checkBan()
+		 for (const data of list) {
+			 await this.unbanSomeone(data)
+		 }
 	}
 
 	async handleConnection(client: Socket) {
@@ -59,6 +63,7 @@ interface unmuteOrUnban {
 		console.log(this.sockUser[client.id])
 		if (this.sockUser[client.id]) {
 			await this.userService.changeOnline(this.sockUser[client.id], {online: false})
+			this.server.emit('status', {login: this.sockUser[client.id]})
 			this.sockUser.delete(client.id)
 		}
 	}
@@ -70,8 +75,11 @@ interface unmuteOrUnban {
 		if (data.token === 'pass')
 			ret = true
 		this.server.emit('auth', ret)
-		if (ret === true)
+		if (ret === true) {
 			this.sockUser[client.id] = data.login
+			await this.userService.changeOnline(data.login, {online: true})
+			this.server.emit('status', {login: data.login})
+		}
 	}
 
 	//data -> channel (string) and message (string)
@@ -247,7 +255,8 @@ interface unmuteOrUnban {
 		}
 	  }
 
-	  async unbanSomeone(data: any) {
+	  @SubscribeMessage('unban')
+	  async unbanSomeone(@MessageBody() data: any) {
 		try {
 			const payload = {
 				channel: data.channel,
