@@ -109,8 +109,13 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 			}
 			getChannel(this.$data.joinPrompt)
 				.then((data: channelData) => {
+					console.log("coucou", this.$data.joinPasswordPrompt)
 					if (!data.public && !data.pass) {
 						this.showSnack("This channel is private", "red")
+						return
+					}
+					if (this.$data.joinPasswordPrompt === "" && this.$data.joinDisplayPasswordPrompt) {
+						this.showSnack("Invalid password", "red")
 						return
 					}
 					if (data.pass && this.$data.joinPasswordPrompt === "") {
@@ -118,11 +123,8 @@ import {createChannel, getChannel, RedirectToFTAuth} from "@/queries";
 							this.$data.joinDisplayPasswordPrompt = true
 							return
 						}
-						if (this.$data.joinPasswordPrompt === "") {
-							this.showSnack("Invalid password", "red")
-							return
-						}
 					}
+					console.log(this.$data.joinPasswordPrompt)
 					this.$socket.emit('join', {
 						channel: this.$data.joinPrompt,
 						password: this.$data.joinPasswordPrompt

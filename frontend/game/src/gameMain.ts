@@ -7,6 +7,7 @@ import Menu from "./games/Addons/Menu";
 import Prompt from "./games/Addons/Prompt";
 import Matchmaking from "./games/Addons/Matchmaking";
 import net from "./net";
+import SpectateScreen from "./games/Addons/SpectateScreen";
 
 let MultiMenu: Menu
 let MainMenu: Menu
@@ -45,7 +46,7 @@ export const sketch = (p5: P5) => {
 		MainMenu = new Menu("Pong De Fou", [
 			new Button("Local", 0, new LocalGame(), p5, false),
 			new Button("Multiplayer", 1, MultiMenu, p5),
-			new Button("Spectate", 2, SpectatePrompt, p5),
+			new Button("Spectate", 2, new SpectateScreen(), p5),
 		])
 
 		MainMenu.loadScreen(p5)

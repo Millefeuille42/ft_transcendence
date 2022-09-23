@@ -1,6 +1,12 @@
 import {io, Socket} from "socket.io-client";
 import myVector from "./classes/genericClasses/MyVector";
 
+export interface specMatch {
+	one: string
+	two: string
+	id: string
+}
+
 interface connection {
 	socket: Socket
 	hasError: boolean
@@ -24,6 +30,8 @@ interface connection {
 	otherRod: myVector
 	screen: string
 	score: {left: number, right: number}
+	specMatches: specMatch[]
+	started: boolean
 }
 
 let net: connection = {
@@ -43,7 +51,9 @@ let net: connection = {
 	otherRod: new myVector,
 	match: {login: "", id: ""},
 	score: {left: 0, right: 0},
-	screen: ""
+	screen: "",
+	specMatches: undefined,
+	started: false
 }
 
 net.socket.on('connect', () => {
@@ -63,8 +73,8 @@ net.socket.on('connect_error', () => {
 
 net.socket.on('multiAuth', (valid: boolean) => {
 	console.log("AUTH")
-	let u = new URL(window.location.toString())
-	console.log(u.searchParams.get("login"), u.searchParams.get("token"))
+	if (!valid)
+		net.hasError = true
 	net.auth = valid
 })
 
@@ -85,7 +95,20 @@ net.socket.on('multiStart', () => {
 	net.matchStart = true
 })
 
+net.socket.on('multiSpecList', (data: specMatch[]) => {
+	net.specMatches = data
+})
+
 net.socket.on('multiUpdate', (data: {ball: myVector, myRod: myVector, otherRod: myVector, score: {left: number, right: number}, screen: string}) => {
+	net.ball = data.ball
+	net.myRod = data.myRod
+	net.otherRod = data.otherRod
+	net.score = data.score
+	net.screen = data.screen
+})
+
+net.socket.on('multiSpec', (data: {started: boolean, ball: myVector, myRod: myVector, otherRod: myVector, score: {left: number, right: number}, screen: string}) => {
+	net.started = data.started
 	net.ball = data.ball
 	net.myRod = data.myRod
 	net.otherRod = data.otherRod
@@ -102,6 +125,8 @@ net.socket.on('multiError', (data: {code: number, text: string}) => {
 	console.log("ERROR")
 	if (data.code === 442) {
 		console.log("LEFT")
+		window.location.reload()
+	} else if (data.code === 404) {
 		window.location.reload()
 	}
 })

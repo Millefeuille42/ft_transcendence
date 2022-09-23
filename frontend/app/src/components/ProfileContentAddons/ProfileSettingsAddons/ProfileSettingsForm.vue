@@ -11,21 +11,24 @@
 			label="Username"
 			required
 		></v-text-field>
-		<v-text-field
+		<v-file-input
+			show-size
+			v-model="formAvatar"
 			class="mr-auto ml-auto"
 			:style="'width: ' + ($vuetify.breakpoint.mobile ? '100%' : '70%' )+ ';'"
-			v-model="formProfilePic"
+			accept="image/png, image/jpeg"
 			prepend-icon="mdi-camera"
 			label="Profile pic"
-		></v-text-field>
-		<v-text-field
+		></v-file-input>
+		<v-file-input
+			show-size
+			v-model="formBanner"
 			class="mr-auto ml-auto"
 			:style="'width: ' + ($vuetify.breakpoint.mobile ? '100%' : '70%') + ';'"
-			v-model="formBannerPic"
 			accept="image/png, image/jpeg"
 			prepend-icon="mdi-image-area"
 			label="Banner pic"
-		></v-text-field>
+		></v-file-input>
 		<v-sheet class="mr-auto ml-auto d-flex flex-row justify-center"
 				 :width="$vuetify.breakpoint.mobile ? '40%' : '40%'">
 			<v-btn class="mr-4" width="20%" @click="formCheck"
@@ -65,7 +68,8 @@ import ProfileSettingsAuthSecurity
 	data: () => ({
 		valid: false,
 		formUsername: "",
-		formBannerPic: "",
+		formAvatar: undefined as unknown as File,
+		formBanner: undefined as unknown as File,
 		formProfilePic: "",
 		usernameRules: [
 			(v: string) => v.length <= 12 || 'Username must be less than 12 characters'
@@ -91,20 +95,37 @@ import ProfileSettingsAuthSecurity
 				this.showSnack("Invalid data in the form", "red")
 				return
 			}
-			if (this.$data.formUsername.length <= 12) {
-				try {
-					let formOut: formDataOut = {
-						username: this.$data.formUsername,
-						banner: this.$data.formBannerPic,
-						avatar: this.$data.formProfilePic
-					}
-					await postForm(formOut, this.$props.user.login)
-					EventBus.$emit("userChanged", "")
-					this.showSnack("Profile updated", "green")
-				} catch (e) {
-					// TODO handle properly
-					this.showSnack("Failed to update profile", "red")
+
+			const encode = (file: File) => new Promise<string>((resolve, reject) => {
+				const reader = new FileReader();
+				reader.readAsDataURL(file);
+				reader.onload = () => resolve(reader.result as string);
+				reader.onerror = error => reject(error);
+			})
+
+			try {
+				if (this.$data.formUsername.length <= 12) {
+					console.log("username")
+					await postForm({username: this.$data.formUsername}, this.$props.user.login)
 				}
+				if (this.$data.formAvatar) {
+					console.log("ava")
+					await encode(this.$data.formAvatar).then(async av => {
+						await postForm({avatar: av}, this.$props.user.login)
+					})
+					this.$data.formAvatar = undefined
+				}
+				if (this.$data.formBanner) {
+					console.log("banner")
+					await encode(this.$data.formBanner).then(async ban => {
+						await postForm({banner: ban}, this.$props.user.login)
+					})
+					this.$data.formBanner = undefined
+				}
+				EventBus.$emit("userChanged", "")
+				this.showSnack("Profile updated", "green")
+			} catch (e) {
+				this.showSnack("Failed to update profile", "red")
 			}
 		},
 		async changeFa(enabled: boolean) {
@@ -122,8 +143,6 @@ import ProfileSettingsAuthSecurity
 	},
 	mounted() {
 		this.$data.formUsername = this.$props.user.username
-		this.$data.formProfilePic = this.$props.user.avatar
-		this.$data.formBannerPic = this.$props.user.banner
 	}
 })
 export default class ProfileSettingsForm extends Vue {

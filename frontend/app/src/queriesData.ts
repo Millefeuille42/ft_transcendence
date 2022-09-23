@@ -53,9 +53,9 @@ export interface statsIn {
 }
 
 export interface formDataOut {
-    username: string,
-    avatar: string,
-    banner: string
+    username?: string,
+    avatar?: string,
+    banner?: string
 }
 
 export interface onlineDataIn {

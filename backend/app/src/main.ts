@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import {json} from "express";
 
 async function bootstrap() {
 	const frontAddress = process.env.HOST + ":" + process.env.PORT_FRONT
@@ -8,6 +9,7 @@ async function bootstrap() {
 	const whiteList = [frontAddress, devAddress]
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
+	app.use(json({limit: '50mb'}))
 	app.enableCors({
 		credentials: true,
 		origin: (requestOrigin, callback) => {

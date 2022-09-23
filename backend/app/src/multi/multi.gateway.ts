@@ -85,6 +85,60 @@ export class MultiGateway {
 		}
 	}
 
+	@SubscribeMessage('multiSpec')
+	async handleSpec(@MessageBody() data: {id: string}, @ConnectedSocket() client: Socket) {
+		if (this.users[client.id] === undefined) {
+			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
+			return
+		}
+
+		let match: matchData = this.matches.get(data.id)
+		if (match === undefined) {
+			client.emit('multiError', this.ERR_NOT_FOUND)
+			return
+		}
+
+		if (!match.started)
+			return
+
+		client.emit('multiSpec', {
+			started: match.started,
+			ball: {
+				x: match.ball.position.x,
+				y: match.ball.position.y
+			},
+			myRod: {
+				x: match.rodOne.position.x,
+				y: match.rodOne.position.y
+			},
+			otherRod: {
+				x: match.rodTwo.position.x,
+				y: match.rodTwo.position.y
+			},
+			score: {
+				left: match.ball.score.first,
+				right: match.ball.score.second
+			},
+			screen: match.screen === "" || match.screen === "ready" ? match.screen : match.screen === "fst" ? "you" : "other"
+		})
+
+	}
+
+	@SubscribeMessage('multiSpecList')
+	async handleSpecList(@ConnectedSocket() client: Socket) {
+		if (this.users[client.id] === undefined) {
+			client.emit('multiError', this.ERR_NOT_LOGGED_IN)
+			return
+		}
+
+		let ret = []
+
+		this.matches.forEach((val, k) => {
+			ret.push({one: val.first.login, two: val.second.login, id: k})
+		})
+		client.emit('multiSpecList', ret)
+	}
+
 	@SubscribeMessage('multiUpdate')
 	async handleUpdate(@MessageBody() data: {id: string}, @ConnectedSocket() client: Socket) {
 		let user = this.users[client.id]
@@ -232,6 +286,7 @@ export class MultiGateway {
 			await this.userService.addInGame(match.second.login)
 			match.first.socket.emit('multiStart', {oper: "start"})
 			match.second.socket.emit('multiStart', {oper: "start"})
+			match.started = true
 		}
 	}
 
@@ -281,6 +336,7 @@ export class MultiGateway {
 				screen: "ready",
 				wait: false,
 				stop: false,
+				started: false
 			})
 		}
 		this.operateQ = false
