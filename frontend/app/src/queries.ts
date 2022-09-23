@@ -83,8 +83,9 @@ export async function getFriendsList(login: string): Promise<friendListIn> {
 }
 
 export async function getFriendStatus(login: string, friend: string): Promise<string> {
-    let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
-    target += login + "/" + friend + "/online"
+   // let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
+   // target += login + "/" + friend + "/online"
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/" + friend + "/online"
     try {
         let response = await axios( {
             method: 'get',
