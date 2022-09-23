@@ -32,7 +32,8 @@ import ProfileContent from "@/components/ProfileContent.vue";
 import ProfileCard from "@/components/ProfileContentAddons/ProfileCard.vue";
 import SkeletonChatMainWindow from "@/components/SkeletonComponents/SkeletonChatMainWindow.vue";
 import {EventBus} from "@/main";
-import {channelData} from "@/queriesData";
+import {channelData, smolUserData} from "@/queriesData";
+import {getUserByUser} from "@/queries";
 
 interface messageData {
 	message: String,
@@ -70,7 +71,13 @@ interface messageData {
 		message(data) {
 			if (data === null)
 				return
-			EventBus.$emit("newMessage", data)
+			getUserByUser(this.$props.user.login, data.login).then((uData: smolUserData) => {
+				if (uData.isBlocked)
+					return
+				EventBus.$emit("newMessage", data)
+			}).catch((e) => {
+				console.log(e)
+			})
 		},
 
 		ban(data: {bannedBy: string, target: string, channel: string}) {
@@ -147,6 +154,9 @@ interface messageData {
 		})
 		EventBus.$on("chatSnack", (text: string, color: string) => {
 			this.showSnack(text, color)
+		})
+		EventBus.$on("chatBlocked", () => {
+			this.handleChange(this.$data.selected)
 		})
 	}
 })

@@ -64,6 +64,9 @@ import {EventBus} from "@/main";
 			removeBlock(this.$props.user.login, block)
 				.then(() => {
 					EventBus.$emit("updateOnlineList", "")
+					setTimeout(() => {
+						EventBus.$emit("chatBlocked")
+					}, 100)
 					this.showSnack(block + " unblocked", "green")
 					this.$data.loadingBlocking = false
 					this.loadBlockedList()

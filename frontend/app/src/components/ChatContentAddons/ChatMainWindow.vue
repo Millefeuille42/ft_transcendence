@@ -32,7 +32,7 @@
 			</v-sheet>
 			<v-btn @click="handleSend" width="10%" class="my-auto"> Send </v-btn>
 		</v-sheet>
-		<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
+		<ChatUsersDrawer :login="login" :isAdmin="isAdmin" :isOwner="owner === login" :users="users" :channel="current.name" :usersLoaded="usersLoaded" />
 	</v-sheet>
 </template>
 
@@ -40,8 +40,8 @@
 import {Component, Vue} from "vue-property-decorator";
 import ChatMessage from "@/components/ChatContentAddons/ChatMessage.vue";
 import {EventBus} from "@/main";
-import {channelData, messageDataIn, userDataIn} from "@/queriesData";
-import {getChannel, getUserData} from "@/queries";
+import {channelData, messageDataIn, smolUserData, userDataIn} from "@/queriesData";
+import {getChannel, getUserByUser, getUserData} from "@/queries";
 import ChatProfileCardLoader from "@/components/ChatContentAddons/ChatProfileCardLoader.vue";
 import ChatUsersDrawer from "@/components/ChatContentAddons/ChatUsersDrawer.vue";
 
@@ -74,15 +74,17 @@ interface messageData {
 		text: ""
 	}),
 	methods: {
-		addMessage(uData: userDataIn, message: messageDataIn, length: number) {
-			this.$data.messages.push({
-				login: message.userLogin,
-				message: message.content,
-				createdAt: new Date(message.createAd),
-				avatar: uData.avatar,
-				username: uData.username,
-				id: message.id.toString()
-			})
+		addMessage(uData: smolUserData, message: messageDataIn, length: number) {
+			if (!uData.isBlocked) {
+				this.$data.messages.push({
+					login: message.userLogin,
+					message: message.content,
+					createdAt: new Date(message.createAd),
+					avatar: uData.avatar,
+					username: uData.username,
+					id: message.id.toString()
+				})
+			}
 			this.$data.loadCount++
 			this.$data.loadStatus = (this.$data.loadCount / length) * 100
 			if (this.$data.loadCount >= length) {
@@ -117,7 +119,8 @@ interface messageData {
 									continue
 								}
 							}
-							await getUserData(message.userLogin).then((uData: userDataIn) => {
+							await getUserByUser(this.$props.login, message.userLogin).then((uData: smolUserData) => {
+								uData.login = message.userLogin
 								this.$data.knownUsers.push(uData)
 								this.addMessage(uData, message, data.messages.length)
 							}).catch((e) => {
