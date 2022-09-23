@@ -39,6 +39,7 @@ export class UserService implements OnModuleInit {
 	connectSession = new Map<string, string>([]);
 	connectUUID = new Map<string, string>([])
 	onlinePeople: OnlineDto[] = []
+	inGame: string[] = []
 
 	async onModuleInit(): Promise<void> {
 		if (await this.userExist("tester")) {
@@ -49,6 +50,28 @@ export class UserService implements OnModuleInit {
 			let user = await this.getUser("patate")
 			await this.changeOnlineInDB({login: "patate", online: user.online})
 		}
+	}
+
+	async addInGame(login: string) {
+		if (await this.isInGame(login))
+			throw new ConflictException("User is already in game")
+		this.inGame.push(login)
+	}
+
+	async removeInGame(login: string) {
+		if (!await this.isInGame(login))
+			throw new ConflictException("User is not in game")
+		this.inGame = this.inGame.filter((u) => u !== login)
+	}
+
+	async listInGame() {
+		return this.inGame
+	}
+
+	async isInGame(login: string) {
+		if (this.inGame.find((u) => u === login))
+			return true
+		return false
 	}
 
 	async verificationUser(login: string) {
