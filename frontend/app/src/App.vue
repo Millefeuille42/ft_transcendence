@@ -114,7 +114,6 @@ import TwoFAPage from "@/components/TwoFAPage.vue";
 		async queryUserData() {
 			const selfData: userDataIn = await getUserData(this.$cookies.get("Login") as string)
 				.catch((e) => {
-					// TODO add undefined protection
 					if (e.response === undefined || e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()

@@ -132,14 +132,18 @@ interface messageData {
 								this.$data.knownUsers.push(uData)
 								this.addMessage(uData, message, data.messages.length)
 							}).catch((e) => {
-								console.log(e)
+								if (e.response) {
+									EventBus.$emit("chatSnack", e.response.data.message, "red")
+								}
 							})
 						}
 					} else {
 						this.$data.showMessages = true
 					}
 				}).catch((e) => {
-					console.log(e)
+				if (e.response) {
+					EventBus.$emit("chatSnack", e.response.data.message, "red")
+				}
 			})
 		},
 		handleSend() {
@@ -179,7 +183,9 @@ interface messageData {
 				message.channel = dm.from
 				this.$data.messages.push(message)
 			}).catch((e) => {
-				console.log(e)
+				if (e.response) {
+					EventBus.$emit("chatSnack", e.response.data.message, "red")
+				}
 			})
 		})
 		EventBus.$on('chanUpdateUserList', () => {

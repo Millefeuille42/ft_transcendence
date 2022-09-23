@@ -26,10 +26,6 @@
 							<v-card>
 								<v-card-title> Fine... </v-card-title>
 								<v-card-text> Good luck with that </v-card-text>
-								<v-card-actions>
-									<v-btn text color="grey darken-4" @click="handleNo" > No </v-btn>
-									<v-btn text color="grey darken-4" @click="handleSuccess" > Yes </v-btn>
-								</v-card-actions>
 							</v-card>
 						</v-dialog>
 					</v-card>

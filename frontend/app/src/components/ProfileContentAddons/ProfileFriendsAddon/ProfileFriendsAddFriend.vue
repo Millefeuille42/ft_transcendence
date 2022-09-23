@@ -45,11 +45,12 @@ import {EventBus} from "@/main";
 					EventBus.$emit("down", "")
 				}
 			} catch (e: any) {
-				// TODO handle properly
-				if (e.response.status === 404)
+				if ( e.response && e.response.status === 404)
 					this.$data.snackErrorText = "User not found"
-				else if (e.response.status === 400)
+				else if ( e.response && e.response.status === 400)
 					this.$data.snackErrorText = "This user is already your friend"
+				else if ( e.response && e.response.status === 403)
+					this.$data.snackErrorText = e.response.data.message
 				this.$data.snackAddFriendError = true
 				this.$data.addFriendLoading = false
 			}

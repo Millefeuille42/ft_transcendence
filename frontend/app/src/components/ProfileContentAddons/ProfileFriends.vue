@@ -15,7 +15,7 @@
 									</v-list-item-avatar>
 									<v-badge v-if="friend.status !== 'not loaded'"
 											 bottom overlap dot offset-x="25" offset-y="20"
-											 :color="friend.status === 'online' ? 'green' : 'red'"></v-badge>
+											 :color="friend.status === 'online' ? 'green' : (friend.status === 'in-game' ? 'blue' : 'red')"></v-badge>
 									<v-list-item-content color="grey">
 										<v-list-item-title class="text-left">{{ friend.username }}</v-list-item-title>
 									</v-list-item-content>
@@ -60,7 +60,7 @@ import {EventBus} from "@/main";
 		loaded: false,
 		hasFriends: false,
 		hasFriendSelected: false,
-		friends: Array,
+		friends: [] as userDataIn[],
 		selectedFriend: Object as () => userDataIn,
 
 		snackShow: false,
@@ -96,7 +96,6 @@ import {EventBus} from "@/main";
 				}
 				EventBus.$emit("updateOnlineList", "")
 			}).catch(() => {
-				// TODO handle properly
 				this.showSnack("Failed to remove " + friend.username, "red")
 			})
 			this.showSnack(friend.username + " removed", "green")
@@ -104,17 +103,18 @@ import {EventBus} from "@/main";
 
 		async loadFriendStatus(friend: string) {
 			let that = this
-			getFriendStatus(that.$props.user.login, friend)
+			getFriendStatus(friend)
 				.then (function (onlineData: string) {
+					console.log(onlineData)
 					let fFriend: userDataIn = that.$data.friends.find((f: userDataIn) => f.login === friend)
 					if (fFriend)
 						fFriend.status = onlineData
 				}).catch((e) => {
-				if (e.response.status >= 401 && e.response.status <= 404) {
-					this.$cookies.remove("Session")
-					RedirectToFTAuth()
-					return
-				}
+					if ( e.response && e.response.status >= 401 && e.response.status <= 404) {
+						this.$cookies.remove("Session")
+						RedirectToFTAuth()
+						return
+					}
 					EventBus.$emit("down", "")
 				})
 		},
@@ -127,7 +127,7 @@ import {EventBus} from "@/main";
 					this.$data.friends.push(friendData)
 					this.loadFriendStatus(friend)
 				}).catch((e) => {
-				if (e.response.status >= 401 && e.response.status <= 404) {
+				if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 					this.$cookies.remove("Session")
 					RedirectToFTAuth()
 					return
@@ -144,7 +144,7 @@ import {EventBus} from "@/main";
 					that.$data.hasFriends = friendList.thereIsFriend
 					return friendList
 				}).catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return {thereIsFriend: false, listOfFriends: []} as friendListIn
@@ -169,6 +169,16 @@ import {EventBus} from "@/main";
 		for (let friend in friendList.listOfFriends) {
 			this.loadFriendData(friendList.listOfFriends[friend]).then()
 		}
+
+		EventBus.$on('updateFriendStatus', async () => {
+			let fl: friendListIn = await this.loadFriends()
+			this.$data.loaded = true
+			if (!this.$data.hasFriends)
+				return
+			for (let friend in fl.listOfFriends) {
+				this.loadFriendData(fl.listOfFriends[friend]).then()
+			}
+		})
 
 		EventBus.$on("unloadCard", () => {
 			this.$data.hasFriendSelected = false

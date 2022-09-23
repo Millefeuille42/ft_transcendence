@@ -104,6 +104,8 @@ export class ItemsService {
 	async getInventory(login: string) {
 		const user = await this.userService.getUser(login)
 		const inventory = await this.inventoryRepository.findOneBy({id: user.id})
+		if (!inventory)
+			return inventory
 		let rod: Items[] = []
 		let ball: Items[] = []
 		let sound: Items[] = []
@@ -199,6 +201,9 @@ export class ItemsService {
 		const user = await this.userService.getUser(login)
 
 		const equipment = await this.equipmentRepository.findOneBy({id: user.id})
+		if (!equipment)
+			return equipment
+
 		const rod = await this.listItems.findOneBy({id: equipment.rod})
 		const ball = await this.listItems.findOneBy({id: equipment.ball})
 		const sound = await this.listItems.findOneBy({id: equipment.sound})

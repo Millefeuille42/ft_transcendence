@@ -76,11 +76,17 @@ interface messageData {
 					return
 				EventBus.$emit("newMessage", data)
 			}).catch((e) => {
-				console.log(e)
+				if (e.response) {
+					EventBus.$emit("chatSnack", e.response.data.message, "red")
+				}
 			})
 		},
-		status() {
-			EventBus.$emit("reloadStatus")
+		userStatus() {
+			console.log("HERE")
+			EventBus.$emit("updateOnlineList")
+			setTimeout(() => {
+				EventBus.$emit("updateFriendStatus")
+			}, 100)
 		},
 		dm(data: {from: string, to: string, message: string}) {
 			console.log("hey")

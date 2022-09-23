@@ -65,6 +65,13 @@ import {EventBus} from "@/main";
 		}
 	},
 	sockets: {
+		userStatus() {
+			console.log("HERE")
+			EventBus.$emit("updateOnlineList")
+			setTimeout(() => {
+				EventBus.$emit("updateFriendStatus")
+			}, 200)
+		},
 		auth(data) {
 			EventBus.$emit('authSock', data);
 		},

@@ -64,7 +64,16 @@ interface unmuteOrUnban {
 		console.log(this.sockUser[client.id])
 		if (this.sockUser[client.id]) {
 			await this.userService.changeOnline(this.sockUser[client.id], {online: false})
-			this.server.emit('status', {login: this.sockUser[client.id]})
+			this.server.emit('userStatus', {login: this.sockUser[client.id]})
+			this.sockUser.delete(client.id)
+		}
+	}
+
+	@SubscribeMessage('disc')
+	async handleDisc(@ConnectedSocket() client: Socket) {
+		if (this.sockUser[client.id]) {
+			await this.userService.changeOnline(this.sockUser[client.id], {online: false})
+			this.server.emit('userStatus', {login: this.sockUser[client.id]})
 			this.sockUser.delete(client.id)
 		}
 	}
@@ -82,7 +91,7 @@ interface unmuteOrUnban {
 			if (ret === true) {
 				this.sockUser[client.id] = data.login
 				await this.userService.changeOnline(data.login, {online: true})
-				this.server.emit('status', {login: data.login})
+				this.server.emit('userStatus', {login: data.login})
 			}
 		}
 		catch(e) {
@@ -207,7 +216,6 @@ interface unmuteOrUnban {
 			this.server.emit('admin', payload)
 		}
 		catch (e) {
-			console.log(e)
 			client.emit('error', e)
 		}
 	}

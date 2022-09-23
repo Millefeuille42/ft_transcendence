@@ -4,7 +4,7 @@ import {
 	forwardRef,
 	HttpException,
 	HttpStatus, Inject,
-	Injectable, OnModuleInit, UnauthorizedException
+	Injectable, NotFoundException, OnModuleInit, UnauthorizedException
 } from '@nestjs/common';
 import { User } from "./user.interface";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
@@ -118,6 +118,20 @@ export class UserService implements OnModuleInit {
 		await this.gameService.initStats(user.login)
 		await this.changeOnlineInDB({login: user.login, online: true})
 		return await this.usersListRepository.findOneBy({login: user.login})
+	}
+
+	async checkUser(login: string) {
+		const user = this.getUser(login)
+		await this.itemService.checkItems()
+		let check = await this.itemService.getInventory(login)
+		if (!check)
+			await this.itemService.initInventory(login)
+		let check2 = await this.itemService.getEquipment(login)
+		if (!check2)
+			await this.itemService.initEquipment(login)
+		let check3 = await this.gameService.getStats(login)
+		if (!check3)
+			await this.gameService.initStats(login)
 	}
 
 	async getUUID(login: string) {
@@ -292,9 +306,10 @@ export class UserService implements OnModuleInit {
 
 	async getStatus(login: string) {
 		await this.verificationUser(login)
+		let isOnline: boolean = await this.isOnline(login)
+		let isInGame: boolean = await this.isInGame(login)
 		return {
-			isOnline: await this.isOnline(login),
-			isInGame: await this.isInGame(login)
+			status: isOnline ? (isInGame ? "in-game" : "online") : "offline"
 		}
 	}
 

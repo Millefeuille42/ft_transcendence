@@ -51,7 +51,7 @@ import {EventBus} from "@/main";
 					this.$data.blockedList = blockedList
 					this.$data.loaded = true
 				}).catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if ( e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
