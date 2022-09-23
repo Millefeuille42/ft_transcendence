@@ -6,7 +6,7 @@
 			<v-btn text color="red" @click="sure = true" > Yes </v-btn>
 			<v-btn text color="green" @click="handleNo" > No </v-btn>
 		</v-card-actions>
-		<v-dialog v-model="sure" width="20%" dark>
+		<v-dialog v-model="sure" width="100%" max-width="300px" dark>
 			<v-card>
 				<v-card-title> Are you really sure? </v-card-title>
 				<v-card-text> This will result in permanent deletion of your account </v-card-text>
@@ -14,7 +14,7 @@
 					<v-btn text color="green" @click="sureTwo = true" > Yes </v-btn>
 					<v-btn text color="red" @click="handleNo" > No </v-btn>
 				</v-card-actions>
-				<v-dialog v-model="sureTwo" width="20%" dark>
+				<v-dialog v-model="sureTwo" width="100%" max-width="300px" dark>
 					<v-card>
 						<v-card-title> Are you REALLY sure? </v-card-title>
 						<v-card-text> like, for real? </v-card-text>
@@ -22,7 +22,7 @@
 							<v-btn text color="red" @click="sureThree = true" > Yo </v-btn>
 							<v-btn text color="green" @click="handleNo" > Nes </v-btn>
 						</v-card-actions>
-						<v-dialog v-model="sureThree" width="20%" dark>
+						<v-dialog v-model="sureThree" max-width="300px" width="100%" dark>
 							<v-card>
 								<v-card-title> Fine... </v-card-title>
 								<v-card-text> Good luck with that </v-card-text>

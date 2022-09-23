@@ -1,9 +1,8 @@
 <template>
 	<v-sheet width="100%" height="100%">
-		<v-sheet width="100%" height="90%" class="d-flex justify-space-between" color="">
+		<v-sheet width="100%" height="90%" class="d-flex justify-space-around" color="">
 			<ProfileCustomizeInventorySheet v-if="!load" :login="user.login" category="ball" heightOfRow="25%"/>
 			<ProfileCustomizeInventorySheet v-if="!load" :login="user.login" category="rod" heightOfRow="35%"/>
-			<ProfileCustomizeInventorySheet v-if="!load" :login="user.login" category="sound" heightOfRow="25%"/>
 		</v-sheet>
 		<v-sheet width="100%" height="10%" class="mt-2 d-flex row justify-center">
 			<v-btn :loading="loadingButton" class="ml-2" @click="saveItem"> Save </v-btn>

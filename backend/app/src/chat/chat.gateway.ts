@@ -136,7 +136,8 @@ interface unmuteOrUnban {
 	@SubscribeMessage('join')
 	  async joinChannel(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 		try {
-			if (!data.channel || !data.password)
+			console.log(data)
+			if (!data.channel || (!data.password && data.password !== ""))
 				throw new BadRequestException("Bad request to join")
 			if (!this.sockUser[client.id])
 				throw new NotFoundException("Socket doesn't exist")
