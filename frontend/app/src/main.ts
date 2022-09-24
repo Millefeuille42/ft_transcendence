@@ -13,7 +13,7 @@ Vue.config.productionTip = false
 Vue.use(VueCookies)
 
 Vue.use(new VueSocketIO({
-  debug: true,
+  debug: false,
   connection: socketConnection,
 }))
 
