@@ -103,15 +103,13 @@ import {EventBus} from "@/main";
 
 		async loadFriendStatus(friend: string) {
 			let that = this
-			getFriendStatus(friend)
+			getFriendStatus(this.$props.user.login, friend)
 				.then (function (onlineData: string) {
 					let fFriend: userDataIn = that.$data.friends.find((f: userDataIn) => f.login === friend)
 					if (fFriend)
 						fFriend.status = onlineData
 				}).catch((e) => {
 					if ( e.response && e.response.status >= 401 && e.response.status <= 404) {
-						this.$cookies.remove("Session")
-						RedirectToFTAuth()
 						return
 					}
 					EventBus.$emit("down", "")
@@ -127,8 +125,6 @@ import {EventBus} from "@/main";
 					this.loadFriendStatus(friend)
 				}).catch((e) => {
 				if (e.response && e.response.status >= 401 && e.response.status <= 404) {
-					this.$cookies.remove("Session")
-					RedirectToFTAuth()
 					return
 				}
 					EventBus.$emit("down", "")
@@ -166,18 +162,9 @@ import {EventBus} from "@/main";
 		if (!this.$data.hasFriends)
 			return
 		for (let friend in friendList.listOfFriends) {
-			this.loadFriendData(friendList.listOfFriends[friend]).then()
+			if (friend !== undefined)
+				this.loadFriendData(friendList.listOfFriends[friend]).then()
 		}
-
-		EventBus.$on('updateFriendStatus', async () => {
-			let fl: friendListIn = await this.loadFriends()
-			this.$data.loaded = true
-			if (!this.$data.hasFriends)
-				return
-			for (let friend in fl.listOfFriends) {
-				this.loadFriendData(fl.listOfFriends[friend]).then()
-			}
-		})
 
 		EventBus.$on("unloadCard", () => {
 			this.$data.hasFriendSelected = false
