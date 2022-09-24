@@ -175,7 +175,9 @@ export class MultiGateway {
 				await this.gameService.addHistory(match.second.login, match.first.login,
 					match.ball.score.second, match.ball.score.first,
 					"normal")
-				this.matches.delete(data.id)
+				setTimeout(() => {
+					this.matches.delete(data.id)
+				}, 3000)
 			}
 			if (match.screen === "") {
 				match.ball.position.x += match.ball.direction.x * match.ball.speed.x
@@ -292,6 +294,8 @@ export class MultiGateway {
 
 			await this.userService.addInGame(match.first.login)
 			await this.userService.addInGame(match.second.login)
+			this.server.emit('userStatus')
+
 			match.first.socket.emit('multiStart', {oper: "start"})
 			match.second.socket.emit('multiStart', {oper: "start"})
 			match.started = true

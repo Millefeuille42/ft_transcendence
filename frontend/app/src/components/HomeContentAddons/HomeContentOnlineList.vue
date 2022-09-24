@@ -13,6 +13,8 @@
 					<v-list-item-avatar>
 						<v-img :src="online.info.avatar"/>
 					</v-list-item-avatar>
+					<v-badge bottom overlap dot offset-x="25" offset-y="20"
+							 :color="online.info.isInGame ? 'blue' : 'green'"></v-badge>
 					<v-list-item-content color="grey">
 						<v-list-item-title class="text-left">{{ online.info.username }}</v-list-item-title>
 					</v-list-item-content>

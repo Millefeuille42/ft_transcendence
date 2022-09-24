@@ -64,6 +64,7 @@ export interface onlineDataIn {
         username: string,
         banner: string,
         avatar: string,
+        isInGame: boolean,
         stats: statsIn,
     }
     friend: boolean,
