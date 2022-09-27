@@ -1,6 +1,6 @@
 import IScreen from "../../interfaces/IScreen";
 import P5 from "p5";
-import {getOnlineText} from "../../net";
+import net, {getOnlineText} from "../../net";
 import {createButton, createPrompt} from "../../elements";
 
 class Prompt implements IScreen {
@@ -26,10 +26,10 @@ class Prompt implements IScreen {
 			return true
 		}
 
-		p5.background("black")
+		p5.background(net.white ? "black" : "white")
 
-		p5.fill("white")
-		p5.stroke("black")
+		p5.fill(net.white ? "white" : "black")
+		p5.stroke(net.white ? "black" : "white")
 		p5.textSize(p5.width / 20)
 		p5.text(this.title, 0, p5.height / 5, p5.width)
 
@@ -51,10 +51,16 @@ class Prompt implements IScreen {
 		this.input = createPrompt(p5)
 
 		this.sendButton = createButton("SEND", p5)
-		this.sendButton.position(((p5.width / 12) * 7) - p5.width / 14, p5.height - p5.height / 2.5)
+		this.sendButton.position(((p5.windowWidth / 12) * 7) - p5.windowWidth / 14, p5.windowHeight - p5.windowHeight / 2.2)
+		this.sendButton.mousePressed(() => {
+			this.action(this.input.value())
+			this.sendButton.remove()
+			this.quitButton.remove()
+			this.input.remove()
+		})
 
 		this.quitButton = createButton("QUIT", p5)
-		this.quitButton.position(((p5.width / 12) * 5) - p5.width / 14, p5.height - p5.height / 2.5)
+		this.quitButton.position(((p5.windowWidth / 12) * 5) - p5.windowWidth / 14, p5.windowHeight - p5.windowHeight / 2.2)
 		this.quitButton.mousePressed(() => {this.stop = true})
 	}
 

@@ -51,7 +51,7 @@ import {EventBus} from "@/main";
 					this.$data.blockedList = blockedList
 					this.$data.loaded = true
 				}).catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if ( e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -64,11 +64,15 @@ import {EventBus} from "@/main";
 			removeBlock(this.$props.user.login, block)
 				.then(() => {
 					EventBus.$emit("updateOnlineList", "")
+					setTimeout(() => {
+						EventBus.$emit("chatBlocked")
+					}, 100)
 					this.showSnack(block + " unblocked", "green")
 					this.$data.loadingBlocking = false
 					this.loadBlockedList()
 				})
 				.catch(() => {
+					// TODO handle properly
 					this.showSnack("Error while unblocking " + block, "red")
 					this.$data.loadingBlocking = false
 				})

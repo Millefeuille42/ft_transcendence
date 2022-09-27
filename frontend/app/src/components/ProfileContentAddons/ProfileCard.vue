@@ -22,7 +22,6 @@
 						<v-list-item dark>
 							<v-list-item-content>
 								<v-list-item-title class="text-h6">{{ user.username }}</v-list-item-title>
-								<v-list-item-subtitle>{{ user.status }}</v-list-item-subtitle>
 								</v-list-item-content>
 							</v-list-item>
 					</v-col>
@@ -53,11 +52,12 @@ import {match, statsIn, userDataIn} from "@/queriesData";
 import ProfileCardStats from "@/components/ProfileContentAddons/ProfileCardAddon/ProfileCardStats.vue";
 import TransparentCard from "@/components/TransparentCard.vue";
 import {EventBus} from "@/main";
+import * as Console from "console";
 
 @Component({
 	components: {ProfileCardStats, TransparentCard},
 	props: {
-		user: Object as () => userDataIn,
+		user: Object,
 		height: String,
 		mWidth: String,
 		rounded: {
@@ -89,7 +89,7 @@ import {EventBus} from "@/main";
 					this.$data.loaded = true
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -108,7 +108,7 @@ import {EventBus} from "@/main";
 				this.$data.stats = stats
 			})
 			.catch((e) => {
-				if (e.response.status >= 401 && e.response.status <= 404) {
+				if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 					this.$cookies.remove("Session")
 					RedirectToFTAuth()
 					return

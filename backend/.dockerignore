@@ -1,5 +1,10 @@
 Dockerfile
 .dockerignore
 node_modules
-npm-debug.log
 dist
+app/node_modules
+app/dist
+npm-debug.log
+
+.env
+app/.env

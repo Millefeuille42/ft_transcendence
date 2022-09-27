@@ -7,7 +7,7 @@ import {
     formDataOut,
     onlineDataIn,
     blockedListIn,
-    match, sessionData, twoFAInit
+    match, sessionData, twoFAInit, getChannelResp, getDmResp, channelData, smolUserData
 } from "@/queriesData"
 
 export async function RedirectToFTAuth() {
@@ -31,13 +31,22 @@ export async function getAuthResponse(): Promise<sessionData> {
 
 export async function getUserData(login: string): Promise<userDataIn> {
     try {
-    const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
+        const response = await axios.get(process.env.VUE_APP_BACK_URL + "/user/" + login + "/profile", {
             withCredentials: true,
         })
-        console.log("yay")
         return response.data
     } catch (e) {
-        console.log("nay")
+        throw e
+    }
+}
+
+export async function getUserByUser(from: string, target: string): Promise<smolUserData> {
+    try {
+        const response = await axios.get(process.env.VUE_APP_BACK_URL + `/user/byuser/${target}/${from}`, {
+            withCredentials: true,
+        })
+        return response.data
+    } catch (e) {
         throw e
     }
 }
@@ -74,17 +83,14 @@ export async function getFriendsList(login: string): Promise<friendListIn> {
 }
 
 export async function getFriendStatus(login: string, friend: string): Promise<string> {
-    let target: string = process.env.VUE_APP_BACK_URL + "/friends/"
-    target += login + "/" + friend + "/online"
+    let target: string = process.env.VUE_APP_BACK_URL + "/user/" + friend + "/status"
     try {
         let response = await axios( {
             method: 'get',
             url: target,
             withCredentials: true,
         })
-        if (response.data === true)
-            return 'online'
-        return 'offline'
+        return response.data.status
     } catch (e) {
         throw e
     }
@@ -329,6 +335,97 @@ export async function disableTwoFaActivation(login: string, code: string) {
         withCredentials: true,
     }).then(() => {
         return
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getChannelsOfUser(login: string): Promise<getChannelResp> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/user/"
+    target += login
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getDMsOfUser(login: string): Promise<getDmResp> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/dm/"
+    target += login
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getDm(login: string, other: string): Promise<channelData> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/dm/users/"
+    target += (login + "/" + other)
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function getChannel(channel: string, dummy: string = ""): Promise<channelData> {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/"
+    target += channel
+    return await axios( {
+        method: 'get',
+        url: target,
+        withCredentials: true,
+    }).then((response) => {
+        return response.data
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function createChannel(name: string, owner: string, p: boolean, password: string | undefined) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel"
+
+    return await axios( {
+        method: 'post',
+        url: target,
+        data: {
+            name: name,
+            owner: owner,
+            public: p,
+			password: password
+        },
+        withCredentials: true,
+    }).catch((e) => {
+        throw e
+    })
+}
+
+export async function editPrivacy(channel: string, owner: string, p: boolean, password: string) {
+    let target: string = process.env.VUE_APP_BACK_URL + "/chat/channel/privacy/" + channel
+
+    return await axios( {
+        method: 'patch',
+        url: target,
+        data: {
+            login: owner,
+            public: p,
+            password: password
+        },
+        withCredentials: true,
     }).catch((e) => {
         throw e
     })

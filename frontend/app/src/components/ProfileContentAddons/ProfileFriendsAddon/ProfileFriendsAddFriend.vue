@@ -4,6 +4,7 @@
 			v-model=formFriend
 			label="Add a friend"
 			required
+			:counter=12
 		></v-text-field>
 		<v-btn  class="ml-8" @click="formCheck" :loading="addFriendLoading">submit</v-btn>
 		<v-snackbar v-model="snackAddFriendError" color="red" tile timeout="2000">
@@ -30,6 +31,13 @@ import {EventBus} from "@/main";
 	}),
 	methods: {
 		async formCheck() {
+			if (this.$data.formFriend.length <= 0 || this.$data.formFriend.length >= 12) {
+				this.$data.snackErrorText = "Invalid length"
+				this.$data.snackAddFriendError = true
+				this.$data.addFriendLoading = false
+				return
+			}
+
 			try {
 				this.$data.addFriendLoading = true
 				await addFriend(this.$props.user.login, this.$data.formFriend)
@@ -45,10 +53,12 @@ import {EventBus} from "@/main";
 					EventBus.$emit("down", "")
 				}
 			} catch (e: any) {
-				if (e.response.status === 404)
+				if ( e.response && e.response.status === 404)
 					this.$data.snackErrorText = "User not found"
-				else if (e.response.status === 400)
+				else if ( e.response && e.response.status === 400)
 					this.$data.snackErrorText = "This user is already your friend"
+				else if ( e.response && e.response.status === 403)
+					this.$data.snackErrorText = e.response.data.message
 				this.$data.snackAddFriendError = true
 				this.$data.addFriendLoading = false
 			}

@@ -43,25 +43,11 @@ export class UserController {
 		return ('pong')
 	}
 
-	@Delete(':login')
-	async deleteUser(@Param('login') login: string) {
-		return this.userService.deleteUser(login)
+	@Get('byuser/:usertoget/:login')
+	async getUserByUser(@Param('login') login: string,
+						@Param('usertoget') user: string) {
+		return this.userService.getUserByUser(login, user)
 	}
-
-	/**
-	 * @api {get} user/username/:username Get User if username exist
-	 * @apiName isUsernameExist
-	 * @apiGroup User
-	 *
-	 * @apiParam username Username that need a check
-	 *
-	 * @apiSuccess {Json} userExist Boolean set to false if username doesn't exist
-	 * @apiSuccess {Json} login if <code>userExist</code> is true, the login of the user
-	 */
-	//@Get('username/:username')
-	//isUsernameExist(@Param('username') username: string) {
-	//	return (this.userService.isUsernameExist(username))
-	//}
 
 	/**
 	 * @api {get} /user/:login/:resource Request information about a User
@@ -96,6 +82,10 @@ export class UserController {
 			return (await this.userService.getUsername(login));
 		if (resource === 'online')
 			return (await this.userService.isOnline(login));
+		if (resource === 'status')
+			return (await this.userService.getStatus(login))
+		if (resource === 'inGame')
+			return (await this.userService.isInGame(login))
 	}
 
 	/**
@@ -156,7 +146,6 @@ export class UserController {
 
 	@Get('twofa/status/:login')
 	async get2FAStatus(@Param('login') login: string) {
-		console.log("suce")
 		return this.userService.isTwoFA(login)
 	}
 

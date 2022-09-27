@@ -13,6 +13,8 @@
 					<v-list-item-avatar>
 						<v-img :src="online.info.avatar"/>
 					</v-list-item-avatar>
+					<v-badge bottom overlap dot offset-x="25" offset-y="20"
+							 :color="online.info.isInGame ? 'blue' : 'green'"></v-badge>
 					<v-list-item-content color="grey">
 						<v-list-item-title class="text-left">{{ online.info.username }}</v-list-item-title>
 					</v-list-item-content>
@@ -91,6 +93,9 @@ import {EventBus} from "@/main";
 						this.showSnack(block.info.login + " blocked", "green")
 						block.blockLoading = false
 					}, 100)
+					setTimeout(() => {
+						EventBus.$emit("chatBlocked")
+					}, 100)
 				})
 				.catch(() => {
 					this.showSnack("Failed to block " + block.info.login, "red")
@@ -107,12 +112,16 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch((e) => {
-					console.log("ici")
-					console.log(e)
+					if (e.response === undefined) {
+						return
+					}
 					if (e.response.status === 404)
 						this.showSnack(friend.info.login + " not found", "red")
 					else if (e.response.status === 400)
 						this.showSnack(friend.info.login + " is already your friend", "red")
+					else if (e.response) {
+						EventBus.$emit("chatSnack", e.response.data.message, "red")
+					}
 					friend.friendLoading = false
 				})
 		},
@@ -126,6 +135,7 @@ import {EventBus} from "@/main";
 					friend.friendLoading = false
 				})
 				.catch(() => {
+					// TODO manage error
 					this.showSnack("Failed to remove " + friend.info.login, "red")
 					friend.friendLoading = false
 				})

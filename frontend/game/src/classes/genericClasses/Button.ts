@@ -33,26 +33,26 @@ class Button {
 	drawBox(p5: P5) {
 		if (this.selected) {
 			p5.strokeWeight(0)
-			p5.fill("white")
+			p5.fill(net.white ? "white" : "black")
 		} else if (this.disabled) {
 			p5.strokeWeight(5)
-			p5.fill("black")
+			p5.fill(net.white ? "black" : "white")
 			p5.stroke("grey")
 		} else  {
 			p5.strokeWeight(5)
-			p5.fill("black")
-			p5.stroke("white")
+			p5.fill(net.white ? "black" : "white")
+			p5.stroke(net.white ? "white" : "black")
 		}
 		p5.rect(this.x, this.y, this.w, this.h)
 	}
 
 	drawText(p5: P5) {
 		if (this.selected)
-			p5.fill("black")
+			p5.fill(net.white ? "black" : "white")
 		else if (this.disabled)
 			p5.fill("grey")
 		else
-			p5.fill("white")
+			p5.fill(net.white ? "white" : "black")
 		p5.strokeWeight(0)
 		p5.textSize(p5.height / 35)
 		p5.text(this.text, this.x, this.text_y, this.w, this.h)

@@ -1,5 +1,5 @@
 <template>
-	<v-sheet width="30%" height="100%">
+	<v-sheet width="40%" height="100%">
 		<v-sheet color="grey darken-4" elevation="0" rounded="t-xl"
 				 width="100%" height="15%" class="d-flex align-center">
 			<v-container class="text-h6 text-truncate">
@@ -66,7 +66,7 @@ import {getInventoryByCategory, getEquippedByCategory, RedirectToFTAuth} from "@
 					that.sortItems()
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -82,7 +82,7 @@ import {getInventoryByCategory, getEquippedByCategory, RedirectToFTAuth} from "@
 					that.$data.currentItem = inv
 				})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return

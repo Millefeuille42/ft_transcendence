@@ -74,6 +74,7 @@ import {EventBus} from "@/main";
 		},
 		handleDisconnect() {
 			this.$cookies.remove("Session")
+			this.$socket.emit('disc')
 			window.location.hash = ""
 			window.location.href = "/"
 		},
@@ -86,7 +87,7 @@ import {EventBus} from "@/main";
 				this.$data.sure = false
 			})
 				.catch((e) => {
-					if (e.response.status >= 401 && e.response.status <= 404) {
+					if (e.response && e.response.status >= 401 && e.response.status <= 404) {
 						this.$cookies.remove("Session")
 						RedirectToFTAuth()
 						return
@@ -97,7 +98,6 @@ import {EventBus} from "@/main";
 		async get2FAStatus() {
 			getTwoFAStatus(this.$props.user.login)
 				.then((r: boolean) => {
-					console.log(r)
 					this.$props.user.fa = r
 					this.$data.faLoaded = true
 				})

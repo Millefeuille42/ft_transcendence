@@ -15,5 +15,6 @@ export interface UserGlobal {
 	username: string;
 	avatar: string;
 	banner: string;
+	isInGame: boolean;
 	stats: StatsEntity;
 }

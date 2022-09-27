@@ -79,6 +79,8 @@ import {match} from "@/queriesData";
 		for (let matchIndex in this.$props.stats.history) {
 			this.$props.stats.history[matchIndex].key = matchIndex
 		}
+		if (this.$data.hasHistory)
+			this.$props.stats.history.reverse()
 	}
 })
 export default class ProfileCardMatchHistoryDialog extends Vue {

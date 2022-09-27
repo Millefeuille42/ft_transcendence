@@ -102,7 +102,6 @@ export class GameService {
 		await this.verificationUsers(login, rival)
 		const user = await this.userService.getUser(login);
 		const stats = await this.statsRepository.findOneBy({id: user.id})
-		console.log(result)
 		if (result) {
 			stats.wins++
 			stats.points += 2

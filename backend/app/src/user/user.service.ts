@@ -4,7 +4,7 @@ import {
 	forwardRef,
 	HttpException,
 	HttpStatus, Inject,
-	Injectable, OnModuleInit, UnauthorizedException
+	Injectable, NotFoundException, OnModuleInit, UnauthorizedException
 } from '@nestjs/common';
 import { User } from "./user.interface";
 import {CreateUser, CreateUserDto} from "./create-user.dto";
@@ -39,17 +39,42 @@ export class UserService implements OnModuleInit {
 	connectSession = new Map<string, string>([]);
 	connectUUID = new Map<string, string>([])
 	onlinePeople: OnlineDto[] = []
+	inGame: string[] = []
 
 	async onModuleInit(): Promise<void> {
+		const allU = await this.usersListRepository.findBy({online: true})
+		for (const u of allU) {
+			await this.changeOnline(u.login, {online: false})
+		}
+
 		if (await this.userExist("tester")) {
 			let user = await this.getUser("tester")
-			await this.changeOnlineInDB({login: "tester", online: user.online})
+			await this.changeOnlineInDB({login: "tester", online: true})
 		}
 		if (await this.userExist("patate")) {
 			let user = await this.getUser("patate")
-			await this.changeOnlineInDB({login: "patate", online: user.online})
+			await this.changeOnlineInDB({login: "patate", online: true})
 		}
-		console.log('Patate and Tester are online (or not)')
+	}
+
+	async addInGame(login: string) {
+		if (!await this.isInGame(login))
+			this.inGame.push(login)
+	}
+
+	async removeInGame(login: string) {
+		if (await this.isInGame(login))
+			this.inGame = this.inGame.filter((u) => u !== login)
+	}
+
+	async listInGame() {
+		return this.inGame
+	}
+
+	async isInGame(login: string) {
+		if (this.inGame.find((u) => u === login))
+			return true
+		return false
 	}
 
 	async verificationUser(login: string) {
@@ -95,9 +120,18 @@ export class UserService implements OnModuleInit {
 		return await this.usersListRepository.findOneBy({login: user.login})
 	}
 
-	async deleteUser(login: string) {
-		const user = await this.getUser(login)
-		return await this.usersListRepository.delete(user.id)
+	async checkUser(login: string) {
+		const user = this.getUser(login)
+		await this.itemService.checkItems()
+		let check = await this.itemService.getInventory(login)
+		if (!check)
+			await this.itemService.initInventory(login)
+		let check2 = await this.itemService.getEquipment(login)
+		if (!check2)
+			await this.itemService.initEquipment(login)
+		let check3 = await this.gameService.getStats(login)
+		if (!check3)
+			await this.gameService.initStats(login)
 	}
 
 	async getUUID(login: string) {
@@ -117,13 +151,30 @@ export class UserService implements OnModuleInit {
 		const id: string = uuid()
 		this.connectSession.set(login, token);
 		this.connectUUID.set(login, id)
-		console.log("Login : " + login)
-		console.log("Token : " + this.connectSession.get(login))
-		console.log("uuid : " + this.connectUUID.get(login))
 	}
 
 	async getUser(login: string) {
 		return await this.verificationUser(login) ;
+	}
+
+	async getUserByUser(login: string, user: string) {
+		const u = await this.getUser(login)
+		const uToRet = await this.getUser(user)
+
+		return ({
+			avatar: uToRet.avatar,
+			username: uToRet.username,
+			isBlocked: await this.blockedService.isBlocked(u.login, uToRet.login),
+			isFriend: await this.friendService.isFriend(u.login, uToRet.login)
+		})
+	}
+
+	async getUserById(id: number) {
+		const user = await this.usersListRepository.findOneBy({id: id})
+
+		if (!user)
+			throw new BadRequestException("User doesn't exist")
+		return user
 	}
 
 	async userExist(login: string) {
@@ -202,6 +253,14 @@ export class UserService implements OnModuleInit {
 		const user = await this.getUser(login)
 		if (change.username.length > 12)
 			throw new BadRequestException()
+		for (let i = 0; i < change.username.length; i++) {
+			let code = change.username.charCodeAt(i);
+			if (!(code > 47 && code < 58) && // numeric (0-9)
+				!(code > 64 && code < 91) && // upper alpha (A-Z)
+				!(code > 96 && code < 123)) { // lower alpha (a-z)
+				throw new BadRequestException("Bad characters");
+			}
+		}
 		const loginOtherUser = await this.isUsernameExist(change.username)
 		if (loginOtherUser.userExist && user.username !== change.username) {
 			if (change.username === login) {
@@ -223,7 +282,7 @@ export class UserService implements OnModuleInit {
 		const user = this.onlinePeople.find(u => u.login === online.login)
 		if (user)
 			user.online = online.online
-		else
+		else if (online.online === true)
 			this.onlinePeople = [...this.onlinePeople, online];
 	}
 
@@ -237,7 +296,6 @@ export class UserService implements OnModuleInit {
 		await this.usersListRepository.save(changeUser);
 	}
 
-	//TODO Chercher dans la db
 	async isUsernameExist(username: string): Promise<{userExist: boolean, login?: string}> {
 		const user = await this.usersListRepository.findOneBy({username: username})
 		if (!user)
@@ -254,6 +312,15 @@ export class UserService implements OnModuleInit {
 		return false
 	}
 
+	async getStatus(login: string) {
+		await this.verificationUser(login)
+		let isOnline: boolean = await this.isOnline(login)
+		let isInGame: boolean = await this.isInGame(login)
+		return {
+			status: isOnline ? (isInGame ? "in-game" : "online") : "offline"
+		}
+	}
+
 	async listOfOnlinePeople(login: string) {
 		await this.verificationUser(login)
 		let users: {
@@ -265,7 +332,8 @@ export class UserService implements OnModuleInit {
 				const {username, avatar, login: ulogin, banner} = await this.getUser(u.login)
 				const friend = await this.friendService.isFriend(login, u.login)
 				const stats = await this.gameService.getStats(u.login)
-				users.push({info: {login: ulogin, username, avatar, banner, stats }, friend})
+				const isInGame = await this.isInGame(u.login)
+				users.push({info: {login: ulogin, username, avatar, banner, isInGame ,stats }, friend})
 			}
 		}
 		return (users);
@@ -275,7 +343,7 @@ export class UserService implements OnModuleInit {
 		await this.verificationUser(login)
 		await this.changeOnline(login, {online: false})
 		await this.deleteUuidSession(login)
-		await this.deleteToken(login) //TODO demander si faut vraiment le supp
+		await this.deleteToken(login)
 		return ("user disconnected")
 	}
 

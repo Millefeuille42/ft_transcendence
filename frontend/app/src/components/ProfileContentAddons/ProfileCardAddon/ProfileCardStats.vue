@@ -6,18 +6,12 @@
 			<v-col> {{"Win Rate: " + wr + "%"}} </v-col>
 		</v-sheet>
 		<v-row>
-			<v-sheet color="transparent" width="80%" class="ml-auto mr-auto">
-				<v-divider/>
-			</v-sheet>
 		</v-row>
 		<v-sheet color="transparent" width="80%" height="30%" class="d-flex flex-row justify-space-around ml-auto mr-auto">
 			<v-col> {{"Total games: " + stats.total}} </v-col>
 			<v-col> {{"Gacha Points: " + stats.points}} </v-col>
 		</v-sheet>
 		<v-row>
-			<v-sheet color="transparent" width="80%" class="ml-auto mr-auto">
-				<v-divider/>
-			</v-sheet>
 		</v-row>
 		<v-sheet color="transparent" width="80%" height="30%" class="d-flex flex-row justify-space-around ml-auto mr-auto">
 			<v-sheet color="transparent" class=""> {{"Last rival: " + stats.lastRival}} </v-sheet>
@@ -58,7 +52,7 @@ import ProfileCardMatchHistoryDialog
 			return
 		}
 		this.$data.wr = this.$props.stats.wins / this.$props.stats.total
-		this.$data.wr = this.$data.wr.toFixed(4) * 100
+		this.$data.wr = this.$data.wr.toFixed(3) * 100
 	}
 })
 export default class ProfileCardStats extends Vue {
