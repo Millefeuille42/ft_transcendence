@@ -1,0 +1,12 @@
+Dockerfile
+.dockerignore
+node_modules
+dist
+.env
+game/.env
+app/.env
+app/node_modules
+app/dist
+game/node_modules
+game/dist
+npm-debug.log
